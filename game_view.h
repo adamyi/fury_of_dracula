@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 // COMP2521 19t0 ... the Fury of Dracula
-// GameView.h: the Game View ADT
+// game_view.h: the Game View ADT
 //
 // 2014-07-01	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2017-11-30	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
@@ -16,114 +16,110 @@
 
 typedef struct game_view *GameView;
 
-// newGameView() creates a new game view to summarise the current state of
-// the game.
-//
-// pastPlays is a string of all the plays made in the game so far by all
-// players (including Dracula) from earliest to most recent.
-//
-// messages is an array containing a playerMessage for each play in the game
-// so far. It will have exactly the same number of elements as there are plays
-// in pastPlays. The message from the first play will be at index 0, and so on.
-// The contents of each playerMessage will be exactly as provided by the player.
-//
-// The "PlayerMessage" type is defined in game.h.
-// You are free to ignore messages if you wish.
+/**
+ * Creates a new view to summarise the current state of the game.
+ *
+ * @param past_plays is a string of all plays made in the game so far by
+ *    all players (including Dracula) from earliest to most recent.
+ *
+ * @param messages is an array containing a `player_message` for each
+ *    play in the game so far.  It will have exactly the same number of
+ *    elements as there are plays in `past_plays`.  The message from the
+ *    first play will be at index 0, and so on.  The contents of each
+ *    `player_message` will be exactly as provided by the player.
+ *
+ * The "player_message" type is defined in game.h.
+ * You are free to ignore messages if you wish.
+ */
+GameView gv_new (char *past_plays, player_message messages[]);
 
-GameView newGameView (char *pastPlays, player_message messages[]);
+/**
+ * Frees all resources allocated for `gv`.
+ * After this has been called, `gv` should not be accessed.
+ */
+void gv_drop (GameView gv);
 
+/**
+ * Get the current round
+ */
+round_t gv_get_round (GameView gv);
 
-// disposeGameView() frees all memory previously allocated for the GameView
-// toBeDeleted. toBeDeleted should not be accessed after the call.
+/**
+ * Get the current player; effectively, whose turn is it?
+ */
+enum player gv_get_player (GameView gv);
 
-void disposeGameView (GameView toBeDeleted);
+/**
+ * Get the current score, a positive integer between 0 and 366.
+ */
+int gv_get_score (GameView gv);
 
+/**
+ * Get the current health points for a given player.
+ * @param player specifies which players's life/blood points to return;
+ * @returns a value between 0..9 for Hunters, or >0 for Dracula
+ */
+int gv_get_health (GameView gv, enum player player);
 
-// Functions to return simple information about the current state of the game
+/**
+ * Get the current location of a given player.
+ *
+ * May be `UNKNOWN_LOCATION` if the player has not had a turn yet
+ * (i.e., at the beginning of the game when the round is 0)
+ *
+ * Possible values include:
+ * - in the interval 0..70, if the player was (known to be) in a
+ *   particular city or on a particular sea;
+ * - `CITY_UNKNOWN`, if Dracula was known to be in a city;
+ * - `SEA_UNKNOWN`, if Dracula was known to be at sea;
+ * - `HIDE`, if Dracula was known to have made a hide move;
+ * - `DOUBLE_BACK_n`, where n is [1...5], if Dracula was known to have
+ *   made a double back move _n_ positions back in the trail; e.g.,
+ *   `DOUBLE_BACK_1` is the last place place he visited; or
+ * - `TELEPORT`, if Dracula apparated back to Castle Dracula.
+ */
+location_t gv_get_location (GameView gv, enum player player);
 
-/** Get the current round */
-round_t getRound (GameView gv);
+/**
+ * Fills the trail array with the locations of the last 6 turns for the
+ * given player.
+ *
+ * If the move does not exist yet (i.e., the start of the game),
+ * the value should be UNKNOWN_LOCATION (-1).
+ *
+ * For example after 2 turns the array may have the contents
+ *
+ *     {29, 12, -1, -1, -1, -1}
+ *
+ * This would mean in the first move the player started on location 12
+ * then moved to the current location of 29.
+ */
+void gv_get_history (
+	GameView gv, enum player player, location_t trail[TRAIL_SIZE]);
 
-// Get the id of current player - ie whose turn is it?
-// Only returns a 'playerID' which is one of:
-//   LORD_GODALMING (0): Lord Godalming's turn
-//   DR_SEWARD      (1): Dr. Seward's turn
-//   VAN_HELSING    (2): Van Helsing's turn
-//   MINA_HARKER    (3): Mina Harker's turn
-//   DRACULA        (4): Dracula's turn
-
-enum player getCurrentPlayer (GameView gv);
-
-/** Get the current score
- * Returns a positive integer [0...366] */
-int getScore (GameView gv);
-
-// Get the current health points for a given player
-// 'player' specifies which players's life/blood points to return
-//    and must be a value in the interval [0...9] for Hunters, or >0 for Dracula
-
-int getHealth (GameView gv, enum player player);
-
-// Get the current location id of a given player
-// May be UNKNOWN_LOCATION if the player has not had a turn yet
-// (ie at the beginning of the game when the round is 0)
-// Otherwise for a hunter it should be an integer in the interval [0..70]
-// For dracula it should return his location at the start of the current round
-// Possible values for this:
-//   in the interval [0...70] if Dracula was known to be in a city or sea
-//   CITY_UNKNOWN     if Dracula was in an unknown city
-//   SEA_UNKNOWN      if Dracula was in an unknown sea
-//   HIDE             if Dracula was known to have made a hide move
-//   DOUBLE_BACK_N    where N is [0...5], if Dracula was known to have
-//                    made a double back move N positions back in the trail
-//                    e.g. DOUBLE_BACK_1 is the last place place he visited
-//   TELEPORT         if Dracula apparated back to Castle Dracula
-//   LOCATION_UNKNOWN if the round number is 0
-
-enum location_id getLocation (GameView gv, enum player player);
-
-
-//// Functions that return information about the history of the game
-
-// Fills the trail array with the location ids of the last 6 turns
-// for the given player
-// For Dracula this may include integers:
-//   in the interval [0...70] if Dracula was known to be in a city or sea
-//   CITY_UNKNOWN     if Dracula was in an unknown city
-//   SEA_UNKNOWN      if Dracula was in an unknown sea
-//   HIDE             if Dracula was known to have made a hide move
-//   DOUBLE_BACK_N    where N is [0...5], if Dracula was known to have
-//                    made a double back move N positions back in the trail
-//                    e.g. DOUBLE_BACK_1 is the last place place he visited
-//   TELEPORT         if Dracula apparated back to Castle Dracula
-//
-// For any player if the move does not exist yet (i.e, the start of the game),
-//   the value should be UNKNOWN_LOCATION (-1)
-// For example after 2 turns the array may have the contents
-//   {29, 12, -1, -1, -1, -1}
-// This would mean in the first move the player started on location 12
-//   then moved to the current location of 29
-
-void getHistory (
-	GameView gv, enum player player, enum location_id trail[TRAIL_SIZE]);
-
-
-//// Functions that query the map to find information about connectivity
-
-// connectedLocations() returns an array of enum location_id that represent
-//   all locations that are connected to the given enum location_id.
-// road, rail and sea are connections should only be considered
-//   if the road, rail, sea parameters are TRUE.
-// The size of the array is stored in the variable pointed to by nLocations
-// The array can be in any order but must contain unique entries
-// Your function must take into account the round and player id for rail travel
-// Your function must take into account that Dracula can't move to
-//   the hospital or travel by rail but need not take into account Dracula's trail
-// The destination 'from' should be included in the array
-
-enum location_id *connectedLocations (
-	GameView gv, int *nLocations,
-	enum location_id from,
+/**
+ * Return an array of `location_t`s giving all of the locations that the
+ * given `player` could reach from their current location, assuming it's
+ * currently `round`.
+ *
+ * The array can be in any order but must contain unique entries.
+ * The array size is stored at the variable referenced by `n_locations`.
+ * The player's current location should be included in the array.
+ *
+ * `road`, `rail`, and `sea` connections should only be considered
+ * if the `road`, `rail`, `sea` parameters are true, respectively.
+ *
+ * The function must take into account the current round and player for
+ * determining how far `player` can travel by rail.
+ *
+ * When `player` is `PLAYER_DRACULA`, the function must take into
+ * account (many of) the rules around Dracula's movements, such as that
+ * Dracula may not go to the hospital, and may not travel by rail.
+ * It need not take into account the trail restriction.
+ */
+location_t *gv_get_connections (
+	GameView gv, size_t *nLocations,
+	location_t from,
 	enum player player, round_t round,
 	bool road, bool rail, bool sea);
 

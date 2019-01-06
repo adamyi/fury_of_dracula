@@ -18,100 +18,84 @@
 // #include "map.h" ... if you decide to use the Map ADT
 
 typedef struct dracula_view {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 } dracula_view;
 
-// Creates a new DraculaView to summarise the current state of the game
-dracula_view *newDraculaView (char *past_plays, player_message messages[])
+dracula_view *dv_new (char *past_plays, player_message messages[])
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	dracula_view *new = malloc (sizeof *new);
 	if (new == NULL) err (EX_OSERR, "couldn't allocate DraculaView");
 
 	return new;
 }
 
-// Frees all memory previously allocated for the DraculaView toBeDeleted
-void disposeDraculaView (dracula_view *toBeDeleted)
+void dv_drop (dracula_view *dv)
 {
-	// COMPLETE THIS IMPLEMENTATION
-	free (toBeDeleted);
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	free (dv);
 }
 
-//// Functions to return simple information about the current state of the game
-
-// Get the current round
-round_t giveMeTheRound (dracula_view *dv)
+round_t dv_get_round (dracula_view *dv)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current score
-int giveMeTheScore (dracula_view *dv)
+int dv_get_score (dracula_view *dv)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current health points for a given player
-int howHealthyIs (dracula_view *dv, enum player player)
+int dv_get_health (dracula_view *dv, enum player player)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current location id of a given player
-enum location_id whereIs (dracula_view *dv, enum player player)
+location_t dv_get_location (dracula_view *dv, enum player player)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the most recent move of a given player
-void lastMove (
+void dv_get_player_move (
 	dracula_view *dv, enum player player,
-	enum location_id *start, enum location_id *end)
+	location_t *start, location_t *end)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return;
 }
 
-// Find out what minions are placed at the specified location
-void whatsThere (
-	dracula_view *dv, enum location_id where,
-	int *numTraps, int *numVamps)
+void dv_get_locale_info (
+	dracula_view *dv, location_t where,
+	int *n_traps, int *n_vamps)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return;
 }
 
-//// Functions that return information about the history of the game
-
-// Fills the trail array with the location ids of the last 6 turns
-void giveMeTheTrail (
+void dv_get_trail (
 	dracula_view *dv, enum player player,
-	enum location_id trail[TRAIL_SIZE])
+	location_t trail[TRAIL_SIZE])
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 }
 
-//// Functions that query the map to find information about connectivity
-
-// What are my (Dracula's) possible next moves (locations)
-enum location_id *whereCanIgo (
-	dracula_view *dv, int *numLocations, bool road, bool sea)
+location_t *dv_get_dests (
+	dracula_view *dv, size_t *n_locations, bool road, bool sea)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	*n_locations = 0;
 	return NULL;
 }
 
-// What are the specified player's next possible moves
-enum location_id *whereCanTheyGo (
-	dracula_view *dv, int *numLocations, enum player player,
+location_t *dv_get_dests_player (
+	dracula_view *dv, size_t *n_locations, enum player player,
 	bool road, bool rail, bool sea)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numLocations = 0;
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	*n_locations = 0;
 	return NULL;
 }

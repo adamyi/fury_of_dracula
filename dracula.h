@@ -12,6 +12,10 @@
 
 #include "dracula_view.h"
 
-void ai_dracula (DraculaView state);
+/**
+ * For a given view of the game, decide what the best next move is for
+ * Dracula by calling `register_best_play`.
+ */
+void decide_dracula_move (DraculaView state);
 
 #endif // !defined(FOD__DRACULA_H_)

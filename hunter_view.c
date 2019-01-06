@@ -18,91 +18,75 @@
 // #include "map.h" ... if you decide to use the Map ADT
 
 typedef struct hunter_view {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 } hunter_view;
 
-// Creates a new HunterView to summarise the current state of the game
-hunter_view *newHunterView (char *pastPlays, player_message messages[])
+hunter_view *hv_new (char *past_plays, player_message messages[])
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	hunter_view *new = malloc (sizeof *new);
 	if (new == NULL) err (EX_OSERR, "couldn't allocate HunterView");
 
 	return new;
 }
 
-// Frees all memory previously allocated for the HunterView toBeDeleted
-void disposeHunterView (hunter_view *hv)
+void hv_drop (hunter_view *hv)
 {
-	// COMPLETE THIS IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	free (hv);
 }
 
-//// Functions to return simple information about the current state of the game
-
-// Get the current round
-round_t giveMeTheRound (hunter_view *hv)
+round_t hv_get_round (hunter_view *hv)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the id of current player
-enum player whoAmI (hunter_view *hv)
+enum player hv_get_player (hunter_view *hv)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current score
-int giveMeTheScore (hunter_view *hv)
+int hv_get_score (hunter_view *hv)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current health points for a given player
-int howHealthyIs (hunter_view *hv, enum player player)
+int hv_get_health (hunter_view *hv, enum player player)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-// Get the current location id of a given player
-enum location_id whereIs (hunter_view *hv, enum player player)
+location_t hv_get_location (hunter_view *hv, enum player player)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	return 0;
 }
 
-//// Functions that return information about the history of the game
-
-// Fills the trail array with the location ids of the last 6 turns
-void giveMeTheTrail (
+void hv_get_trail (
 	hunter_view *hv, enum player player,
-	enum location_id trail[TRAIL_SIZE])
+	location_t trail[TRAIL_SIZE])
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 }
 
-//// Functions that query the map to find information about connectivity
-
-// What are my possible next moves (locations)
-enum location_id *whereCanIgo (
-	hunter_view *hv, int *numLocations,
+location_t *hv_get_dests (
+	hunter_view *hv, size_t *n_locations,
 	bool road, bool rail, bool sea)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numLocations = 0;
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	*n_locations = 0;
 	return NULL;
 }
 
-// What are the specified player's next possible moves
-enum location_id *whereCanTheyGo (
-	hunter_view *hv, int *numLocations, enum player player,
+location_t *hv_get_dests_player (
+	hunter_view *hv, size_t *n_locations, enum player player,
 	bool road, bool rail, bool sea)
 {
-	// REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numLocations = 0;
+	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	*n_locations = 0;
 	return NULL;
 }

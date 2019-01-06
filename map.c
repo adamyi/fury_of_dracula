@@ -16,51 +16,50 @@
 #include "map.h"
 #include "places.h"
 
-typedef struct vNode *VList;
-struct vNode {
-	enum location_id  v;    // ALICANTE, etc
-	enum transport_type type; // ROAD, RAIL, BOAT
-	VList       next; // link to next node
-};
+typedef struct map_adj map_adj;
+typedef struct map {
+	size_t n_vertices, n_edges;
 
-struct map {
-	int nV; // #vertices
-	int nE; // #edges
-	VList connections[NUM_MAP_LOCATIONS]; // array of lists
-};
+	struct map_adj {
+		location_t v;  // ALICANTE, etc
+		transport_t type; // ROAD, RAIL, BOAT
+		struct map_adj *next; // link to next node
+	} *connections[NUM_MAP_LOCATIONS]; // array of lists
+} map;
 
-static void addConnections (Map m);
+static void add_connections (map *);
+static void add_connection (map *, location_t, location_t, transport_t);
 static inline bool is_sentinel_edge (connection);
+
+static map_adj *adjlist_insert (map_adj *, location_t, transport_t);
+static bool adjlist_contains (map_adj *, location_t, transport_t);
 
 // Create a new empty graph (for a map)
 // #Vertices always same as NUM_PLACES
-Map
-newMap (void)
+map *map_new (void)
 {
-	Map g = malloc (sizeof *g);
+	map *g = malloc (sizeof *g);
 	if (g == NULL) err (EX_OSERR, "couldn't allocate Map");
 
-	(*g) = (struct map){
-		.nV = NUM_MAP_LOCATIONS,
-		.nE = 0,
+	(*g) = (map) {
+		.n_vertices = NUM_MAP_LOCATIONS,
+		.n_edges = 0,
 		.connections = { NULL }
 	};
 
-	addConnections (g);
+	add_connections (g);
 	return g;
 }
 
 // Remove an existing graph
-void
-disposeMap (Map g)
+void map_drop (map *g)
 {
-	// wait, what?
-	if (g == NULL) return;
+	assert (g != NULL);
 
-	for (int i = 0; i < g->nV; i++) {
-		VList curr = g->connections[i];
+	for (size_t i = 0; i < g->n_vertices; i++) {
+		map_adj *curr = g->connections[i];
 		while (curr != NULL) {
-			VList next = curr->next;
+			map_adj *next = curr->next;
 			free (curr);
 			curr = next;
 		}
@@ -68,101 +67,108 @@ disposeMap (Map g)
 	free (g);
 }
 
-static VList
-insertVList (VList L, enum location_id v, enum transport_type type)
-{
-	VList new = malloc (sizeof(struct vNode));
-	if (new == NULL) err (EX_OSERR, "couldn't allocate vNode");
-
-	(*new) = (struct vNode){
-		.v = v,
-		.type = type,
-		.next = L
-	};
-	return new;
-}
-
-static int
-inVList (VList L, enum location_id v, enum transport_type type)
-{
-	for (VList cur = L; cur != NULL; cur = cur->next)
-		if (cur->v == v && cur->type == type)
-			return 1;
-
-	return 0;
-}
-
-// Add a new edge to the Map/Graph
-static void
-addLink (Map g, enum location_id start, enum location_id end, enum transport_type type)
-{
-	assert (g != NULL);
-
-// don't add edges twice
-	if (inVList (g->connections[start], end, type)) return;
-
-	g->connections[start] = insertVList(g->connections[start],end,type);
-	g->connections[end] = insertVList(g->connections[end],start,type);
-	g->nE++;
-}
-
-static const char *
-typeToString (enum transport_type t)
-{
-	switch (t) {
-	case ROAD: return "road";
-	case RAIL: return "rail";
-	case BOAT: return "boat";
-	default:   return "????";
-	}
-}
-
 // Display content of Map/Graph
-void
-showMap (Map g)
+void map_show (map *g)
 {
 	assert (g != NULL);
 
-	printf ("V=%d, E=%d\n", g->nV, g->nE);
-	for (int i = 0; i < g->nV; i++)
-		for (VList n = g->connections[i]; n != NULL; n = n->next)
-			printf ("%s connects to %s by %s\n",
-					idToName (i), idToName (n->v), typeToString (n->type));
+	printf ("V=%zu, E=%zu\n", g->n_vertices, g->n_edges);
+	for (size_t i = 0; i < g->n_vertices; i++)
+		for (map_adj *curr = g->connections[i];
+			 curr != NULL; curr = curr->next)
+			printf (
+				"%s connects to %s by %s\n",
+				location_get_name ((location_t) i),
+				location_get_name (curr->v),
+				transport_to_s (curr->type)
+			);
 }
 
 // Return count of nodes
-int
-numV (Map g)
+size_t map_nv (map *g)
 {
 	assert (g != NULL);
-	return g->nV;
+	return g->n_vertices;
 }
 
 // Return count of edges of a particular type
-int
-numE (Map g, enum transport_type type)
+size_t map_ne (map *g, transport_t type)
 {
 	assert (g != NULL);
-	assert (0 <= type && type <= ANY);
+	assert (valid_transport_p (type) || type == ANY);
 
-	int nE = 0;
-	for (int i = 0; i < g->nV; i++)
-		for (VList n = g->connections[i]; n != NULL; n = n->next)
-			if (n->type == type || type == ANY)
-				nE++;
+	size_t n_edges = 0;
 
-	return nE;
+	for (size_t i = 0; i < g->n_vertices; i++)
+		for (map_adj *curr = g->connections[i];
+			 curr != NULL; curr = curr->next)
+			if (curr->type == type || type == ANY)
+				n_edges++;
+
+	return n_edges;
 }
 
-// Add edges to Graph representing map of Europe
-static void
-addConnections (Map g)
+/// Add edges to Graph representing map of Europe
+static void add_connections (map *g)
 {
-	for (int i = 0; ! is_sentinel_edge (CONNECTIONS[i]); i++)
-		addLink (g, CONNECTIONS[i].v, CONNECTIONS[i].w, CONNECTIONS[i].t);
+	assert (g != NULL);
+
+	for (size_t i = 0; ! is_sentinel_edge (CONNECTIONS[i]); i++)
+		add_connection (
+			g,
+			CONNECTIONS[i].v, CONNECTIONS[i].w,
+			CONNECTIONS[i].t
+		);
 }
 
+
+/// Add a new edge to the Map/Graph
+static void add_connection (
+	map *g,
+	location_t start,
+	location_t end,
+	transport_t type)
+{
+	assert (g != NULL);
+	assert (start != end);
+	assert (valid_location_p (start));
+	assert (valid_location_p (end));
+	assert (valid_transport_p (type));
+
+	// don't add edges twice
+	if (adjlist_contains (g->connections[start], end, type)) return;
+
+	g->connections[start] = adjlist_insert (g->connections[start], end, type);
+	g->connections[end]   = adjlist_insert (g->connections[end], start, type);
+	g->n_edges++;
+}
+
+/// Is this the magic 'sentinel' edge?
 static inline bool is_sentinel_edge (connection x)
 {
 	return x.v == -1 && x.w == -1 && x.t == ANY;
+}
+
+/// Insert a node into an adjacency list.
+static map_adj *adjlist_insert (map_adj *list, location_t v, transport_t type)
+{
+	assert (valid_location_p (v));
+	assert (valid_transport_p (type));
+
+	map_adj *new = malloc (sizeof *new);
+	if (new == NULL) err (EX_OSERR, "couldn't allocate map_adj");
+	(*new) = (map_adj){ .v = v, .type = type, .next = list };
+	return new;
+}
+
+/// Does this adjacency list contain a particular value?
+static bool adjlist_contains (map_adj *list, location_t v, transport_t type)
+{
+	assert (valid_location_p (v));
+	assert (valid_transport_p (type));
+
+	for (map_adj *curr = list; curr != NULL; curr = curr->next)
+		if (curr->v == v && curr->type == type)
+			return true;
+	return false;
 }

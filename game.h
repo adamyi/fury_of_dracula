@@ -13,17 +13,17 @@
 
 /** Players */
 enum player {
-	PLAYER_LORD_GODALMING,
-	PLAYER_DR_SEWARD,
-	PLAYER_VAN_HELSING,
-	PLAYER_MINA_HARKER,
-	PLAYER_DRACULA
+	PLAYER_LORD_GODALMING,	/**< Lord Godalming, hunter */
+	PLAYER_DR_SEWARD,		/**< Dr Seward, hunter */
+	PLAYER_VAN_HELSING,		/**< Van Helsing, hunter */
+	PLAYER_MINA_HARKER,		/**< Mina Harker, hunter */
+	PLAYER_DRACULA			/**< Dracula, the vampire */
 };
 enum { NUM_PLAYERS = 5 };
 
 /** Game scoring.
  * Dracula wants the game score to be low.
- * hunters want the game score to be high. */
+ * Hunters want the game score to be high. */
 enum {
 	/** The initial game score. */
 	GAME_START_SCORE			= 366,
@@ -79,6 +79,6 @@ typedef int round_t;
  * The array `message` will be stored in the game history;
  * it must be a well-formed string.
  */
-void registerBestPlay (char *play, player_message message);
+void register_best_play (char *play, player_message message);
 
 #endif // !defined(FOD__GAME_H_)

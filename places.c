@@ -12,10 +12,12 @@
 
 #include "places.h"
 
-// Places should appear in alphabetic order
-// Each entry should satisfy (places[i].id == i)
-// First real place must be at index MIN_MAP_LOCATION
-// Last real place must be at index MAX_MAP_LOCATION
+/**
+ * Places should appear in alphabetic order.
+ * Each entry should satisfy `(places[i].id == i)`.
+ * First real place must be at index `MIN_MAP_LOCATION`.
+ * Last real place must be at index `MAX_MAP_LOCATION`.
+ */
 place PLACES[] =
 {
 	{"Adriatic Sea", "AS", ADRIATIC_SEA, SEA},
@@ -91,6 +93,11 @@ place PLACES[] =
 	{"Zurich", "ZU", ZURICH, LAND},
 };
 
+/**
+ * Connections have no particular order required.
+ * For convenience, they're grouped into road, rail, and boat
+ * connections, and sorted alphabetically within those groups.
+ */
 connection CONNECTIONS[] = {
 	//### ROAD Connections ###
 	{ALICANTE, GRANADA, ROAD},
@@ -300,11 +307,61 @@ connection CONNECTIONS[] = {
 	{-1, -1, ANY}
 };
 
+////////////////////////////////////////////////////////////////////////
 
-// given a Place number, return its name
-char *idToName (enum location_id p)
+location_t location_find_by_name (char *name)
 {
-	if (validPlace (p))
+	// binary search
+	location_t lo = MIN_MAP_LOCATION, hi = MAX_MAP_LOCATION;
+	while (lo <= hi) {
+		location_t mid = (hi + lo) / 2;
+		int ord = strcmp (name, PLACES[mid].name);
+		if (ord == 0) return PLACES[mid].id;
+		if (ord <  0) hi = mid - 1;
+		if (ord  > 0) lo = mid + 1;
+	}
+
+	return NOWHERE;
+}
+
+location_t location_find_by_abbrev (char *abbrev)
+{
+	// an attempt to optimise a linear search
+	struct place *first = &PLACES[MIN_MAP_LOCATION];
+	struct place *last = &PLACES[MAX_MAP_LOCATION];
+
+	for (struct place *p = first; p <= last; p++)
+		if (
+			p->abbrev[0] == abbrev[0] &&
+			p->abbrev[1] == abbrev[1] &&
+			p->abbrev[2] == '\0'
+		)
+			return p->id;
+
+	return NOWHERE;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+place_type_t location_get_type (location_t p)
+{
+	assert (valid_location_p (p));
+	return PLACES[p].type;
+}
+
+// Clang warns us about the `switch' statements, some of which don't
+// handle some cases, or which overspecify cases.  We intentionally
+// suppress those warnings in this section.
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wswitch"
+# pragma clang diagnostic ignored "-Wswitch-enum"
+# pragma clang diagnostic ignored "-Wcovered-switch-default"
+#endif
+
+const char *location_get_name (location_t p)
+{
+	if (valid_location_p (p))
 		return PLACES[p].name;
 
 	switch (p) {
@@ -323,10 +380,9 @@ char *idToName (enum location_id p)
 	__builtin_unreachable ();
 }
 
-// given a Place number, return its two-char code
-char *idToAbbrev (enum location_id p)
+const char *location_get_abbrev (location_t p)
 {
-	if (validPlace (p))
+	if (valid_location_p (p))
 		return PLACES[p].abbrev;
 
 	switch (p) {
@@ -345,43 +401,18 @@ char *idToAbbrev (enum location_id p)
 	__builtin_unreachable ();
 }
 
-// given a Place number, return its type
-enum place_type idToType (enum location_id p)
+const char *transport_to_s (transport_t t)
 {
-	assert (validPlace (p));
-	return PLACES[p].type;
-}
-
-// given a Place name, return its ID number
-// binary search
-enum location_id nameToID (char *name)
-{
-	int lo = MIN_MAP_LOCATION, hi = MAX_MAP_LOCATION;
-	while (lo <= hi) {
-		int mid = (hi + lo) / 2;
-		int ord = strcmp (name, PLACES[mid].name);
-		if (ord == 0) return PLACES[mid].id;
-		if (ord <  0) hi = mid - 1;
-		if (ord  > 0) lo = mid + 1;
+	switch (t) {
+	case ROAD: return "road";
+	case RAIL: return "rail";
+	case BOAT: return "boat";
+	case NONE:
+	case ANY:
+	default:   return "????";
 	}
-
-	return NOWHERE;
 }
 
-// given a Place abbreviation (2 char), return its ID number
-enum location_id abbrevToID (char *abbrev)
-{
-	// an attempt to optimise a linear search
-	struct place *first = &PLACES[MIN_MAP_LOCATION];
-	struct place *last = &PLACES[MAX_MAP_LOCATION];
-
-	for (struct place *p = first; p <= last; p++)
-		if (
-			p->abbrev[0] == abbrev[0] &&
-			p->abbrev[1] == abbrev[1] &&
-			p->abbrev[2] == '\0'
-		)
-			return p->id;
-
-	return NOWHERE;
-}
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif

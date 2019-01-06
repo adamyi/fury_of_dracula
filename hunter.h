@@ -12,6 +12,10 @@
 
 #include "hunter_view.h"
 
-void ai_hunter (HunterView state);
+/**
+ * For a given view of the game, decide what the best next move is for
+ * the current hunter by calling `register_best_play`.
+ */
+void decide_hunter_move (HunterView state);
 
 #endif // !defined(FOD__HUNTER_H_)
