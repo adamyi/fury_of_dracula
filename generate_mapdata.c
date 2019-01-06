@@ -41,14 +41,14 @@ static inline void print_header_comments(FILE *fp) {
           "// auto-generated map\n\n");
 }
 
-static inline void print_map_h(FILE *fp, int mcount) {
+static inline void print_mapdata_h(FILE *fp, int mcount) {
   fprintf(fp,
           "#include <stdbool.h>\n"
           "#include <stdlib.h>\n"
           "#include \"places.h\"\n"
           "\n"
-          "#ifndef MFOD__MAP_H_\n"
-          "#define MFOD__MAP_H_\n"
+          "#ifndef FOD__MAPDATA_H_\n"
+          "#define FOD__MAPDATA_H_\n"
           "\n"
           "#define MAX_CONNECTION_PER_PLACE %d"
           "\n"
@@ -61,7 +61,7 @@ static inline void print_map_h(FILE *fp, int mcount) {
           "  transport_t type;\n"
           "} ADJLIST[][MAX_CONNECTION_PER_PLACE];\n"
           "\n"
-          "#endif  // !defined (MFOD__PLACES_H_)\n",
+          "#endif  // !defined (FOD__MAPDATA_H_)\n",
           mcount);
 }
 
@@ -70,7 +70,7 @@ struct adj_connection {
   transport_t type;
 };
 
-static inline void print_map_c(FILE *fp, int mcount,
+static inline void print_mapdata_c(FILE *fp, int mcount,
                                int mat[][NUM_MAP_LOCATIONS], int *count,
                                struct adj_connection adjc[][mcount]) {
   fprintf(fp,
@@ -159,13 +159,13 @@ int main() {
     adjc[CONNECTIONS[i].w][tmpc[CONNECTIONS[i].w]++] = (struct adj_connection){
         .v = CONNECTIONS[i].v, .type = CONNECTIONS[i].t};
   }
-  FILE *fp = fopen("map.h", "w");
+  FILE *fp = fopen("mapdata.h", "w");
   print_header_comments(fp);
-  print_map_h(fp, mcount);
+  print_mapdata_h(fp, mcount);
   fclose(fp);
-  fp = fopen("map.c", "w");
+  fp = fopen("mapdata.c", "w");
   print_header_comments(fp);
-  print_map_c(fp, mcount, mat, count, adjc);
+  print_mapdata_c(fp, mcount, mat, count, adjc);
   fclose(fp);
   return 0;
 }

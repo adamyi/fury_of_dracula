@@ -5,5 +5,5 @@ core
 test_dracula_view
 test_game_view
 test_hunter_view
-generate_map
-map.*
+generate_mapdata
+mapdata.*
