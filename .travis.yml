@@ -1,6 +1,13 @@
 language: c
 compiler: gcc
-dist: precise
+dist: trusty
+
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-4.0
+    packages:
+      - clang-tidy-4.0
 
 script:
   - ./ci_run.sh

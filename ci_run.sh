@@ -2,7 +2,8 @@
 
 make
 
-clang-tidy *.c
+./run-clang-format.py -r *.c *.h
+clang-tidy-4.0 *.c *.h
 
 ./test_dracula_view
 ./test_game_view
