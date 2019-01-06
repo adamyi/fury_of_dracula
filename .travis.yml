@@ -5,9 +5,10 @@ dist: trusty
 addons:
   apt:
     sources:
-      - llvm-toolchain-trusty-4.0
+      - llvm-toolchain-trusty-7
     packages:
-      - clang-tidy-4.0
+      - clang-tidy-7
+      - clang-format-7
 
 script:
   - ./ci_run.sh
