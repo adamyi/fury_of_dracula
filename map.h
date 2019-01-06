@@ -2,8 +2,7 @@
 // COMP2521 19t0 ... the Fury of Dracula
 // map.h: an interface to a Map data type
 //
-// 2017-11-30   v1.0    Team Dracula <cs2521@cse.unsw.edu.au>
-// 2018-12-31   v2.0    Team Dracula <cs2521@cse.unsw.edu.au>
+// Adam Yi <i@adamyi.com>, Simon Hanly-Jones <simon.hanly.jones@gmail.com>
 
 #include <stdbool.h>
 #include <stdlib.h>

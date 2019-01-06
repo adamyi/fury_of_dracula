@@ -2,9 +2,7 @@
 // COMP2521 19t0 ... the Fury of Dracula
 // hunter_view.h: the HunterView ADT
 //
-// 2014-07-01	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2017-11-30	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2018-12-31	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
+// Adam Yi <i@adamyi.com>, Simon Hanly-Jones <simon.hanly.jones@gmail.com>
 
 #ifndef FOD__HUNTER_VIEW_H_
 #define FOD__HUNTER_VIEW_H_

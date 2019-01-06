@@ -11,3 +11,6 @@ addons:
 
 script:
   - ./ci_run.sh
+
+notifications:
+  email: false
