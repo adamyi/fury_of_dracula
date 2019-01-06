@@ -32,35 +32,35 @@ typedef struct hunter_view *HunterView;
  * The "player_message" type is defined in game.h.
  * You are free to ignore messages if you wish.
  */
-HunterView hv_new (char *past_plays, player_message messages[]);
+HunterView hv_new(char *past_plays, player_message messages[]);
 
 /**
  * Frees all resources allocated for `hv`.
  * After this has been called, `hv` should not be accessed.
  */
-void hv_drop (HunterView hv);
+void hv_drop(HunterView hv);
 
 /**
  * Get the current round.
  */
-round_t hv_get_round (HunterView hv);
+round_t hv_get_round(HunterView hv);
 
 /**
  * Get the current player; effectively, whose turn is it?
  */
-enum player hv_get_player (HunterView hv);
+enum player hv_get_player(HunterView hv);
 
 /**
  * Get the current score, a positive integer between 0 and 366.
  */
-int hv_get_score (HunterView hv);
+int hv_get_score(HunterView hv);
 
 /**
  * Get the current health points for a given player.
  * @param player specifies which players's life/blood points to return.
  * @returns a value between 0..9 for Hunters, or >0 for Dracula
  */
-int hv_get_health (HunterView hv, enum player player);
+int hv_get_health(HunterView hv, enum player player);
 
 /**
  * Get the current location of a given player.
@@ -79,7 +79,7 @@ int hv_get_health (HunterView hv, enum player player);
  *   `DOUBLE_BACK_1` is the last place place he visited; or
  * - `TELEPORT`, if Dracula apparated back to Castle Dracula.
  */
-location_t hv_get_location (HunterView hv, enum player player);
+location_t hv_get_location(HunterView hv, enum player player);
 
 /**
  * Fills the trail array with the locations of the last 6 turns for the
@@ -99,8 +99,8 @@ location_t hv_get_location (HunterView hv, enum player player);
  * been (e.g. `SEA_UNKNOWN`, etc.), unless Dracula is at Castle Dracula,
  * or has been encountered
  */
-void hv_get_trail (
-	HunterView hv, enum player player, location_t trail[TRAIL_SIZE]);
+void hv_get_trail(HunterView hv, enum player player,
+                  location_t trail[TRAIL_SIZE]);
 
 /**
  * Return an array of `location_t`s giving all locations that the
@@ -113,8 +113,8 @@ void hv_get_trail (
  * Road, rail, or sea connections should only be considered
  * if the `road`, `rail`, or `sea` parameters are true, respectively.
  */
-location_t *hv_get_dests (
-	HunterView hv, size_t *n_locations, bool road, bool rail, bool sea);
+location_t *hv_get_dests(HunterView hv, size_t *n_locations, bool road,
+                         bool rail, bool sea);
 
 /**
  * Return an array of `location_t`s giving all of the locations that the
@@ -133,8 +133,8 @@ location_t *hv_get_dests (
  * If the player is Dracula, `n_locations` is set to 0, unless you know
  * Dracula's location precisely.
  */
-location_t *hv_get_dests_player (
-	HunterView hv, size_t *n_locations,
-	enum player player, bool road, bool rail, bool sea);
+location_t *hv_get_dests_player(HunterView hv, size_t *n_locations,
+                                enum player player, bool road, bool rail,
+                                bool sea);
 
-#endif // !defined (FOD__HUNTER_VIEW_H_)
+#endif  // !defined (FOD__HUNTER_VIEW_H_)

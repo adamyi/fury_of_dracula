@@ -17,174 +17,173 @@
 
 #include "dracula_view.h"
 
-int main (void)
-{
-	do {////////////////////////////////////////////////////////////////
-		puts ("Test for basic functions, "
-			  "just before Dracula's first move");
+int main(void) {
+  do {  ////////////////////////////////////////////////////////////////
+    puts(
+        "Test for basic functions, "
+        "just before Dracula's first move");
 
-		char *trail =
-			"GST.... SAO.... HZU.... MBB....";
-		player_message messages[] = {
-			"Hello", "Rubbish", "Stuff", ""};
-		DraculaView dv = dv_new (trail, messages);
+    char *trail = "GST.... SAO.... HZU.... MBB....";
+    player_message messages[] = {"Hello", "Rubbish", "Stuff", ""};
+    DraculaView dv = dv_new(trail, messages);
 
-		assert (dv_get_round (dv) == 0);
-		assert (dv_get_location (dv, PLAYER_LORD_GODALMING) == STRASBOURG);
-		assert (dv_get_location (dv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
-		assert (dv_get_location (dv, PLAYER_VAN_HELSING) == ZURICH);
-		assert (dv_get_location (dv, PLAYER_MINA_HARKER) == BAY_OF_BISCAY);
-		assert (dv_get_location (dv, PLAYER_DRACULA) == UNKNOWN_LOCATION);
-		assert (dv_get_health (dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+    assert(dv_get_round(dv) == 0);
+    assert(dv_get_location(dv, PLAYER_LORD_GODALMING) == STRASBOURG);
+    assert(dv_get_location(dv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
+    assert(dv_get_location(dv, PLAYER_VAN_HELSING) == ZURICH);
+    assert(dv_get_location(dv, PLAYER_MINA_HARKER) == BAY_OF_BISCAY);
+    assert(dv_get_location(dv, PLAYER_DRACULA) == UNKNOWN_LOCATION);
+    assert(dv_get_health(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
 
-		puts ("passed");
-		dv_drop (dv);
-	} while (0);
+    puts("passed");
+    dv_drop(dv);
+  } while (0);
 
+  do {  ////////////////////////////////////////////////////////////////
+    puts("Test for encountering Dracula and hunter history");
 
-	do {////////////////////////////////////////////////////////////////
-		puts ("Test for encountering Dracula and hunter history");
+    char *trail =
+        "GST.... SAO.... HCD.... MAO.... DGE.... "
+        "GGED... SAO.... HCD.... MAO....";
+    player_message messages[] = {"Hello", "Rubbish", "Stuff", "", "Mwahahah",
+                                 "Aha!",  "",        "",      ""};
+    DraculaView dv = dv_new(trail, messages);
 
-		char *trail =
-			"GST.... SAO.... HCD.... MAO.... DGE.... "
-			"GGED... SAO.... HCD.... MAO....";
-		player_message messages[] = {
-			"Hello", "Rubbish", "Stuff", "", "Mwahahah",
-			"Aha!", "", "", "" };
-		DraculaView dv = dv_new (trail, messages);
+    assert(dv_get_round(dv) == 1);
+    assert(dv_get_location(dv, PLAYER_DRACULA) == GENEVA);
+    assert(dv_get_health(dv, PLAYER_LORD_GODALMING) == 5);
+    assert(dv_get_health(dv, PLAYER_DRACULA) == 30);
+    assert(dv_get_location(dv, PLAYER_LORD_GODALMING) == GENEVA);
 
-		assert (dv_get_round (dv) == 1);
-		assert (dv_get_location (dv, PLAYER_DRACULA) == GENEVA);
-		assert (dv_get_health (dv, PLAYER_LORD_GODALMING) == 5);
-		assert (dv_get_health (dv, PLAYER_DRACULA) == 30);
-		assert (dv_get_location (dv, PLAYER_LORD_GODALMING) == GENEVA);
+    location_t history[TRAIL_SIZE];
+    dv_get_trail(dv, PLAYER_DRACULA, history);
+    assert(history[0] == GENEVA);
+    assert(history[2] == UNKNOWN_LOCATION);
 
-		location_t history[TRAIL_SIZE];
-		dv_get_trail (dv, PLAYER_DRACULA, history);
-		assert (history[0] == GENEVA);
-		assert (history[2] == UNKNOWN_LOCATION);
+    dv_get_trail(dv, PLAYER_LORD_GODALMING, history);
+    assert(history[0] == GENEVA);
+    assert(history[1] == STRASBOURG);
+    assert(history[2] == UNKNOWN_LOCATION);
 
-		dv_get_trail (dv, PLAYER_LORD_GODALMING, history);
-		assert (history[0] == GENEVA);
-		assert (history[1] == STRASBOURG);
-		assert (history[2] == UNKNOWN_LOCATION);
+    dv_get_trail(dv, PLAYER_DR_SEWARD, history);
+    assert(history[0] == ATLANTIC_OCEAN);
+    assert(history[1] == ATLANTIC_OCEAN);
+    assert(history[2] == UNKNOWN_LOCATION);
 
-		dv_get_trail (dv, PLAYER_DR_SEWARD, history);
-		assert (history[0] == ATLANTIC_OCEAN);
-		assert (history[1] == ATLANTIC_OCEAN);
-		assert (history[2] == UNKNOWN_LOCATION);
+    puts("passed");
+    dv_drop(dv);
+  } while (0);
 
-		puts ("passed");
-		dv_drop (dv);
-	} while (0);
+  do {  ////////////////////////////////////////////////////////////////
+    puts("Test for Dracula leaving minions");
 
+    char *trail =
+        "GGE.... SGE.... HGE.... MGE.... DED.V.. "
+        "GST.... SST.... HST.... MST.... DMNT... "
+        "GST.... SST.... HST.... MST....";
+    player_message messages[] = {"Hello",
+                                 "Rubbish",
+                                 "Stuff",
+                                 "",
+                                 "Mwahahah",
+                                 "Aha!",
+                                 "",
+                                 "",
+                                 "",
+                                 "Drop a V",
+                                 "Party in Strasbourg",
+                                 "Party",
+                                 "Party",
+                                 "Party"};
+    DraculaView dv = dv_new(trail, messages);
 
-	do {////////////////////////////////////////////////////////////////
-		puts ("Test for Dracula leaving minions");
+    int nT, nV;
+    dv_get_locale_info(dv, EDINBURGH, &nT, &nV);
+    assert(nT == 0 && nV == 1);
+    dv_get_locale_info(dv, MANCHESTER, &nT, &nV);
+    assert(nT == 1 && nV == 0);
+    assert(dv_get_location(dv, PLAYER_DRACULA) == MANCHESTER);
 
-		char *trail =
-			"GGE.... SGE.... HGE.... MGE.... DED.V.. "
-			"GST.... SST.... HST.... MST.... DMNT... "
-			"GST.... SST.... HST.... MST....";
-		player_message messages[] = {
-			"Hello", "Rubbish", "Stuff", "", "Mwahahah",
-			"Aha!", "", "", "", "Drop a V",
-			"Party in Strasbourg", "Party", "Party", "Party"};
-		DraculaView dv = dv_new (trail, messages);
+    location_t history[TRAIL_SIZE];
+    dv_get_trail(dv, PLAYER_DRACULA, history);
+    assert(history[0] == MANCHESTER);
+    assert(history[1] == EDINBURGH);
+    assert(history[2] == UNKNOWN_LOCATION);
 
-		int nT, nV;
-		dv_get_locale_info (dv, EDINBURGH, &nT, &nV);
-		assert (nT == 0 && nV == 1);
-		dv_get_locale_info (dv, MANCHESTER, &nT, &nV);
-		assert (nT == 1 && nV == 0);
-		assert (dv_get_location (dv, PLAYER_DRACULA) == MANCHESTER);
+    dv_get_trail(dv, PLAYER_MINA_HARKER, history);
+    assert(history[0] == STRASBOURG);
+    assert(history[1] == STRASBOURG);
+    assert(history[2] == GENEVA);
+    assert(history[3] == UNKNOWN_LOCATION);
 
-		location_t history[TRAIL_SIZE];
-		dv_get_trail (dv, PLAYER_DRACULA, history);
-		assert (history[0] == MANCHESTER);
-		assert (history[1] == EDINBURGH);
-		assert (history[2] == UNKNOWN_LOCATION);
+    puts("passed");
+    dv_drop(dv);
+  } while (0);
 
-		dv_get_trail (dv, PLAYER_MINA_HARKER, history);
-		assert (history[0] == STRASBOURG);
-		assert (history[1] == STRASBOURG);
-		assert (history[2] == GENEVA);
-		assert (history[3] == UNKNOWN_LOCATION);
+  do {  ////////////////////////////////////////////////////////////////
+    puts("Checking Galatz road connections");
+    char *trail = "GGA....";
+    player_message messages[] = {"Gone to Galatz"};
+    DraculaView dv = dv_new(trail, messages);
 
-		puts ("passed");
-		dv_drop (dv);
-	} while (0);
+    int size, *edges = dv_get_dests_player(dv, &size, PLAYER_LORD_GODALMING,
+                                           true, false, false);
+    bool seen[NUM_MAP_LOCATIONS] = {false};
+    for (int i = 0; i < size; i++) seen[edges[i]] = true;
 
+    assert(size == 5);
+    assert(seen[GALATZ]);
+    assert(seen[CONSTANTA]);
+    assert(seen[BUCHAREST]);
+    assert(seen[KLAUSENBURG]);
+    assert(seen[CASTLE_DRACULA]);
 
-	do {////////////////////////////////////////////////////////////////
-		puts ("Checking Galatz road connections");
-		char *trail = "GGA....";
-		player_message messages[] = {"Gone to Galatz"};
-		DraculaView dv = dv_new (trail, messages);
+    puts("passed");
+    free(edges);
+    dv_drop(dv);
+  } while (0);
 
-		int size, *edges = dv_get_dests_player (
-			dv, &size, PLAYER_LORD_GODALMING, true, false, false);
-		bool seen[NUM_MAP_LOCATIONS] = {false};
-		for (int i = 0; i < size; i++)
-			seen[edges[i]] = true;
+  do {  ////////////////////////////////////////////////////////////////
+    puts("Checking Ionian Sea sea connections");
+    char *trail = "GIO....";
+    player_message messages[] = {"Sailing the Ionian"};
+    DraculaView dv = dv_new(trail, messages);
 
-		assert (size == 5);
-		assert (seen[GALATZ]);
-		assert (seen[CONSTANTA]);
-		assert (seen[BUCHAREST]);
-		assert (seen[KLAUSENBURG]);
-		assert (seen[CASTLE_DRACULA]);
+    int size, *edges = dv_get_dests_player(dv, &size, PLAYER_LORD_GODALMING,
+                                           false, false, true);
+    bool seen[NUM_MAP_LOCATIONS] = {false};
+    for (int i = 0; i < size; i++) seen[edges[i]] = true;
 
-		puts ("passed");
-		free (edges);
-		dv_drop (dv);
-	} while (0);
+    assert(size == 7);
+    assert(seen[IONIAN_SEA]);
+    assert(seen[BLACK_SEA]);
+    assert(seen[ADRIATIC_SEA]);
+    assert(seen[TYRRHENIAN_SEA]);
+    assert(seen[ATHENS]);
+    assert(seen[VALONA]);
+    assert(seen[SALONICA]);
 
+    puts("passed");
+    free(edges);
+    dv_drop(dv);
+  } while (0);
 
-	do {////////////////////////////////////////////////////////////////
-		puts ("Checking Ionian Sea sea connections");
-		char *trail = "GIO....";
-		player_message messages[] = {"Sailing the Ionian"};
-		DraculaView dv = dv_new (trail, messages);
+  do {  ////////////////////////////////////////////////////////////////
+    puts("Checking Athens rail connections (none)");
 
-		int size, *edges = dv_get_dests_player (
-			dv, &size, PLAYER_LORD_GODALMING, false, false, true);
-		bool seen[NUM_MAP_LOCATIONS] = {false};
-		for (int i = 0; i < size; i++)
-			seen[edges[i]] = true;
+    char *trail = "GAT....";
+    player_message messages[] = {"Leaving Athens by train"};
+    DraculaView dv = dv_new(trail, messages);
 
-		assert (size == 7);
-		assert (seen[IONIAN_SEA]);
-		assert (seen[BLACK_SEA]);
-		assert (seen[ADRIATIC_SEA]);
-		assert (seen[TYRRHENIAN_SEA]);
-		assert (seen[ATHENS]);
-		assert (seen[VALONA]);
-		assert (seen[SALONICA]);
+    int size, *edges = dv_get_dests_player(dv, &size, PLAYER_LORD_GODALMING,
+                                           false, true, false);
+    assert(size == 1);
+    assert(edges[0] == ATHENS);
 
-		puts ("passed");
-		free (edges);
-		dv_drop (dv);
-	} while (0);
+    puts("passed");
+    free(edges);
+    dv_drop(dv);
+  } while (0);
 
-
-	do {////////////////////////////////////////////////////////////////
-		puts ("Checking Athens rail connections (none)");
-
-		char *trail = "GAT....";
-		player_message messages[] = {"Leaving Athens by train"};
-		DraculaView dv = dv_new (trail, messages);
-
-		int size, *edges = dv_get_dests_player (
-			dv, &size, PLAYER_LORD_GODALMING, false, true, false);
-		assert (size == 1);
-		assert (edges[0] == ATHENS);
-
-
-		puts ("passed");
-		free (edges);
-		dv_drop (dv);
-	} while (0);
-
-	return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

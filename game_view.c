@@ -17,67 +17,56 @@
 // #include "map.h" ... if you decide to use the Map ADT
 
 typedef struct game_view {
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 } game_view;
 
-game_view *gv_new (char *past_plays, player_message messages[])
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	game_view *new = malloc (sizeof *new);
-	if (new == NULL) err (EX_OSERR, "couldn't allocate GameView");
+game_view *gv_new(char *past_plays, player_message messages[]) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  game_view *new = malloc(sizeof *new);
+  if (new == NULL) err(EX_OSERR, "couldn't allocate GameView");
 
-	return new;
+  return new;
 }
 
-void gv_drop (game_view *gv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	free (gv);
+void gv_drop(game_view *gv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  free(gv);
 }
 
-round_t gv_get_round (game_view *gv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+round_t gv_get_round(game_view *gv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-enum player gv_get_player (game_view *gv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+enum player gv_get_player(game_view *gv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-int gv_get_score (game_view *gv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+int gv_get_score(game_view *gv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-int gv_get_health (game_view *gv, enum player player)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+int gv_get_health(game_view *gv, enum player player) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-location_t gv_get_location (game_view *gv, enum player player)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+location_t gv_get_location(game_view *gv, enum player player) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-void gv_get_history (
-	game_view *gv, enum player player,
-	location_t trail[TRAIL_SIZE])
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+void gv_get_history(game_view *gv, enum player player,
+                    location_t trail[TRAIL_SIZE]) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 }
 
-location_t *gv_get_connections (
-	game_view *gv, size_t *n_locations,
-	location_t from, enum player player, round_t round,
-	bool road, bool rail, bool sea)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*n_locations = 0;
-	return NULL;
+location_t *gv_get_connections(game_view *gv, size_t *n_locations,
+                               location_t from, enum player player,
+                               round_t round, bool road, bool rail, bool sea) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  *n_locations = 0;
+  return NULL;
 }

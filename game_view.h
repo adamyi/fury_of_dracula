@@ -31,35 +31,35 @@ typedef struct game_view *GameView;
  * The "player_message" type is defined in game.h.
  * You are free to ignore messages if you wish.
  */
-GameView gv_new (char *past_plays, player_message messages[]);
+GameView gv_new(char *past_plays, player_message messages[]);
 
 /**
  * Frees all resources allocated for `gv`.
  * After this has been called, `gv` should not be accessed.
  */
-void gv_drop (GameView gv);
+void gv_drop(GameView gv);
 
 /**
  * Get the current round
  */
-round_t gv_get_round (GameView gv);
+round_t gv_get_round(GameView gv);
 
 /**
  * Get the current player; effectively, whose turn is it?
  */
-enum player gv_get_player (GameView gv);
+enum player gv_get_player(GameView gv);
 
 /**
  * Get the current score, a positive integer between 0 and 366.
  */
-int gv_get_score (GameView gv);
+int gv_get_score(GameView gv);
 
 /**
  * Get the current health points for a given player.
  * @param player specifies which players's life/blood points to return;
  * @returns a value between 0..9 for Hunters, or >0 for Dracula
  */
-int gv_get_health (GameView gv, enum player player);
+int gv_get_health(GameView gv, enum player player);
 
 /**
  * Get the current location of a given player.
@@ -78,7 +78,7 @@ int gv_get_health (GameView gv, enum player player);
  *   `DOUBLE_BACK_1` is the last place place he visited; or
  * - `TELEPORT`, if Dracula apparated back to Castle Dracula.
  */
-location_t gv_get_location (GameView gv, enum player player);
+location_t gv_get_location(GameView gv, enum player player);
 
 /**
  * Fills the trail array with the locations of the last 6 turns for the
@@ -94,8 +94,8 @@ location_t gv_get_location (GameView gv, enum player player);
  * This would mean in the first move the player started on location 12
  * then moved to the current location of 29.
  */
-void gv_get_history (
-	GameView gv, enum player player, location_t trail[TRAIL_SIZE]);
+void gv_get_history(GameView gv, enum player player,
+                    location_t trail[TRAIL_SIZE]);
 
 /**
  * Return an array of `location_t`s giving all of the locations that the
@@ -117,10 +117,8 @@ void gv_get_history (
  * Dracula may not go to the hospital, and may not travel by rail.
  * It need not take into account the trail restriction.
  */
-location_t *gv_get_connections (
-	GameView gv, size_t *nLocations,
-	location_t from,
-	enum player player, round_t round,
-	bool road, bool rail, bool sea);
+location_t *gv_get_connections(GameView gv, size_t *n_locations,
+                               location_t from, enum player player,
+                               round_t round, bool road, bool rail, bool sea);
 
-#endif // !defined (FOD__GAME_VIEW_H_)
+#endif  // !defined (FOD__GAME_VIEW_H_)

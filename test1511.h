@@ -95,20 +95,20 @@
 // Suppress some compiler warnings.
 
 #ifdef __clang__
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wreserved-id-macro"
-# pragma clang diagnostic ignored "-Wunused-macros"
-# pragma clang diagnostic ignored "-Wunused-function"
-# pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wunused-macros"
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
-	// glibc's headers are utterly fucked with clang, likely because
-	// the tgmath isn't handled correctly, so everything turns into:
+// glibc's headers are utterly fucked with clang, likely because
+// the tgmath isn't handled correctly, so everything turns into:
 
-	// implicit conversion increases floating-point precision:
-	// 'double' to 'long double': isnan (x), isnan (y), isnan (eps)
+// implicit conversion increases floating-point precision:
+// 'double' to 'long double': isnan (x), isnan (y), isnan (eps)
 #pragma clang diagnostic ignored "-Wdouble-promotion"
-	// implicit conversion loses floating-point precision:
-	// 'double' to 'float': isnan (x), isnan (y), isnan (eps)
+// implicit conversion loses floating-point precision:
+// 'double' to 'float': isnan (x), isnan (y), isnan (eps)
 #pragma clang diagnostic ignored "-Wconversion"
 #endif
 
@@ -148,10 +148,10 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <err.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <sysexits.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -166,28 +166,27 @@
 static int _test_ = 1;
 
 #ifdef NDEBUG
-# define TEST(status, descr, ...) \
-	({ \
-		_Bool passed_test = status;	 \
-		printf ("%sok %d # " descr "\n", \
-			(passed_test ? "" : "not "), _test_++, ##__VA_ARGS__); \
-		if (__builtin_expect((! passed_test), 0)) { \
-			_fails_++; \
-		} \
-	})
+#define TEST(status, descr, ...)                                           \
+  ({                                                                       \
+    _Bool passed_test = status;                                            \
+    printf("%sok %d # " descr "\n", (passed_test ? "" : "not "), _test_++, \
+           ##__VA_ARGS__);                                                 \
+    if (__builtin_expect((!passed_test), 0)) {                             \
+      _fails_++;                                                           \
+    }                                                                      \
+  })
 
 // The number of tests failed.
 static int _fails_ = 0;
 
-#else // remain calm and assert(3)
-# include <assert.h>
-# define TEST(status, descr, ...) \
-	({ \
-		fprintf (stderr, "-- t%d: " descr "\n", _test_++, ##__VA_ARGS__); \
-		assert (status); \
-	})
+#else  // remain calm and assert(3)
+#include <assert.h>
+#define TEST(status, descr, ...)                                     \
+  ({                                                                 \
+    fprintf(stderr, "-- t%d: " descr "\n", _test_++, ##__VA_ARGS__); \
+    assert(status);                                                  \
+  })
 #endif
-
 
 ////////////////////////////////////////////////////////////////////////
 // Floating-point equality.  Compares the left-hand side with the
@@ -200,20 +199,10 @@ static int _fails_ = 0;
 // @param eps
 //     Margin of error (taken on the right-hand side)
 
-static inline bool
-feq (
-	double x,
-	double y,
-	double eps)
-{
-	return (
-		! isnan (x) &&
-		! isnan (y) &&
-		! isnan (eps) &&
-		isgreaterequal (x, y - eps) &&
-		islessequal (x, y + eps));
+static inline bool feq(double x, double y, double eps) {
+  return (!isnan(x) && !isnan(y) && !isnan(eps) && isgreaterequal(x, y - eps) &&
+          islessequal(x, y + eps));
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // Symbol existence.  Does the named symbol exist?
@@ -226,43 +215,31 @@ feq (
 //     A symbol name to resolve in the currently-executing process.
 
 static struct _dl_ {
-	void *dl;
-	size_t loaded;
+  void *dl;
+  size_t loaded;
 } _dl_self = {
-	NULL,
-	false,
+    NULL,
+    false,
 };
 
-static inline void
-_dl_load_self (
-	void)
-{
-	assert (_dl_self.loaded == false);
-	_dl_self.dl = dlopen (NULL, RTLD_LAZY | RTLD_LOCAL);
-	if (_dl_self.dl == NULL)
-		errx (EX_OSERR, "couldn't dlopen(3) ourself: %s", dlerror ());
-	_dl_self.loaded = true;
+static inline void _dl_load_self(void) {
+  assert(_dl_self.loaded == false);
+  _dl_self.dl = dlopen(NULL, RTLD_LAZY | RTLD_LOCAL);
+  if (_dl_self.dl == NULL)
+    errx(EX_OSERR, "couldn't dlopen(3) ourself: %s", dlerror());
+  _dl_self.loaded = true;
 }
 
-static inline void *
-get_symbol (
-	const char *sym)
-{
-	if (_dl_self.loaded != true)
-		_dl_load_self ();
-	void *fptr = dlsym (_dl_self.dl, sym);
-	if (fptr == NULL)
-		warnx ("couldn't resolve '%s': %s", sym, dlerror ());
-	return fptr;
+static inline void *get_symbol(const char *sym) {
+  if (_dl_self.loaded != true) _dl_load_self();
+  void *fptr = dlsym(_dl_self.dl, sym);
+  if (fptr == NULL) warnx("couldn't resolve '%s': %s", sym, dlerror());
+  return fptr;
 }
 
-static inline bool
-have_symbol (
-	const char *sym)
-{
-	return get_symbol (sym) != NULL;
+static inline bool have_symbol(const char *sym) {
+  return get_symbol(sym) != NULL;
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // Memory protections.
@@ -291,73 +268,58 @@ have_symbol (
 // (llvm/projects/compiler-rt/include/sanitizer/asan_interface.h)
 
 #ifdef __has_feature
-# if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
-#  include <sanitizer/asan_interface.h>
-#  define IN_ASAN 1
-#  define __used_in_asan
-# endif
+#if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
+#include <sanitizer/asan_interface.h>
+#define IN_ASAN 1
+#define __used_in_asan
+#endif
 #endif
 
 #ifndef __used_in_asan
-# define __used_in_asan __attribute__((unused))
+#define __used_in_asan __attribute__((unused))
 #endif
 
-static inline bool
-mem_address_is_poisoned (
-	const void volatile *addr __used_in_asan)
-{
+static inline bool mem_address_is_poisoned(
+    const void volatile *addr __used_in_asan) {
 #ifdef IN_ASAN
-	return __asan_address_is_poisoned (addr);
+  return __asan_address_is_poisoned(addr);
 #else
-	return false;
+  return false;
 #endif
 }
 
-static inline bool
-mem_region_is_poisoned (
-	void *addr __used_in_asan,
-	size_t size __used_in_asan)
-{
+static inline bool mem_region_is_poisoned(void *addr __used_in_asan,
+                                          size_t size __used_in_asan) {
 #ifdef IN_ASAN
-	return __asan_region_is_poisoned (addr, size);
+  return __asan_region_is_poisoned(addr, size);
 #else
-	return false;
+  return false;
 #endif
 }
 
-static inline void
-mem_poison_region (
-	const void volatile *addr __used_in_asan,
-	size_t size __used_in_asan)
-{
+static inline void mem_poison_region(const void volatile *addr __used_in_asan,
+                                     size_t size __used_in_asan) {
 #ifdef IN_ASAN
-	__asan_poison_memory_region (addr, size);
+  __asan_poison_memory_region(addr, size);
 #endif
 }
 
-static inline void
-mem_unpoison_region (
-	const void volatile *addr __used_in_asan,
-	size_t size __used_in_asan)
-{
+static inline void mem_unpoison_region(const void volatile *addr __used_in_asan,
+                                       size_t size __used_in_asan) {
 #ifdef IN_ASAN
-	__asan_unpoison_memory_region (addr, size);
+  __asan_unpoison_memory_region(addr, size);
 #endif
 }
 
-static inline void
-mem_describe_address (
-	void *addr __used_in_asan)
-{
+static inline void mem_describe_address(void *addr __used_in_asan) {
 #ifdef IN_ASAN
-	__asan_describe_address (addr);
+  __asan_describe_address(addr);
 #endif
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 
-#endif // !defined(TEST1511_H_)
+#endif  // !defined(TEST1511_H_)

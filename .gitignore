@@ -1,0 +1,6 @@
+*.o
+*.swp
+bazel-*
+test_dracula_view
+test_game_view
+test_hunter_view

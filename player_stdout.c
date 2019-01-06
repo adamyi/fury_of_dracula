@@ -30,11 +30,11 @@
 
 #include "game.h"
 #ifdef I_AM_DRACULA
-# include "dracula.h"
-# include "dracula_view.h"
+#include "dracula.h"
+#include "dracula_view.h"
 #else
-# include "hunter.h"
-# include "hunter_view.h"
+#include "hunter.h"
+#include "hunter_view.h"
 #endif
 
 // moves given by register_best_play are this long (including terminator)
@@ -50,42 +50,42 @@ static char latest_message[MESSAGE_SIZE] = "";
 // - a trail `xtrail', and a message buffer `xmsgs'.
 #ifdef I_AM_DRACULA
 typedef DraculaView view_t;
-# define view_new dv_new
-# define decide_move decide_dracula_move
-# define view_drop dv_drop
+#define view_new dv_new
+#define decide_move decide_dracula_move
+#define view_drop dv_drop
 
-# define xtrail "GZA.... SED.... HZU.... MZU...."
-# define xmsgs { "", "", "", "" }
+#define xtrail "GZA.... SED.... HZU.... MZU...."
+#define xmsgs \
+  { "", "", "", "" }
 #else
 typedef HunterView view_t;
-# define view_new hv_new
-# define decide_move decide_hunter_move
-# define view_drop hv_drop
+#define view_new hv_new
+#define decide_move decide_hunter_move
+#define view_drop hv_drop
 
-# define xtrail "GZA.... SED.... HZU...."
-# define xmsgs { "", "", "" }
+#define xtrail "GZA.... SED.... HZU...."
+#define xmsgs \
+  { "", "", "" }
 #endif
 
-int main (void)
-{
-	char *trail = xtrail;
-	player_message msgs[] = xmsgs;
+int main(void) {
+  char *trail = xtrail;
+  player_message msgs[] = xmsgs;
 
-	view_t state = view_new (trail, msgs);
-	decide_move (state);
-	view_drop (state);
+  view_t state = view_new(trail, msgs);
+  decide_move(state);
+  view_drop(state);
 
-	printf ("Move: %s, Message: %s\n", latest_play, latest_message);
-	return EXIT_SUCCESS;
+  printf("Move: %s, Message: %s\n", latest_play, latest_message);
+  return EXIT_SUCCESS;
 }
 
 // Saves characters from play (and appends a terminator)
 // and saves characters from message (and appends a terminator)
-void register_best_play (char *play, player_message message)
-{
-	strncpy (latest_play, play, MOVE_SIZE - 1);
-	latest_play[MOVE_SIZE - 1] = '\0';
+void register_best_play(char *play, player_message message) {
+  strncpy(latest_play, play, MOVE_SIZE - 1);
+  latest_play[MOVE_SIZE - 1] = '\0';
 
-	strncpy (latest_message, message, MESSAGE_SIZE);
-	latest_message[MESSAGE_SIZE - 1] = '\0';
+  strncpy(latest_message, message, MESSAGE_SIZE);
+  latest_message[MESSAGE_SIZE - 1] = '\0';
 }

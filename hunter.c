@@ -6,12 +6,11 @@
 // 2017-12-01	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2018-12-31	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
 
-#include "game.h"
 #include "hunter.h"
+#include "game.h"
 #include "hunter_view.h"
 
-void decide_hunter_move (HunterView hv)
-{
-	/// @todo Replace this with something better!
-	register_best_play ("TO", "Have we nothing Toulouse?");
+void decide_hunter_move(HunterView hv) {
+  // TODO: Replace this with something better!
+  register_best_play("TO", "Have we nothing Toulouse?");
 }

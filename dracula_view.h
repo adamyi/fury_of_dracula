@@ -36,30 +36,30 @@ typedef struct dracula_view *DraculaView;
  * - the `past_plays` string should contain full details of all moves
  * - the last move should always be by Mina Harker
  */
-DraculaView dv_new (char *past_plays, player_message messages[]);
+DraculaView dv_new(char *past_plays, player_message messages[]);
 
 /**
  * Frees all resources allocated for `dv`.
  * After this has been called, `dv` should not be accessed.
  */
-void dv_drop (DraculaView dv);
+void dv_drop(DraculaView dv);
 
 /**
  * Get the current round.
  */
-round_t dv_get_round (DraculaView dv);
+round_t dv_get_round(DraculaView dv);
 
 /**
  * Get the current score, a positive integer between 0 and 366.
  */
-int dv_get_score (DraculaView dv);
+int dv_get_score(DraculaView dv);
 
 /**
  * Get the current health points for a given player.
  * @param player specifies which players's life/blood points to return
  * @returns a value between 0..9 for Hunters, or >0 for Dracula
  */
-int dv_get_health (DraculaView dv, enum player player);
+int dv_get_health(DraculaView dv, enum player player);
 
 /**
  * Get the current location of a given player.
@@ -70,7 +70,7 @@ int dv_get_health (DraculaView dv, enum player player);
  * Always returns an exact location, as the `past_plays` string contains
  * full Dracula locations since Dracula always knows where he's been.
  */
-location_t dv_get_location (DraculaView dv, enum player player);
+location_t dv_get_location(DraculaView dv, enum player player);
 
 /**
  * Get the most recent move of a given player, returning the start and
@@ -80,9 +80,8 @@ location_t dv_get_location (DraculaView dv, enum player player);
  * always known, but the start location may be `UNKNOWN_LOCATION`
  * (for a hunter's first move).
  */
-void dv_get_player_move (
-	DraculaView dv, enum player player,
-	location_t *start, location_t *end);
+void dv_get_player_move(DraculaView dv, enum player player, location_t *start,
+                        location_t *end);
 
 /**
  * Find out what minions I (Dracula) have placed at the specified
@@ -92,8 +91,8 @@ void dv_get_player_move (
  * If `where` is not a place where minions can be left
  * (e.g. at sea, or NOWHERE), then set both counts to zero.
  */
-void dv_get_locale_info (
-	DraculaView dv, location_t where, int *n_traps, int *n_vamps);
+void dv_get_locale_info(DraculaView dv, location_t where, int *n_traps,
+                        int *n_vamps);
 
 /**
  * Fills the trail array with the locations of the last 6 turns for the
@@ -111,8 +110,8 @@ void dv_get_locale_info (
  * If Dracula asks about his own trail, he should get real locations he
  * has previously been, not double-backs, etc.
  */
-void dv_get_trail (
-	DraculaView dv, enum player player, location_t trail[TRAIL_SIZE]);
+void dv_get_trail(DraculaView dv, enum player player,
+                  location_t trail[TRAIL_SIZE]);
 
 /**
  * Return an array of `location_t`s giving all locations that Dracula
@@ -131,8 +130,8 @@ void dv_get_trail (
  * Dracula's movement (e.g. can't move to a location currently in his
  * trail).
  */
-location_t *dv_get_dests (
-	DraculaView dv, size_t *n_locations, bool road, bool sea);
+location_t *dv_get_dests(DraculaView dv, size_t *n_locations, bool road,
+                         bool sea);
 
 /**
  * Return an array of `location_t`s giving all of the locations that the
@@ -150,8 +149,8 @@ location_t *dv_get_dests (
  *
  * If `player` is Dracula, calls dv_get_dests().
  */
-location_t *dv_get_dests_player (
-	DraculaView dv, size_t *n_locations,
-	enum player player, bool road, bool rail, bool sea);
+location_t *dv_get_dests_player(DraculaView dv, size_t *n_locations,
+                                enum player player, bool road, bool rail,
+                                bool sea);
 
-#endif // !defined(FOD__DRACULA_VIEW_H_)
+#endif  // !defined(FOD__DRACULA_VIEW_H_)

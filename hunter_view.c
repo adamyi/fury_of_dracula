@@ -18,75 +18,63 @@
 // #include "map.h" ... if you decide to use the Map ADT
 
 typedef struct hunter_view {
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 } hunter_view;
 
-hunter_view *hv_new (char *past_plays, player_message messages[])
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	hunter_view *new = malloc (sizeof *new);
-	if (new == NULL) err (EX_OSERR, "couldn't allocate HunterView");
+hunter_view *hv_new(char *past_plays, player_message messages[]) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  hunter_view *new = malloc(sizeof *new);
+  if (new == NULL) err(EX_OSERR, "couldn't allocate HunterView");
 
-	return new;
+  return new;
 }
 
-void hv_drop (hunter_view *hv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	free (hv);
+void hv_drop(hunter_view *hv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  free(hv);
 }
 
-round_t hv_get_round (hunter_view *hv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+round_t hv_get_round(hunter_view *hv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-enum player hv_get_player (hunter_view *hv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+enum player hv_get_player(hunter_view *hv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-int hv_get_score (hunter_view *hv)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+int hv_get_score(hunter_view *hv) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-int hv_get_health (hunter_view *hv, enum player player)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+int hv_get_health(hunter_view *hv, enum player player) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-location_t hv_get_location (hunter_view *hv, enum player player)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+location_t hv_get_location(hunter_view *hv, enum player player) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  return 0;
 }
 
-void hv_get_trail (
-	hunter_view *hv, enum player player,
-	location_t trail[TRAIL_SIZE])
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+void hv_get_trail(hunter_view *hv, enum player player,
+                  location_t trail[TRAIL_SIZE]) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 }
 
-location_t *hv_get_dests (
-	hunter_view *hv, size_t *n_locations,
-	bool road, bool rail, bool sea)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*n_locations = 0;
-	return NULL;
+location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
+                         bool rail, bool sea) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  *n_locations = 0;
+  return NULL;
 }
 
-location_t *hv_get_dests_player (
-	hunter_view *hv, size_t *n_locations, enum player player,
-	bool road, bool rail, bool sea)
-{
-	/// @todo REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*n_locations = 0;
-	return NULL;
+location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
+                                enum player player, bool road, bool rail,
+                                bool sea) {
+  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  *n_locations = 0;
+  return NULL;
 }

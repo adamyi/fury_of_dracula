@@ -10,8 +10,7 @@
 #include "dracula_view.h"
 #include "game.h"
 
-void decide_dracula_move (DraculaView dv)
-{
-	/// @todo Replace this with something better!
-	register_best_play ("CD", "Mwahahahaha");
+void decide_dracula_move(DraculaView dv) {
+  // TODO: Replace this with something better!
+  register_best_play("CD", "Mwahahahaha");
 }
