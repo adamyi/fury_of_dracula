@@ -1,0 +1,6 @@
+language: c
+compiler: gcc
+dist: precise
+
+script:
+  - ./ci_run.sh
