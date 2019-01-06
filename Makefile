@@ -5,6 +5,7 @@
 # 2018-12-31	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
 
 CC	 = gcc
+CFLAGS	= -std=c99
 BINS	 = test_game_view test_hunter_view test_dracula_view
 
 all: ${BINS}
