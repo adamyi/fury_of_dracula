@@ -13,43 +13,36 @@
 #include "dracula_view.h"
 #include "game.h"
 #include "game_view.h"
-// #include "map.h" ... if you decide to use the Map ADT
+#include "map.h"
+#include "mapdata.h"
 
 typedef struct dracula_view {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  GameView gv;
 } dracula_view;
 
 dracula_view *dv_new(char *past_plays, player_message messages[]) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
   dracula_view *new = malloc(sizeof *new);
   if (new == NULL) err(EX_OSERR, "couldn't allocate DraculaView");
+  new->gv = gv_new(past_plays, messages);
 
   return new;
 }
 
 void dv_drop(dracula_view *dv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  gv_drop(dv->gv);
   free(dv);
 }
 
-round_t dv_get_round(dracula_view *dv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+round_t dv_get_round(dracula_view *dv) { return gv_get_round(dv->gv); }
 
-int dv_get_score(dracula_view *dv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+int dv_get_score(dracula_view *dv) { return gv_get_score(dv->gv); }
 
 int dv_get_health(dracula_view *dv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return gv_get_health(dv->gv, player);
 }
 
 location_t dv_get_location(dracula_view *dv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return gv_get_location(dv->gv, player);
 }
 
 void dv_get_player_move(dracula_view *dv, enum player player, location_t *start,

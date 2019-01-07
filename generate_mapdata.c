@@ -71,8 +71,8 @@ struct adj_connection {
 };
 
 static inline void print_mapdata_c(FILE *fp, int mcount,
-                               int mat[][NUM_MAP_LOCATIONS], int *count,
-                               struct adj_connection adjc[][mcount]) {
+                                   int mat[][NUM_MAP_LOCATIONS], int *count,
+                                   struct adj_connection adjc[][mcount]) {
   fprintf(fp,
           "#include \"map.h\"\n"
           "#include \"places.h\"\n"

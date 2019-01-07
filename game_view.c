@@ -12,53 +12,51 @@
 
 #include "game.h"
 #include "game_view.h"
-// #include "map.h" ... if you decide to use the Map ADT
+#include "map.h"
+#include "mapdata.h"
+#include "player.h"
 
 typedef struct game_view {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  round_t round;
+  enum player current_player;
+  int score;
+  player_t *players[NUM_PLAYERS];
+  // TODO: minions
 } game_view;
 
 game_view *gv_new(char *past_plays, player_message messages[]) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
   game_view *new = malloc(sizeof *new);
   if (new == NULL) err(EX_OSERR, "couldn't allocate GameView");
+  new->round = 0;
+  new->current_player = 0;
+  new->score = GAME_START_SCORE;
+  for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
 
   return new;
 }
 
 void gv_drop(game_view *gv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  for (int i = 0; i < NUM_PLAYERS; i++) destroy_player(gv->players[i]);
   free(gv);
 }
 
-round_t gv_get_round(game_view *gv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+round_t gv_get_round(game_view *gv) { return gv->round; }
 
-enum player gv_get_player(game_view *gv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+enum player gv_get_player(game_view *gv) { return gv->current_player; }
 
-int gv_get_score(game_view *gv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+int gv_get_score(game_view *gv) { return gv->score; }
 
 int gv_get_health(game_view *gv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return player_get_health(gv->players[player]);
 }
 
 location_t gv_get_location(game_view *gv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return player_get_location(gv->players[player]);
 }
 
 void gv_get_history(game_view *gv, enum player player,
                     location_t trail[TRAIL_SIZE]) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  rollingarray_to_array(gv->players[player]->trail, trail);
 }
 
 location_t *gv_get_connections(game_view *gv, size_t *n_locations,

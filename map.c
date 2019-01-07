@@ -1,7 +1,7 @@
+#include <assert.h>
+
 #include "map.h"
 #include "mapdata.h"
-
-#include <assert.h>
 
 inline char get_connection_type_mask(transport_t t) {
   assert(t >= MIN_TRANSPORT && t <= MAX_TRANSPORT);
@@ -20,13 +20,13 @@ inline char get_connection_type_mask(transport_t t) {
 }
 
 bool isConnectedVia(location_t v, location_t w, char tspt) {
-    return ((ADJMATRIX[v][w] & tspt) == tspt);
-} 
+  return ((ADJMATRIX[v][w] & tspt) == tspt);
+}
 
 bool isConnected(location_t v, location_t w) {
-    return isConnectedVia(v, w, 7); // 111
+  return isConnectedVia(v, w, 7);  // 111
 }
 
 struct adj_connection *getConnections(location_t v) {
-    return ADJLIST[v];
+  return ADJLIST[v];
 }

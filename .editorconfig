@@ -9,7 +9,10 @@ indent_style = space
 [BUILD]
 indent_size = 4
 
-[*.h,*.cc]
+[Makefile]
+indent_style = tab
+
+[*.{h,c}]
 indent_size = 2
 
 [*.md]

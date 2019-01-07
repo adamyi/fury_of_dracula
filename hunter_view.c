@@ -13,48 +13,38 @@
 #include "game.h"
 #include "game_view.h"
 #include "hunter_view.h"
-// #include "map.h" ... if you decide to use the Map ADT
+#include "map.h"
+#include "mapdata.h"
 
 typedef struct hunter_view {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  GameView gv;
 } hunter_view;
 
 hunter_view *hv_new(char *past_plays, player_message messages[]) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
   hunter_view *new = malloc(sizeof *new);
   if (new == NULL) err(EX_OSERR, "couldn't allocate HunterView");
+  new->gv = gv_new(past_plays, messages);
 
   return new;
 }
 
 void hv_drop(hunter_view *hv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  gv_drop(hv->gv);
   free(hv);
 }
 
-round_t hv_get_round(hunter_view *hv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+round_t hv_get_round(hunter_view *hv) { return gv_get_round(hv->gv); }
 
-enum player hv_get_player(hunter_view *hv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+enum player hv_get_player(hunter_view *hv) { return gv_get_player(hv->gv); }
 
-int hv_get_score(hunter_view *hv) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
-}
+int hv_get_score(hunter_view *hv) { return gv_get_score(hv->gv); }
 
 int hv_get_health(hunter_view *hv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return gv_get_health(hv->gv, player);
 }
 
 location_t hv_get_location(hunter_view *hv, enum player player) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  return 0;
+  return gv_get_location(hv->gv, player);
 }
 
 void hv_get_trail(hunter_view *hv, enum player player,

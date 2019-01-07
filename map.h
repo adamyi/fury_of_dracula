@@ -1,6 +1,7 @@
+#include <stdbool.h>
+
 #include "mapdata.h"
 #include "places.h"
-#include <stdbool.h>
 
 #ifndef FOD__MAP_H_
 #define FOD__MAP_H_
