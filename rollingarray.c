@@ -16,7 +16,7 @@ static inline size_t get_ra_ind(size_t start, size_t capacity, size_t ind) {
 rollingarray_t *new_rollingarray(size_t capacity) {
   rollingarray_t *new = malloc(sizeof(rollingarray_t));
   new->capacity = capacity;
-  new->value = malloc(capacity * sizeof(rollingarray_t));
+  new->value = malloc(capacity * sizeof(ra_item_t));
   memset(new->value, 0, capacity);
   new->size = new->start = 0;
   return new;

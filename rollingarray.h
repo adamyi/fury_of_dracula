@@ -7,7 +7,7 @@
 #ifndef ROLLINGARRAY_H_
 #define ROLLINGARRAY_H_
 
-#define RA_UNKNOWN_ITEM -1
+#define RA_UNKNOWN_ITEM (-1)
 
 typedef location_t ra_item_t;
 
