@@ -9,6 +9,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "ac_log.h"
+
 #include "places.h"
 
 /// Is this the magic 'sentinel' edge?
@@ -131,6 +134,8 @@ static inline void print_mapdata_c(FILE *fp, int mcount,
 }
 
 int main() {
+  ac_setLoggingTag("generate_mapdata");
+  ac_log(AC_LOG_INFO, "Reading places.c");
   int count[NUM_MAP_LOCATIONS], mat[NUM_MAP_LOCATIONS][NUM_MAP_LOCATIONS];
   int tmpc[NUM_MAP_LOCATIONS];
   int mcount = 0, mcounti = 0;
@@ -159,10 +164,12 @@ int main() {
     adjc[CONNECTIONS[i].w][tmpc[CONNECTIONS[i].w]++] = (struct adj_connection){
         .v = CONNECTIONS[i].v, .type = CONNECTIONS[i].t};
   }
+  ac_log(AC_LOG_INFO, "Writing mapdata.h");
   FILE *fp = fopen("mapdata.h", "w");
   print_header_comments(fp);
   print_mapdata_h(fp, mcount);
   fclose(fp);
+  ac_log(AC_LOG_INFO, "Writing mapdata.c");
   fp = fopen("mapdata.c", "w");
   print_header_comments(fp);
   print_mapdata_c(fp, mcount, mat, count, adjc);

@@ -30,3 +30,31 @@ bool isConnected(location_t v, location_t w) {
 struct adj_connection *getConnections(location_t v) {
   return ADJLIST[v];
 }
+
+location_t special_location_find_by_abbrev(char *abbrev) {
+  if (abbrev[0] == 'C' && abbrev[1] == '?')
+    return CITY_UNKNOWN;
+  else if (abbrev[0] == 'S' && abbrev[1] == '?')
+    return SEA_UNKNOWN;
+  else if (abbrev[0] == 'H' && abbrev[1] == 'I')
+    return HIDE;
+  else if (abbrev[0] == 'T' && abbrev[1] == 'P')
+    return TELEPORT;
+  else if (abbrev[0] == 'D') {
+    switch (abbrev[1]) {
+      case '1':
+        return DOUBLE_BACK_1;
+      case '2':
+        return DOUBLE_BACK_2;
+      case '3':
+        return DOUBLE_BACK_3;
+      case '4':
+        return DOUBLE_BACK_4;
+      case '5':
+        return DOUBLE_BACK_5;
+      default:
+        return NOWHERE;
+    }
+  }
+  return NOWHERE;
+}

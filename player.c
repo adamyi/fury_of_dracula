@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#include "ac_log.h"
+
 #include "game.h"
 #include "places.h"
 #include "player.h"
@@ -40,4 +42,22 @@ void player_get_trail(player_t *player, location_t trail[TRAIL_SIZE]) {
 void player_move_to(player_t *player, location_t location) {
   player->location = location;
   rollingarray_add_item(player->trail, location);
+}
+
+enum player player_id_from_char(char player) {
+  switch (player) {
+    case 'G':
+      return PLAYER_LORD_GODALMING;
+    case 'S':
+      return PLAYER_DR_SEWARD;
+    case 'H':
+      return PLAYER_VAN_HELSING;
+    case 'M':
+      return PLAYER_MINA_HARKER;
+    case 'D':
+      return PLAYER_DRACULA;
+    default:
+      ac_log(AC_LOG_FATAL, "Unknown player");
+  }
+  __builtin_unreachable();
 }
