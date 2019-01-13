@@ -6,8 +6,10 @@
 
 #include <assert.h>
 #include <err.h>
+#include <memory.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sysexits.h>
 
 #include "ac_log.h"
@@ -23,11 +25,11 @@ typedef struct game_view {
   enum player current_player;
   int score;
   player_t *players[NUM_PLAYERS];
-  // TODO: minions
-  // TODO(hunt): messages
+  int traps[NUM_MAP_LOCATIONS];
+  location_t vampire;
 } game_view;
 
-// parse 7
+// parse 7-char move
 char *parse_move(char *move, game_view *gv) {
   // move format (hunter):
   // Player[1] Location[2] Encounter[4]
@@ -41,43 +43,84 @@ char *parse_move(char *move, game_view *gv) {
 
   // parse location
   location_t loc = NOWHERE;
-  if (pid == PLAYER_DRACULA) loc = special_location_find_by_abbrev(move);
-  if (loc == NOWHERE) loc = location_find_by_abbrev(move);
+  bool is_sea = false;
+  if (pid == PLAYER_DRACULA) {
+    loc = special_location_find_by_abbrev(move);
+    if (loc == SEA_UNKNOWN)
+      is_sea = true;
+    else if ((loc >= DOUBLE_BACK_1 &&
+              loc <= DOUBLE_BACK_5)) {  // no need for HIDE
+      int b = loc - DOUBLE_BACK_1;      // 1: stay at current
+      location_t last_loc =
+          rollingarray_get_item_backwards(gv->players[pid]->trail, b);
+      is_sea = (last_loc == SEA_UNKNOWN) ||
+               (last_loc >= MIN_MAP_LOCATION && last_loc <= MAX_MAP_LOCATION &&
+                location_get_type(last_loc) == SEA);
+    }
+  }
+  if (loc == NOWHERE) {
+    loc = location_find_by_abbrev(move);
+    is_sea = (location_get_type(loc) == SEA);
+  }
 
   move += 2;
+
+  // get first location in trail for trap to invalidate
+  location_t loc_trail_first = NOWHERE;
+  if (gv->round >= TRAIL_SIZE && pid == PLAYER_DRACULA)
+    loc_trail_first = rollingarray_get_item(gv->players[pid]->trail, 0);
+
+  player_move_to(gv->players[pid], loc);
+  if (pid == PLAYER_DRACULA && is_sea)
+    gv->players[pid]->health -=
+        LIFE_LOSS_SEA;  // TODO(adamyi): check if game ends
 
   if (pid == PLAYER_DRACULA) {
     // parse minion
     if (move[0] == 'T') {
       ac_log(AC_LOG_DEBUG, "placed trap");
-      // TODO: placd trap
+      if (loc >= MIN_MAP_LOCATION && loc <= MAX_MAP_LOCATION) gv->traps[loc]++;
     } else if (move[1] == 'V') {
       ac_log(AC_LOG_DEBUG, "placed vampire");
-      // TODO: placed vampire
+      gv->vampire = loc;
     }
     move += 2;
 
     // parse left trail
     if (*move == 'M') {
       ac_log(AC_LOG_DEBUG, "trap invalidates");
-      // TODO; Trap invalidates
+      if (loc_trail_first >= MIN_MAP_LOCATION &&
+          loc_trail_first <= MAX_MAP_LOCATION)
+        gv->traps[loc_trail_first]--;
     } else if (*move == 'V') {
       ac_log(AC_LOG_DEBUG, "vampire matures");
-      // TODO: vampire matures
+      gv->vampire = NOWHERE;
+      gv->score -= 13;
     }
     move += 2;
+
+    gv->round++;
+    gv->current_player = 0;
+    gv->score -= SCORE_LOSS_DRACULA_TURN;
   } else {
     // parse encounter
     for (int i = 0; i < 4; i++) {
       switch (*move) {
         case 'T':
-          // TODO: encountered trap
+          ac_log(AC_LOG_DEBUG, "encounter trap");
+          gv->traps[loc]--;
+          // TODO(adamyi): send to hospital
+          gv->players[pid]->health -= 2;
           break;
         case 'V':
-          // TODO: encountered immature vampire
+          ac_log(AC_LOG_DEBUG, "encounter immature vampire");
+          gv->vampire = NOWHERE;
           break;
         case 'D':
-          // TODO: encountered Dracula
+          // TODO(adamyi): send to hospital/end game
+          ac_log(AC_LOG_DEBUG, "encounter dracula");
+          gv->players[PLAYER_DRACULA]->health -= LIFE_LOSS_HUNTER_ENCOUNTER;
+          gv->players[pid]->health -= LIFE_LOSS_DRACULA_ENCOUNTER;
           break;
         default:
           // encountered nothing
@@ -85,6 +128,8 @@ char *parse_move(char *move, game_view *gv) {
       }
       move++;
     }
+
+    gv->current_player++;
   }
 
   return move;
@@ -99,6 +144,8 @@ game_view *gv_new(char *past_plays, player_message messages[]) {
   new->round = 0;
   new->current_player = 0;
   new->score = GAME_START_SCORE;
+  new->vampire = NOWHERE;
+  memset(new->traps, 0, NUM_MAP_LOCATIONS * sizeof(int));
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
   while (*past_plays != '\0') past_plays = parse_move(past_plays, new);
 
@@ -126,7 +173,7 @@ location_t gv_get_location(game_view *gv, enum player player) {
 
 void gv_get_history(game_view *gv, enum player player,
                     location_t trail[TRAIL_SIZE]) {
-  rollingarray_to_array(gv->players[player]->trail, trail);
+  player_get_trail(gv->players[player], trail);
 }
 
 location_t *gv_get_connections(game_view *gv, size_t *n_locations,

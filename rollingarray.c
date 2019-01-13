@@ -4,12 +4,21 @@
 #include "rollingarray.h"
 #include <assert.h>
 #include <memory.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 
 static inline size_t get_ra_ind(size_t start, size_t capacity, size_t ind) {
   ind += start;
   if (ind >= capacity) ind -= capacity;
+  return ind;
+}
+
+static inline size_t get_ra_ind_backwards(size_t start, size_t capacity,
+                                          size_t size, size_t ind) {
+  size_t last_ind = get_ra_ind(start, capacity, size - 1);
+  ind = last_ind - ind;
+  if (ind < 0) ind += capacity;
   return ind;
 }
 
@@ -32,6 +41,12 @@ ra_item_t rollingarray_get_item(rollingarray_t *ra, size_t ind) {
   return ra->value[get_ra_ind(ra->start, ra->capacity, ind)];
 }
 
+ra_item_t rollingarray_get_item_backwards(rollingarray_t *ra, size_t ind) {
+  if (ind >= ra->size) return RA_UNKNOWN_ITEM;
+  return ra
+      ->value[get_ra_ind_backwards(ra->start, ra->capacity, ra->size, ind)];
+}
+
 void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
   if (ra->size < ra->capacity)
     ra->value[get_ra_ind(ra->start, ra->capacity, ra->size++)] = val;
@@ -41,9 +56,17 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
 
 int rollingarray_size(rollingarray_t *ra) { return ra->size; }
 
-size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[]) {
-  for (int i = ra->start, j = 0; j < ra->size;
-       i = (i + 1 == ra->capacity ? 0 : i + 1), j++)
-    arr[j] = ra->value[i];
+size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
+                             bool reversed) {
+  if (reversed) {
+    for (int i = ra->start, j = ra->size - 1; j > -1;
+         i = (i + 1 == ra->capacity ? 0 : i + 1), j--)
+      arr[j] = ra->value[i];
+  } else {
+    for (int i = ra->start, j = 0; j < ra->size;
+         i = (i + 1 == ra->capacity ? 0 : i + 1), j++)
+      arr[j] = ra->value[i];
+  }
+  for (int i = ra->size; i < ra->capacity; i++) arr[i] = RA_UNKNOWN_ITEM;
   return ra->size;
 }

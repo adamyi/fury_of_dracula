@@ -34,7 +34,7 @@ bool player_lose_health(player_t *player, int lose) {
 location_t player_get_location(player_t *player) { return player->location; }
 
 void player_get_trail(player_t *player, location_t trail[TRAIL_SIZE]) {
-  rollingarray_to_array(player->trail, trail);
+  rollingarray_to_array(player->trail, trail, true);
 }
 
 // NOTE: this doesn't take care of value check, losing blood, and spawning

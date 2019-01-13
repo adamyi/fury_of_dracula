@@ -41,20 +41,9 @@ location_t special_location_find_by_abbrev(char *abbrev) {
   else if (abbrev[0] == 'T' && abbrev[1] == 'P')
     return TELEPORT;
   else if (abbrev[0] == 'D') {
-    switch (abbrev[1]) {
-      case '1':
-        return DOUBLE_BACK_1;
-      case '2':
-        return DOUBLE_BACK_2;
-      case '3':
-        return DOUBLE_BACK_3;
-      case '4':
-        return DOUBLE_BACK_4;
-      case '5':
-        return DOUBLE_BACK_5;
-      default:
-        return NOWHERE;
-    }
+    if (abbrev[1] >= '1' && abbrev[1] <= '5')
+      return DOUBLE_BACK_1 + abbrev[1] - '1';
+    return NOWHERE;
   }
   return NOWHERE;
 }
