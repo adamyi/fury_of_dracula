@@ -138,7 +138,7 @@ int main() {
   ac_log(AC_LOG_INFO, "Reading places.c");
   int count[NUM_MAP_LOCATIONS], mat[NUM_MAP_LOCATIONS][NUM_MAP_LOCATIONS];
   int tmpc[NUM_MAP_LOCATIONS];
-  int mcount = 0, mcounti = 0;
+  int mcount = 0;
   memset(count, 0, sizeof(count));
   memset(mat, 0, sizeof(mat));
   for (size_t i = 0; !is_sentinel_edge(CONNECTIONS[i]); i++) {
@@ -150,10 +150,7 @@ int main() {
         get_connection_type_mask(CONNECTIONS[i].t);
   }
   for (int i = 0; i < NUM_MAP_LOCATIONS; i++) {
-    if (count[i] > mcount) {
-      mcount = count[i];
-      mcounti = i;
-    }
+    if (count[i] > mcount) mcount = count[i];
   }
   struct adj_connection adjc[NUM_MAP_LOCATIONS][mcount];
   memset(tmpc, 0, sizeof(tmpc));

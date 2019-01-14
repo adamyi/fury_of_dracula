@@ -143,10 +143,10 @@ const char *location_get_abbrev(location_t place);
 place_type_t location_get_type(location_t place);
 
 /** given a place name, return its ID number */
-location_t location_find_by_name(char *name);
+location_t location_find_by_name(const char *name);
 
 /** given a place abbreviation, return its ID number */
-location_t location_find_by_abbrev(char *abbrev);
+location_t location_find_by_abbrev(const char *abbrev);
 
 /** given a type of transport, return a string representation. */
 const char *transport_to_s(transport_t t);

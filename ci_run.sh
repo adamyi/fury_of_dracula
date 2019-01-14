@@ -16,16 +16,19 @@ fi
 
 echo "Using clang-tidy: $CLANG_TIDY"
 
+SRCS="$(find . -name \*.c -o -name \*.h |grep -v -F -f .lint-ignore | tr '\n' ' ')"
+echo "Linting files: $SRCS"
+
 set -e
 set -x
 
 make
 
 $CLANG_FORMAT --version
-./run-clang-format.py --clang-format-executable $CLANG_FORMAT *.c *.h
+./run-clang-format.py --clang-format-executable $CLANG_FORMAT $SRCS
 
 $CLANG_TIDY --version
-$CLANG_TIDY *.c *.h
+$CLANG_TIDY $SRCS
 
 ./test_dracula_view
 ./test_game_view

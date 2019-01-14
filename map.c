@@ -32,15 +32,11 @@ struct adj_connection *getConnections(location_t v) {
 }
 
 location_t special_location_find_by_abbrev(char *abbrev) {
-  if (abbrev[0] == 'C' && abbrev[1] == '?')
-    return CITY_UNKNOWN;
-  else if (abbrev[0] == 'S' && abbrev[1] == '?')
-    return SEA_UNKNOWN;
-  else if (abbrev[0] == 'H' && abbrev[1] == 'I')
-    return HIDE;
-  else if (abbrev[0] == 'T' && abbrev[1] == 'P')
-    return TELEPORT;
-  else if (abbrev[0] == 'D') {
+  if (abbrev[0] == 'C' && abbrev[1] == '?') return CITY_UNKNOWN;
+  if (abbrev[0] == 'S' && abbrev[1] == '?') return SEA_UNKNOWN;
+  if (abbrev[0] == 'H' && abbrev[1] == 'I') return HIDE;
+  if (abbrev[0] == 'T' && abbrev[1] == 'P') return TELEPORT;
+  if (abbrev[0] == 'D') {
     if (abbrev[1] >= '1' && abbrev[1] <= '5')
       return DOUBLE_BACK_1 + abbrev[1] - '1';
     return NOWHERE;

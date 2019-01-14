@@ -46,7 +46,7 @@ location_t dv_get_location(dracula_view *dv, enum player player) {
 }
 
 void dv_get_player_move(dracula_view *dv, enum player player, location_t *start,
-                        location_t *end) {  // TODO TEST
+                        location_t *end) {
   *end = gv_get_location(dv->gv, player);
 
   location_t trail[TRAIL_SIZE];
@@ -70,8 +70,8 @@ static int get_round_trail_move_made(dracula_view *dv, int index) {
 
 void dv_get_locale_info(
     dracula_view *dv, location_t where, int *n_traps,
-    int *n_vamps) {  // TODO traps and vampire tracking can be done in gameview
-                     // in second part of assignment
+    int *n_vamps) {  // NOTES: traps and vampire tracking can be done in
+                     // gameview in second part of assignment
   int last_hunter_visit = -1;
   *n_traps = 0;
   *n_vamps = 0;
@@ -112,7 +112,7 @@ location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
 location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  // TODO: dracula trail/hide/doubleback
+  // TODO(adamyi): dracula trail/hide/doubleback
   return gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player),
                             player, dv_get_round(dv), road, rail, sea);
 }

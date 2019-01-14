@@ -25,8 +25,7 @@ static void gv_get_connections_do(struct game_view *gv, size_t *n_locations,
                                   enum player player, round_t round, bool road,
                                   bool rail, bool sea, int max_rail_dist);
 
-static inline int get_rail_travel_dist(struct game_view *gv, round_t round,
-                                       enum player player);
+static inline int get_rail_travel_dist(round_t round, enum player player);
 
 typedef struct game_view {
   round_t round;
@@ -143,7 +142,8 @@ char *parse_move(char *move, game_view *gv) {
   return move;
 }
 
-game_view *gv_new(char *past_plays, player_message messages[]) {
+game_view *gv_new(char *past_plays,
+                  player_message messages[] __attribute__((unused))) {
   ac_setLoggingTag("game_view");
   ac_log(AC_LOG_DEBUG, "Creating new GameView based on past_plays string: %s",
          past_plays);
@@ -157,6 +157,7 @@ game_view *gv_new(char *past_plays, player_message messages[]) {
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
   while (*past_plays != '\0') past_plays = parse_move(past_plays, new);
 
+  // TODO(adamyi): messages
   return new;
 }
 
@@ -184,13 +185,9 @@ void gv_get_history(game_view *gv, enum player player,
   player_get_trail(gv->players[player], trail);
 }
 
-static inline int get_rail_travel_dist(game_view *gv, round_t round,
-                                       enum player player) {
-  if (player == PLAYER_DRACULA) {
-    return 0;
-  } else {
-    return (round + player) % 4;
-  }
+static inline int get_rail_travel_dist(round_t round, enum player player) {
+  if (player == PLAYER_DRACULA) return 0;
+  return (round + player) % 4;
 }
 
 void gv_get_connections_do(game_view *gv, size_t *n_locations, bool *can_go,
@@ -228,7 +225,7 @@ location_t *gv_get_connections(game_view *gv, size_t *n_locations,
 
   int max_rail_dist = 0;
   if (rail) {
-    max_rail_dist = get_rail_travel_dist(gv, round, player);
+    max_rail_dist = get_rail_travel_dist(round, player);
   }
 
   gv_get_connections_do(gv, n_locations, can_go, from, player, round, road,

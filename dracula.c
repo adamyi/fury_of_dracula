@@ -8,7 +8,7 @@
 #include "dracula_view.h"
 #include "game.h"
 
-void decide_dracula_move(DraculaView dv) {
-  // TODO: Replace this with something better!
+void decide_dracula_move(DraculaView state __attribute__((unused))) {
+  // TODO(unassigned): Replace this with something better!
   register_best_play("CD", "Mwahahahaha");
 }

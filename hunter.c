@@ -8,7 +8,7 @@
 #include "game.h"
 #include "hunter_view.h"
 
-void decide_hunter_move(HunterView hv) {
-  // TODO: Replace this with something better!
+void decide_hunter_move(HunterView state __attribute__((unused))) {
+  // TODO(unassigned): Replace this with something better!
   register_best_play("TO", "Have we nothing Toulouse?");
 }

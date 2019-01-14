@@ -305,7 +305,7 @@ connection CONNECTIONS[] = {
 
 ////////////////////////////////////////////////////////////////////////
 
-location_t location_find_by_name(char *name) {
+location_t location_find_by_name(const char *name) {
   // binary search
   location_t lo = MIN_MAP_LOCATION, hi = MAX_MAP_LOCATION;
   while (lo <= hi) {
@@ -319,7 +319,7 @@ location_t location_find_by_name(char *name) {
   return NOWHERE;
 }
 
-location_t location_find_by_abbrev(char *abbrev) {
+location_t location_find_by_abbrev(const char *abbrev) {
   // an attempt to optimise a linear search
   struct place *first = &PLACES[MIN_MAP_LOCATION];
   struct place *last = &PLACES[MAX_MAP_LOCATION];
