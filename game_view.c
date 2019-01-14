@@ -20,13 +20,13 @@
 #include "mapdata.h"
 #include "player.h"
 
-static void gv_get_connections_do(game_view *gv, size_t *n_locations,
+static void gv_get_connections_do(struct game_view *gv, size_t *n_locations,
                                   location_t available_locations[],
                                   location_t from, enum player player,
                                   round_t round, bool road, bool rail, bool sea,
                                   int max_rail_dist);
 
-static int get_rail_travel_dist(game_view *gv, round_t round,
+static int get_rail_travel_dist(struct game_view *gv, round_t round,
                                 enum player player);
 
 typedef struct game_view {

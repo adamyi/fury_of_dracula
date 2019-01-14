@@ -62,6 +62,13 @@ void dv_get_player_move(dracula_view *dv, enum player player, location_t *start,
   return;
 }
 
+// function to take the index of a trail move and determine the round that move
+// was made in
+static int get_round_trail_move_made(dracula_view *dv, int index) {
+  int round = gv_get_round(dv->gv);
+  return round - index;
+}
+
 void dv_get_locale_info(
     dracula_view *dv, location_t where, int *n_traps,
     int *n_vamps) {  // TODO traps and vampire tracking can be done in gameview
@@ -95,21 +102,15 @@ void dv_get_locale_info(
   while (j > 0) {
     if (trail[j] == where) {
       if (get_round_trail_move_made(dv, j) % 13 == 0) {
-        *n_vamps++;
+        (*n_vamps)++;
       } else {
-        *n_traps++;
+        (*n_traps)++;
       }
     }
     j--;
   }
 
   return;
-}
-// function to take the index of a trail move and determine the round that move
-// was made in
-static int get_round_trail_move_made(dracula_view *dv, int index) {
-  int round = gv_get_round(dv->gv);
-  return round - index;
 }
 
 void dv_get_trail(dracula_view *dv, enum player player,
