@@ -52,6 +52,7 @@ void _ac_log(const char *file, int line, int level, const char *fmt, ...) {
     // parse format string
     va_list vl;
     va_start(vl, fmt);
+    // NOLINTNEXTLINE(clang-analyzer-valist.Uninitialized)
     vsnprintf(buffer, AC_HELPER_MAX_BUFFER_LENGTH, fmt, vl);
     va_end(vl);
 
