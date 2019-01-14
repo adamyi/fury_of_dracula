@@ -49,20 +49,18 @@ location_t hv_get_location(hunter_view *hv, enum player player) {
 
 void hv_get_trail(hunter_view *hv, enum player player,
                   location_t trail[TRAIL_SIZE]) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+  gv_get_history(hv->gv, player, trail);
 }
 
 location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
                          bool rail, bool sea) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  *n_locations = 0;
-  return NULL;
+  return hv_get_dests_player(hv, n_locations, hv_get_player(hv), road, rail,
+                             sea);
 }
 
 location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  *n_locations = 0;
-  return NULL;
+  return gv_get_connections(hv->gv, n_locations, hv_get_location(hv, player),
+                            player, hv_get_round(hv), road, rail, sea);
 }

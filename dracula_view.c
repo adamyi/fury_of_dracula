@@ -59,77 +59,60 @@ void dv_get_player_move(dracula_view *dv, enum player player, location_t *start,
   } else {
     *start = trail[0];
   }
-  return;
 }
 
 // function to take the index of a trail move and determine the round that move
 // was made in
 static int get_round_trail_move_made(dracula_view *dv, int index) {
   int round = gv_get_round(dv->gv);
-  return round - index;
+  return round - index - 1;
 }
 
 void dv_get_locale_info(
     dracula_view *dv, location_t where, int *n_traps,
     int *n_vamps) {  // TODO traps and vampire tracking can be done in gameview
                      // in second part of assignment
-  // TODO TEST
-  int last_hunter_visit = TRAIL_SIZE;
-  enum player hunters = 0;
+  int last_hunter_visit = -1;
+  *n_traps = 0;
+  *n_vamps = 0;
 
   location_t trail[TRAIL_SIZE] = {-1};
 
-  while (hunters <= PLAYER_MINA_HARKER) {
-    gv_get_history(dv->gv, hunters, trail);
-    int i = 0;
-    while (i < TRAIL_SIZE) {
-      if (trail[i] == where && i < last_hunter_visit) {
-        last_hunter_visit = i;
-        break;
-      }
-      i++;
+  for (enum player hunter = 0; hunter < PLAYER_DRACULA; hunter++) {
+    gv_get_history(dv->gv, hunter, trail);
+    for (int i = TRAIL_SIZE; i > last_hunter_visit; i--) {
+      if (trail[i] == where) last_hunter_visit = i;
     }
-  }
-  int j;
-  if (last_hunter_visit == TRAIL_SIZE) {
-    j = TRAIL_SIZE - 1;
-  } else {
-    j = last_hunter_visit;
   }
 
   gv_get_history(dv->gv, PLAYER_DRACULA, trail);
 
-  while (j > 0) {
-    if (trail[j] == where) {
-      if (get_round_trail_move_made(dv, j) % 13 == 0) {
+  for (int i = last_hunter_visit == -1 ? TRAIL_SIZE - 1 : last_hunter_visit;
+       i > -1; i--) {
+    if (trail[i] == where) {
+      if (get_round_trail_move_made(dv, i) % 13 == 0) {
         (*n_vamps)++;
       } else {
         (*n_traps)++;
       }
     }
-    j--;
   }
-
-  return;
 }
 
 void dv_get_trail(dracula_view *dv, enum player player,
                   location_t trail[TRAIL_SIZE]) {
   gv_get_history(dv->gv, player, trail);
-  // TODO check how doublebacks influence trails & test
 }
 
 location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
                          bool sea) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  *n_locations = 0;
-  return NULL;
+  return dv_get_dests_player(dv, n_locations, PLAYER_DRACULA, road, false, sea);
 }
 
 location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  // TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-  *n_locations = 0;
-  return NULL;
+  // TODO: dracula trail/hide/doubleback
+  return gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player),
+                            player, dv_get_round(dv), road, rail, sea);
 }

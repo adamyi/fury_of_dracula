@@ -21,13 +21,12 @@
 #include "player.h"
 
 static void gv_get_connections_do(struct game_view *gv, size_t *n_locations,
-                                  location_t available_locations[],
-                                  location_t from, enum player player,
-                                  round_t round, bool road, bool rail, bool sea,
-                                  int max_rail_dist);
+                                  bool *can_go, location_t from,
+                                  enum player player, round_t round, bool road,
+                                  bool rail, bool sea, int max_rail_dist);
 
-static int get_rail_travel_dist(struct game_view *gv, round_t round,
-                                enum player player);
+static inline int get_rail_travel_dist(struct game_view *gv, round_t round,
+                                       enum player player);
 
 typedef struct game_view {
   round_t round;
@@ -185,8 +184,8 @@ void gv_get_history(game_view *gv, enum player player,
   player_get_trail(gv->players[player], trail);
 }
 
-static int get_rail_travel_dist(game_view *gv, round_t round,
-                                enum player player) {
+static inline int get_rail_travel_dist(game_view *gv, round_t round,
+                                       enum player player) {
   if (player == PLAYER_DRACULA) {
     return 0;
   } else {
@@ -194,57 +193,50 @@ static int get_rail_travel_dist(game_view *gv, round_t round,
   }
 }
 
-void gv_get_connections_do(game_view *gv, size_t *n_locations,
-                           location_t available_locations[], location_t from,
-                           enum player player, round_t round, bool road,
-                           bool rail, bool sea, int max_rail_dist) {
-  if (n_locations != 0 && max_rail_dist == 0) {
-    return;
-  }
+void gv_get_connections_do(game_view *gv, size_t *n_locations, bool *can_go,
+                           location_t from, enum player player, round_t round,
+                           bool road, bool rail, bool sea, int max_rail_dist) {
+  if ((!road) && ((!rail) || max_rail_dist <= 0) && (!sea)) return;
 
   struct adj_connection *conns = getConnections(from);
-  int i = 0;
-  while (i < ADJLIST_COUNT[from]) {
-    if (conns[i].type == ROAD && road == true) {
-      available_locations[*n_locations] = conns[i].v;
-      *n_locations++;
 
-    } else if (conns[i].type == SEA && sea == true) {
-      available_locations[*n_locations] = conns[i].v;
-      *n_locations++;
-
-    } else if (conns[i].type == RAIL && rail == true && max_rail_dist > 0 &&
+  for (int i = 0; i < ADJLIST_COUNT[from]; i++) {
+    if (conns[i].type == ROAD && road) {
+      can_go[conns[i].v]++;
+      (*n_locations)++;
+    } else if (conns[i].type == BOAT && sea) {
+      can_go[conns[i].v]++;
+      (*n_locations)++;
+    } else if (conns[i].type == RAIL && rail && max_rail_dist > 0 &&
                conns[i].v != from) {
-      available_locations[*n_locations] = conns[i].v;
-      *n_locations++;
-      gv_get_connections_do(gv, n_locations, available_locations, conns[i].v,
-                            player, round, false, rail, false,
-                            max_rail_dist - 1);
+      can_go[conns[i].v]++;
+      (*n_locations)++;
+      gv_get_connections_do(gv, n_locations, can_go, conns[i].v, player, round,
+                            false, rail, false, max_rail_dist - 1);
     }
-    i++;
   }
 }
 
 location_t *gv_get_connections(game_view *gv, size_t *n_locations,
                                location_t from, enum player player,
                                round_t round, bool road, bool rail, bool sea) {
-  location_t temp_available_locations[MAX_CONNECTION_PER_PLACE * 3] = {-1};
-  *n_locations = 0;
+  bool can_go[NUM_MAP_LOCATIONS];
+  memset(can_go, 0, NUM_MAP_LOCATIONS);
 
-  temp_available_locations[*n_locations] = from;
-  *n_locations++;
+  can_go[from] = true;
+  *n_locations = 1;
 
   int max_rail_dist = 0;
-  if (rail == true) {
+  if (rail) {
     max_rail_dist = get_rail_travel_dist(gv, round, player);
   }
 
-  gv_get_connections_do(gv, n_locations, temp_available_locations, from, player,
-                        round, road, rail, sea, max_rail_dist);
+  gv_get_connections_do(gv, n_locations, can_go, from, player, round, road,
+                        rail, sea, max_rail_dist);
 
-  location_t *valid_conns = malloc(sizeof(location_t) * (*n_locations + 1));
-  for (int i = 0; i <= *n_locations; i++) {
-    valid_conns[i] = temp_available_locations[i];
+  location_t *valid_conns = malloc(sizeof(location_t) * (*n_locations));
+  for (size_t i = 0, j = 0; i < NUM_MAP_LOCATIONS; i++) {
+    if (can_go[i]) valid_conns[j++] = i;
   }
 
   return valid_conns;

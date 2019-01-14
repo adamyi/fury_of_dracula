@@ -4,7 +4,7 @@
 # Adam Yi <i@adamyi.com>
 
 # CC	 = gcc
-CFLAGS	= -std=c99
+CFLAGS	= -std=c99 -g
 BINS	 = test_game_view test_hunter_view test_dracula_view generate_mapdata
 
 all: ${BINS}

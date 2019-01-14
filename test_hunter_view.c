@@ -113,8 +113,9 @@ int main(void) {
     player_message messages[] = {"Gone to Galatz"};
     HunterView hv = hv_new(trail, messages);
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           true, false, false);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            true, false, false);
     bool seen[NUM_MAP_LOCATIONS] = {false};
     for (int i = 0; i < size; i++) seen[edges[i]] = true;
 
@@ -136,8 +137,9 @@ int main(void) {
     player_message messages[] = {"Sailing the Ionian"};
     HunterView hv = hv_new(trail, messages);
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           false, false, true);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            false, false, true);
     bool seen[NUM_MAP_LOCATIONS] = {false};
     for (int i = 0; i < size; i++) seen[edges[i]] = true;
 
@@ -162,8 +164,9 @@ int main(void) {
     player_message messages[] = {"Leaving Athens by train"};
     HunterView hv = hv_new(trail, messages);
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           false, true, false);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            false, true, false);
 
     assert(size == 1);
     assert(edges[0] == ATHENS);

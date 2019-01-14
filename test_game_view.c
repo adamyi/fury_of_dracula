@@ -145,9 +145,9 @@ int main(void) {
 
     do {
       puts("Checking Galatz road connections");
-      int size,
-          *edges = gv_get_connections(gv, &size, GALATZ, PLAYER_LORD_GODALMING,
-                                      0, true, false, false);
+      size_t size;
+      location_t *edges = gv_get_connections(
+          gv, &size, GALATZ, PLAYER_LORD_GODALMING, 0, true, false, false);
 
       bool seen[NUM_MAP_LOCATIONS] = {false};
       for (int i = 0; i < size; i++) seen[edges[i]] = true;
@@ -164,9 +164,9 @@ int main(void) {
 
     do {
       puts("Checking Ionian Sea sea connections");
-      int size, *edges = gv_get_connections(gv, &size, IONIAN_SEA,
-                                            PLAYER_LORD_GODALMING, 0, false,
-                                            false, true);
+      size_t size;
+      location_t *edges = gv_get_connections(
+          gv, &size, IONIAN_SEA, PLAYER_LORD_GODALMING, 0, false, false, true);
 
       bool seen[NUM_MAP_LOCATIONS] = {false};
       for (int i = 0; i < size; i++) seen[edges[i]] = true;
@@ -185,9 +185,9 @@ int main(void) {
 
     do {
       puts("Checking Athens rail connections (none)");
-      int size,
-          *edges = gv_get_connections(gv, &size, ATHENS, PLAYER_LORD_GODALMING,
-                                      0, false, true, false);
+      size_t size;
+      location_t *edges = gv_get_connections(
+          gv, &size, ATHENS, PLAYER_LORD_GODALMING, 0, false, true, false);
 
       assert(size == 1);
       assert(edges[0] == ATHENS);
