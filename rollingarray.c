@@ -18,8 +18,7 @@ static inline size_t get_ra_ind_backwards(size_t start, size_t capacity,
                                           size_t size, size_t ind) {
   size_t last_ind = get_ra_ind(start, capacity, size - 1);
   // avoid negative number because all are unsigned
-  if (last_ind < ind)
-    return capacity + last_ind - ind;
+  if (last_ind < ind) return capacity + last_ind - ind;
   return last_ind - ind;
 }
 

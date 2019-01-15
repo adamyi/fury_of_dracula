@@ -19,9 +19,14 @@
 #   clean up warning management; add more information about the warnings
 #   we disable (given we enable them all anyway).
 # 2019-01-15   Adam Yi <z5231521@cse.unsw.edu.au>
-#  disable -lgcc to run on macOS
+#  disable -lgcc to run on macOS, call system c3 if on cse server
 
 #set -x
+
+if [ -f /home/cs2521/bin/3c ]; then
+    /home/cs2521/bin/3c "$@"
+    return
+fi
 
 # pick up my LLVM bundle
 if [ "X${LLVM_ROOT}" != "X" ]
