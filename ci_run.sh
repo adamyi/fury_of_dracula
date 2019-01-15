@@ -31,6 +31,12 @@ $CLANG_FORMAT --version
 $CLANG_TIDY --version
 $CLANG_TIDY $SRCS
 
+echo "Run provided tap test (dryrun)"
+
+make prove
+
+echo "Run unit tests"
+
 ./test_dracula_view
 ./test_game_view
 ./test_hunter_view

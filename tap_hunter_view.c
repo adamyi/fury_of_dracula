@@ -172,10 +172,11 @@ int main(void) {
     TEST(hv != NULL, "hv := hv_new(\"%s\")", trail);
     TEST(!mem_address_is_poisoned(hv), "hv is a valid allocation");
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           true, false, false);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            true, false, false);
     bool seen[NUM_ALL_LOCATIONS] = {false};
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!valid_location_p(edges[i]))
         eprintf("... invalid location '%d'", edges[i]);
       seen[edges[i]] = true;
@@ -203,10 +204,11 @@ int main(void) {
     TEST(hv != NULL, "hv := hv_new(\"%s\")", trail);
     TEST(!mem_address_is_poisoned(hv), "hv is a valid allocation");
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           false, false, true);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            false, false, true);
     bool seen[NUM_ALL_LOCATIONS] = {false};
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!valid_location_p(edges[i]))
         eprintf("... invalid location '%d'", edges[i]);
       seen[edges[i]] = true;
@@ -236,11 +238,12 @@ int main(void) {
     TEST(hv != NULL, "hv := hv_new(\"%s\")", trail);
     TEST(!mem_address_is_poisoned(hv), "hv is a valid allocation");
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
-                                           false, true, false);
+    size_t size;
+    location_t *edges = hv_get_dests_player(hv, &size, PLAYER_LORD_GODALMING,
+                                            false, true, false);
 
     bool seen[NUM_ALL_LOCATIONS] = {false};
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!valid_location_p(edges[i]))
         eprintf("... invalid location '%d'", edges[i]);
       seen[edges[i]] = true;
@@ -348,10 +351,11 @@ int main(void) {
     HISTORY_IS(PLAYER_DRACULA, 4, CITY_UNKNOWN);
     HISTORY_IS(PLAYER_DRACULA, 5, CLERMONT_FERRAND);
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_DRACULA, true,
-                                           false, true);
+    size_t size;
+    location_t *edges =
+        hv_get_dests_player(hv, &size, PLAYER_DRACULA, true, false, true);
     bool seen[NUM_ALL_LOCATIONS] = {false};
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!valid_location_p(edges[i]))
         eprintf("... invalid location '%d'", edges[i]);
       seen[edges[i]] = true;
@@ -390,10 +394,11 @@ int main(void) {
     HISTORY_IS(PLAYER_DRACULA, 4, UNKNOWN_LOCATION);
     HISTORY_IS(PLAYER_DRACULA, 5, UNKNOWN_LOCATION);
 
-    int size, *edges = hv_get_dests_player(hv, &size, PLAYER_DRACULA, true,
-                                           false, true);
+    size_t size;
+    location_t *edges =
+        hv_get_dests_player(hv, &size, PLAYER_DRACULA, true, false, true);
     bool seen[NUM_ALL_LOCATIONS] = {false};
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       if (!valid_location_p(edges[i]))
         eprintf("... invalid location '%d'", edges[i]);
       seen[edges[i]] = true;

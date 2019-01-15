@@ -1,0 +1,281 @@
+#!/usr/bin/env zsh
+# compile a C program with AddressSanitizer extensions
+# derived from andrewt@'s cs1911 dcc,  May 2013
+#
+# 2015-04-09	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+# 2017-11-01	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+# 2018-01-22	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+# 	fix up compiler-rt
+#
+# 2018-04-28	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+#   portability hacks.
+#
+# 2018-11-25	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+#   support the really primitive leak2521 leak checker.  lsan doesn't
+#   work at all, and other leak checkers don't work reliably on i386:
+#   tcmalloc produces hideously useless output; Valgrind explodes.
+#
+# 2018-12-07	Jashank Jeremy <{jashankj,z5017851}@cse.unsw.edu.au>
+#   clean up warning management; add more information about the warnings
+#   we disable (given we enable them all anyway).
+# 2019-01-15   Adam Yi <z5231521@cse.unsw.edu.au>
+#  disable -lgcc to run on macOS
+
+#set -x
+
+# pick up my LLVM bundle
+if [ "X${LLVM_ROOT}" != "X" ]
+then
+	clang=${LLVM_ROOT}/bin/clang
+else
+	# LLVM_ROOT=/usr/lib/llvm-3.8
+	clang=${CLANG:-clang}
+fi
+
+c3path=$(dirname $(realpath "$0"))
+
+#path+=(${LLVM_ROOT}/bin)
+
+target="$(uname)"
+userland_bitness="$(file $(which file) | awk '{print $3}')"
+
+c3flags=()
+
+
+########################################################################
+# Warnings
+
+# shhh, I know we're doing weird flags.
+c3flags+=-Qunused-arguments
+
+# Pick a reasonable default C standard.
+c3flags+=-std=gnu11
+
+# Turn on every possible warning in Clang; the `-Weverything' flag is a
+# special case to do this.  We then explicitly turn off the warnings we
+# aren't especially interested in.
+c3flags+=(
+	-Weverything
+
+	# - padded_struct_field
+	#   (Warning, DefaultIgnore, InGroup<Padded>)
+	#   "padding {struct|interface|class} %1 "
+	#   "with %2 {byte|bit}s to align %4"
+	#
+	# - padded_struct_anon_field
+	#   (Warning, DefaultIgnore, InGroup<Padded>)
+	#   "padding {struct|interface|class} %1 "
+	#   "with %2 {byte|bit}s to align anonymous bit-field"
+	#
+	# - padded_struct_size
+	#   (Warning, DefaultIgnore, InGroup<Padded>)
+	#   "padding size of %0 with %1 %{byte|bit}s "
+	#   "to alignment boundary"
+	#
+	# - unnecessary_packed
+	#   (Warning, DefaultIgnore, InGroup<Padded>)
+	#   "packed attribute is unnecessary for %0"
+	-Wno-padded
+
+	# - pp_macro_is_reserved_id
+	#   (Warning, DefaultIgnore, InGroup<ReservedIdAsMacro>)
+	#   "macro name is a reserved identifier"
+	#
+	#   Warns for `_' and `__' prefixes on macros, which some of our
+	#   code (e.g., `test1511.h') uses.
+	-Wno-reserved-id-macro
+
+	# - typecheck_zero_array_size
+	#   (Extension, InGroup<ZeroLengthArray>)
+	#   "zero size arrays are an extension"
+	-Wno-zero-length-array
+
+	# - pp_macro_not_used
+	#   (Warning, DefaultIgnore, InGroup<"unused-macros">)
+	#   "macro is not used"
+	#
+	#   Disabled 2018-11-26.
+	-Wno-unused-macros
+
+	# - pp_disabled_macro_expansion
+	#   (Warning, DefaultIgnore, InGroup<"disabled-macro-expansion">)
+	#   "disabled expansion of recursive macro"
+	#
+	#   Disabled 2018-12-06 to deal with the "#define Item Item" hack.
+	-Wno-disabled-macro-expansion
+
+	# - warn_zero_size_struct_union_compat
+	#   (Warning, DefaultIgnore, InGroup<CXXCompat>)
+	#
+	#   "{empty }{struct|union} has size 0 in C, "
+	#   "{size 1|non-zero size} in C++"
+	#
+	#   Disabled 2019-01-04; 3c is unlikely to be used for code that
+	#   cares about C++ ABI compatibility.
+	-Wno-c++-compat
+
+	# GNU extension warnings can be disabled en-masse:
+	#   GNUAlignofExpression, GNUAnonymousStruct, GNUAutoType,
+	#   GNUBinaryLiteral, GNUCaseRange, GNUComplexInteger,
+	#   GNUCompoundLiteralInitializer, GNUConditionalOmittedOperand,
+	#   GNUDesignator, GNUEmptyStruct, VLAExtension,
+	#   GNUFlexibleArrayInitializer, GNUFlexibleArrayUnionMember,
+	#   GNUFoldingConstant, GNUImaginaryConstant, GNUIncludeNext,
+	#   GNULabelsAsValue, RedeclaredClassMember, GNURedeclaredEnum,
+	#   GNUStaticFloatInit, GNUStringLiteralOperatorTemplate,
+	#   GNUUnionCast, GNUVariableSizedTypeNotAtEnd, ZeroLengthArray,
+	#   GNUZeroLineDirective
+	#
+	# already disabled:
+	#   GNUEmptyInitializer, GNUEmptyStruct, GNUStatementExpression,
+	#   GNUZeroVariadicMacroArguments,
+	#
+	# -Wno-gnu
+
+	# - gnu_empty_initializer
+	#   (Extension, InGroup<GNUEmptyInitializer>)
+	#   "use of GNU empty initializer extension"
+	#
+	#   An extension to the (since standardised) designated initializer
+	#   syntax, such that "[omitted] fields are implicitly initialized
+	#   the same as for objects that have static storage duration."
+	#   <https://gcc.gnu.org/onlinedocs/gcc/Designated-Inits.html>
+	-Wno-gnu-empty-initializer
+
+	# - ext_empty_struct_union
+	#   (Extension, InGroup<GNUEmptyStruct>)
+	#   "empty {struct|union} is a GNU extension"
+	# - ext_no_named_members_in_struct_union
+	#   (Extension, InGroup<GNUEmptyStruct>)
+	#   "{struct|union} without named members is a GNU extension"
+	#
+	#   Disabled 2019-01-04, because the warning is nonsensical.
+	#   (It would be nice to warn about this, but this warning is
+	#   not the correct one.)
+	-Wno-gnu-empty-struct
+
+	# - gnu_statement_expr
+	#   (Extension, InGroup<GNUStatementExpression>)
+	#   "use of GNU statement expression extension"
+	#
+	#   "A compound statement enclosed in parentheses may appear as an
+	#   expression in GNU C."  Used in `test1511.h' and `PageTable.c'.
+	#   <https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html>
+	-Wno-gnu-statement-expression
+
+	# - ext_missing_varargs_arg
+	#   (Extension, InGroup<GNUZeroVariadicMacroArguments>)
+	#   "must specify at least one argument "
+	#   "for '...' parameter of variadic macro"
+	#
+	# - ext_paste_comma
+	#   (Extension, InGroup<GNUZeroVariadicMacroArguments>)
+	#   "token pasting of ',' and __VA_ARGS__ is a GNU extension"
+	#
+	#   "Historically, GNU CPP has also had another extension to
+	#   handle the trailing comma: the `##' token paste operator has
+	#   a special meaning when placed between a comma and a variable
+	#   argument."  In theory, superseded by `__VA_OPT__'.
+	#   <https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html>
+	#
+	#   Disabled 2019-01-04.
+	#   Lifted from `test1511.h' (which disabled it long ago).
+	-Wno-gnu-zero-variadic-macro-arguments
+)
+
+
+########################################################################
+# Debugging
+
+c3flags+=(
+	-g
+
+	# GCC hints not needed because we're flying clang
+	#-ggdb3 -gdwarf-2
+
+	# enable AddressSanitizer and UndefinedBehaviourSanitizer
+	-fsanitize=address
+	-fsanitize=undefined
+
+	# ASan and UBSan can, when they error out, produce stack traces...
+	# make those as useful as possible
+	-fno-omit-frame-pointer
+	-fno-optimize-sibling-calls
+
+	# dcc used to have these ... do we still need them?
+	#-fno-common
+	#-funwind-tables
+)
+
+
+########################################################################
+# System-specific hackery.
+
+[ $target = "Linux" ] &&
+	c3flags+=(-ldl)
+
+if [ -d /var/conform -a $userland_bitness = "32-bit" ]
+then
+	c3flags+=(
+		# CSEbian is badly broken, system-wide.
+		#
+		# In this particular case, the LLVM+CFE install is botched:
+		# it does not correctly guess the architecture and can't find
+		# compiler-rt build artefacts, so we must specify target and
+		# architecture.
+		-m32 -target i386-unknown-linux-gnu
+
+		# However, even with this, artefacts aren't picked up properly:
+		# if GCC is available, clang will fall back to using libgcc,
+		# even though the available libgcc doesn't have the (infamous)
+		# `__mulodi4', so we need to request the (more complete)
+		# compiler-rt --
+		--rtlib=compiler-rt
+
+		# -- but also bring in -lgcc and -lgcc_s, because compiler-rt
+		# depends on libgcc's unwinding (?!)
+                # disabled by adamyi@ to run on macOS
+		# -lgcc -lgcc_s
+	)
+fi
+
+
+########################################################################
+# Compiler environment setup -- -lflags, -Dflags
+c3flags+=(
+	# We prefer to avoid precise POSIX and irritating ISO C compliance,
+	# so make available as much of the C implementation's features as we
+	# possibly can.  expressivity > standards compliance.
+	-D_DEFAULT_SOURCE
+	-D_BSD_SOURCE
+	-D_SVID_SOURCE
+	-D_GNU_SOURCE
+
+	# Everybody assumes `-lm' is around.
+	-lm
+
+	# "[Add] all symbols to the dynamic symbol table.
+	-rdynamic
+)
+
+
+########################################################################
+# Support the leak checker.
+
+if [ "X$1" = "X+leak" ]
+then
+	c3flags+=(
+		-Wl,-wrap,{malloc,calloc,free}
+		-Wl,-wrap,{realloc,reallocarray}
+		-Wl,-wrap,{strdup,strndup}
+		"${c3path}/../lib/3c/leak2521.c"
+	)
+	shift
+fi
+
+
+########################################################################
+# Invoke the compiler!
+
+# echo $c3flags
+exec ${clang} ${c3flags} "$@"

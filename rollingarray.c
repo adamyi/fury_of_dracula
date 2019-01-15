@@ -58,17 +58,17 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
     ra->value[ra->start++] = val;
 }
 
-int rollingarray_size(rollingarray_t *ra) { return ra->size; }
+size_t rollingarray_size(rollingarray_t *ra) { return ra->size; }
 
 size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
                              bool reversed) {
   if (reversed) {
-    for (int i = ra->start, j = ra->size - 1; j > -1;
+    for (int i = (int)ra->start, j = (int)ra->size - 1; j >= 0;
          i = (i + 1 == ra->capacity ? 0 : i + 1), j--)
       arr[j] = ra->value[i];
   } else {
-    for (int i = ra->start, j = 0; j < ra->size;
-         i = (i + 1 == ra->capacity ? 0 : i + 1), j++)
+    for (int i = (int)ra->start, j = 0; j < ra->size;
+         i = (i + 1 == (int)ra->capacity ? 0 : i + 1), j++)
       arr[j] = ra->value[i];
   }
   for (int i = ra->size; i < ra->capacity; i++) arr[i] = RA_UNKNOWN_ITEM;
@@ -76,8 +76,8 @@ size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
 }
 
 bool rollingarray_has_item(rollingarray_t *ra, ra_item_t item) {
-  int endind = (ra->size < ra->capacity) ? ra->size : ra->capacity;
-  for (int i = 0; i < endind; i++) {
+  size_t endind = (ra->size < ra->capacity) ? ra->size : ra->capacity;
+  for (size_t i = 0; i < endind; i++) {
     if (ra->value[i] == item) return true;
   }
   return false;

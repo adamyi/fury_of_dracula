@@ -16,7 +16,7 @@
 #include "game_view.h"
 
 TEST_SET_FIXTURE(sampleFixtureTest) {
-  int *x = malloc(3);
+  int *x = malloc(3 * sizeof(int));
   x[0] = 0;
   x[1] = 1;
   x[2] = 2;
