@@ -1,0 +1,8 @@
+      if ( game.rules.currentPlayer.type == "dracula" ) {
+         var ms = game.rules.getValidDraculaMoves( gameState );
+         if (ms.length < 10) {
+            m = "> Legal Drac moves:";
+            for (i = 0; i < ms.length; i++) m += " "+ms[i];
+            console.log(m);
+         }
+      }

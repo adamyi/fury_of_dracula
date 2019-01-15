@@ -10,3 +10,6 @@ tap_game_view
 tap_hunter_view
 generate_mapdata
 mapdata.*
+dracula_ai
+hunter_ai
+test_ai.log

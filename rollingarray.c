@@ -17,9 +17,10 @@ static inline size_t get_ra_ind(size_t start, size_t capacity, size_t ind) {
 static inline size_t get_ra_ind_backwards(size_t start, size_t capacity,
                                           size_t size, size_t ind) {
   size_t last_ind = get_ra_ind(start, capacity, size - 1);
-  ind = last_ind - ind;
-  if (ind < 0) ind += capacity;
-  return ind;
+  // avoid negative number because all are unsigned
+  if (last_ind < ind)
+    return capacity + last_ind - ind;
+  return last_ind - ind;
 }
 
 rollingarray_t *new_rollingarray(size_t capacity) {
@@ -56,8 +57,7 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
     ra->value[get_ra_ind(ra->start, ra->capacity, ra->size++)] = val;
   else
     ra->value[ra->start++] = val;
-  if (ra->start == ra->capacity)
-    ra->start = 0;
+  if (ra->start == ra->capacity) ra->start = 0;
 }
 
 size_t rollingarray_size(rollingarray_t *ra) { return ra->size; }
