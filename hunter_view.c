@@ -10,46 +10,51 @@
 #include <stdlib.h>
 #include <sysexits.h>
 
+#include "ac_log.h"
+
 #include "game.h"
-#include "game_view.h"
 #include "hunter_view.h"
+#include "internal_game_view.h"
 #include "map.h"
 #include "mapdata.h"
 
 typedef struct hunter_view {
-  GameView gv;
+  struct _game_view *gv;
 } hunter_view;
 
 hunter_view *hv_new(char *past_plays, player_message messages[]) {
   hunter_view *new = malloc(sizeof *new);
   if (new == NULL) err(EX_OSERR, "couldn't allocate HunterView");
-  new->gv = gv_new(past_plays, messages);
+  new->gv = _gv_new(past_plays, messages);
 
   return new;
 }
 
 void hv_drop(hunter_view *hv) {
-  gv_drop(hv->gv);
+  _gv_drop(hv->gv);
   free(hv);
 }
 
-round_t hv_get_round(hunter_view *hv) { return gv_get_round(hv->gv); }
+round_t hv_get_round(hunter_view *hv) { return _gv_get_round(hv->gv); }
 
-enum player hv_get_player(hunter_view *hv) { return gv_get_player(hv->gv); }
+enum player hv_get_player(hunter_view *hv) { return _gv_get_player(hv->gv); }
 
-int hv_get_score(hunter_view *hv) { return gv_get_score(hv->gv); }
+int hv_get_score(hunter_view *hv) { return _gv_get_score(hv->gv); }
 
 int hv_get_health(hunter_view *hv, enum player player) {
-  return gv_get_health(hv->gv, player);
+  return _gv_get_health(hv->gv, player);
 }
 
 location_t hv_get_location(hunter_view *hv, enum player player) {
-  return gv_get_location(hv->gv, player);
+  location_t loc = _gv_get_real_location(hv->gv, player);
+  if (loc < MIN_MAP_LOCATION || loc > MAX_MAP_LOCATION)
+    return _gv_get_location(hv->gv, player);
+  return loc;
 }
 
 void hv_get_trail(hunter_view *hv, enum player player,
                   location_t trail[TRAIL_SIZE]) {
-  gv_get_history(hv->gv, player, trail);
+  _gv_get_move_history(hv->gv, player, trail);
 }
 
 location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
@@ -61,6 +66,27 @@ location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
 location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  return gv_get_connections(hv->gv, n_locations, hv_get_location(hv, player),
-                            player, hv_get_round(hv), road, rail, sea);
+  /*
+    EXPECT_TO_SEE(MEDITERRANEAN_SEA);
+    EXPECT_TO_SEE(SARAGOSSA);
+    EXPECT_TO_SEE(BARCELONA);
+    [INFO] - [hunter_view.c:79 | _game_view] - 16:10:51: Barcelona
+[INFO] - [hunter_view.c:80 | _game_view] - 16:10:51: Mediterranean Sea
+[INFO] - [hunter_view.c:81 | _game_view] - 16:10:51: Saragossa
+[INFO] - [hunter_view.c:82 | _game_view] - 16:10:51: Toulouse
+    */
+  // FIXME(adamyi): deal with Dracula HIDE/DOUBLE_BACK (re-use code for
+  // DraculaView)
+  ac_log(AC_LOG_INFO, "!! %s", location_get_name(hv_get_location(hv, player)));
+  location_t *ret =
+      _gv_get_connections(hv->gv, n_locations, hv_get_location(hv, player),
+                          player, hv_get_round(hv), road, rail, sea);
+  ac_log(AC_LOG_INFO, "%d", *n_locations);
+  if (*n_locations == 4) {
+    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[0]));
+    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[1]));
+    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[2]));
+    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[3]));
+  }
+  return ret;
 }

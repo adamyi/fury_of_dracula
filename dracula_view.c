@@ -12,59 +12,52 @@
 
 #include "dracula_view.h"
 #include "game.h"
-#include "game_view.h"
+#include "internal_game_view.h"
 #include "map.h"
 #include "mapdata.h"
 
 typedef struct dracula_view {
-  GameView gv;
+  _GameView gv;
 } dracula_view;
 
 dracula_view *dv_new(char *past_plays, player_message messages[]) {
   dracula_view *new = malloc(sizeof *new);
   if (new == NULL) err(EX_OSERR, "couldn't allocate DraculaView");
-  new->gv = gv_new(past_plays, messages);
+  new->gv = _gv_new(past_plays, messages);
 
   return new;
 }
 
 void dv_drop(dracula_view *dv) {
-  gv_drop(dv->gv);
+  _gv_drop(dv->gv);
   free(dv);
 }
 
-round_t dv_get_round(dracula_view *dv) { return gv_get_round(dv->gv); }
+round_t dv_get_round(dracula_view *dv) { return _gv_get_round(dv->gv); }
 
-int dv_get_score(dracula_view *dv) { return gv_get_score(dv->gv); }
+int dv_get_score(dracula_view *dv) { return _gv_get_score(dv->gv); }
 
 int dv_get_health(dracula_view *dv, enum player player) {
-  return gv_get_health(dv->gv, player);
+  return _gv_get_health(dv->gv, player);
 }
 
 location_t dv_get_location(dracula_view *dv, enum player player) {
-  return gv_get_location(dv->gv, player);
+  return _gv_get_real_location(dv->gv, player);
 }
 
 void dv_get_player_move(dracula_view *dv, enum player player, location_t *start,
                         location_t *end) {
-  *end = gv_get_location(dv->gv, player);
-
   location_t trail[TRAIL_SIZE];
-  gv_get_history(dv->gv, player, trail);
-  round_t round = gv_get_round(dv->gv);
+  _gv_get_move_history(dv->gv, player, trail);
 
-  if (round == 0) {
-    *start = UNKNOWN_LOCATION;
-
-  } else {
-    *start = trail[0];
-  }
+  *end = trail[0];
+  *start = trail[1];
 }
 
 // function to take the index of a trail move and determine the round that move
 // was made in
 static int get_round_trail_move_made(dracula_view *dv, int index) {
-  int round = gv_get_round(dv->gv);
+  int round = _gv_get_round(dv->gv);
   return round - index - 1;
 }
 
@@ -79,13 +72,13 @@ void dv_get_locale_info(
   location_t trail[TRAIL_SIZE] = {-1};
 
   for (enum player hunter = 0; hunter < PLAYER_DRACULA; hunter++) {
-    gv_get_history(dv->gv, hunter, trail);
+    _gv_get_location_history(dv->gv, hunter, trail);
     for (int i = TRAIL_SIZE; i > last_hunter_visit; i--) {
       if (trail[i] == where) last_hunter_visit = i;
     }
   }
 
-  gv_get_history(dv->gv, PLAYER_DRACULA, trail);
+  _gv_get_location_history(dv->gv, PLAYER_DRACULA, trail);
 
   for (int i = last_hunter_visit == -1 ? TRAIL_SIZE - 1 : last_hunter_visit;
        i > -1; i--) {
@@ -101,7 +94,10 @@ void dv_get_locale_info(
 
 void dv_get_trail(dracula_view *dv, enum player player,
                   location_t trail[TRAIL_SIZE]) {
-  gv_get_history(dv->gv, player, trail);
+  if (player == PLAYER_DRACULA)
+    _gv_get_location_history(dv->gv, player, trail);
+  else
+    _gv_get_move_history(dv->gv, player, trail);
 }
 
 location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
@@ -109,8 +105,8 @@ location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
   location_t current_location = dv_get_location(dv, PLAYER_DRACULA);
   round_t current_round = dv_get_round(dv);
   location_t *valid_connections =
-      gv_get_connections(dv->gv, n_locations, current_location, PLAYER_DRACULA,
-                         current_round, road, false, sea);
+      _gv_get_connections(dv->gv, n_locations, current_location, PLAYER_DRACULA,
+                          current_round, road, false, sea);
 
   location_t trail[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail);
@@ -146,6 +142,6 @@ location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
   if (player == PLAYER_DRACULA) return dv_get_dests(dv, n_locations, road, sea);
   location_t current_location = dv_get_location(dv, player);
   round_t current_round = dv_get_round(dv);
-  return gv_get_connections(dv->gv, n_locations, current_location, player,
-                            current_round, road, rail, sea);
+  return _gv_get_connections(dv->gv, n_locations, current_location, player,
+                             current_round, road, rail, sea);
 }

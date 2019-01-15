@@ -5,5 +5,8 @@ core
 test_dracula_view
 test_game_view
 test_hunter_view
+tap_dracula_view
+tap_game_view
+tap_hunter_view
 generate_mapdata
 mapdata.*

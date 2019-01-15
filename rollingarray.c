@@ -41,6 +41,10 @@ ra_item_t rollingarray_get_item(rollingarray_t *ra, size_t ind) {
   return ra->value[get_ra_ind(ra->start, ra->capacity, ind)];
 }
 
+ra_item_t rollingarray_last_item(rollingarray_t *ra) {
+  return rollingarray_get_item_backwards(ra, 0);
+}
+
 ra_item_t rollingarray_get_item_backwards(rollingarray_t *ra, size_t ind) {
   if (ind >= ra->size) return RA_UNKNOWN_ITEM;
   return ra

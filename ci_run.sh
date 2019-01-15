@@ -22,6 +22,7 @@ echo "Linting files: $SRCS"
 set -e
 set -x
 
+make clean
 make
 
 $CLANG_FORMAT --version

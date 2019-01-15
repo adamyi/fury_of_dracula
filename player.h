@@ -10,6 +10,7 @@ typedef struct player_t {
   int health;
   location_t location;
   rollingarray_t *trail;
+  rollingarray_t *location_history;
 } player_t;
 
 player_t *new_player(enum player id);
@@ -18,7 +19,9 @@ int player_get_health(player_t *player);
 bool player_lose_health(player_t *player, int lose);
 location_t player_get_location(player_t *player);
 void player_get_trail(player_t *player, location_t trail[TRAIL_SIZE]);
-void player_move_to(player_t *player, location_t location);
+void player_get_location_history(player_t *player,
+                                 location_t history[TRAIL_SIZE]);
+void player_move_to(player_t *player, location_t location, location_t move);
 enum player player_id_from_char(char player);
 
 #endif  // !defined (FOD__PLAYER_H_)
