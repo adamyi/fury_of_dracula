@@ -1,5 +1,6 @@
 *.o
 *.swp
+*.pyc
 bazel-*
 core
 test_dracula_view

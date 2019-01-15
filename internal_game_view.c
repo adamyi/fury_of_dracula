@@ -22,16 +22,6 @@
 
 static inline int get_rail_travel_dist(round_t round, enum player player);
 
-typedef struct _game_view {
-  round_t round;
-  enum player current_player;
-  int score;
-  player_t *players[NUM_PLAYERS];
-  int traps[NUM_MAP_LOCATIONS];
-  location_t vampire;
-  bool track_minions;
-} _game_view;
-
 static inline void hunter_lose_health(_game_view *gv, enum player player,
                                       int lose) {
   if (player_lose_health(gv->players[player], lose)) {
@@ -44,6 +34,7 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
                                        enum player pid, bool is_sea,
                                        location_t real_loc) {
   if (is_sea) player_lose_health(gv->players[pid], LIFE_LOSS_SEA);
+  gv->rests = 0;
 
   // parse minion
   if (move[0] == 'T') {
@@ -81,7 +72,10 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
 static inline char *parse_hunter_move(char *move, _game_view *gv,
                                       enum player pid, location_t old_loc,
                                       location_t real_loc) {
-  if (old_loc == real_loc) gv->players[pid]->health += LIFE_GAIN_REST;
+  if (old_loc == real_loc) {
+    gv->players[pid]->health += LIFE_GAIN_REST;
+    gv->rests++;
+  }
   // parse encounter
   for (int i = 0; i < 4; i++) {
     switch (*move) {
@@ -178,6 +172,7 @@ _game_view *_gv_new(char *past_plays,
   new->current_player = 0;
   new->score = GAME_START_SCORE;
   new->vampire = NOWHERE;
+  new->rests = 0;
   new->track_minions = track_minions;
   memset(new->traps, 0, NUM_MAP_LOCATIONS * sizeof(int));
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);

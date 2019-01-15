@@ -11,8 +11,20 @@
 
 #include "game.h"
 #include "places.h"
+#include "player.h"
 
 typedef struct _game_view *_GameView;
+
+typedef struct _game_view {
+  round_t round;
+  enum player current_player;
+  int score;
+  player_t *players[NUM_PLAYERS];
+  int traps[NUM_MAP_LOCATIONS];
+  location_t vampire;
+  bool track_minions;
+  int rests;  // for neural network feature generator
+} _game_view;
 
 /**
  * Creates a new view to summarise the current state of the game.
