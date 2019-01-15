@@ -5,7 +5,8 @@
 
 # CC	 = 2521 3c
 CFLAGS	= -std=c99 -g
-BINS	 = test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view
+LDFLAGS = -lm -ldl
+BINS	= test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view
 
 all: ${BINS}
 mapdata: mapdata.c mapdata.h
