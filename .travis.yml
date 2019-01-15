@@ -4,12 +4,13 @@ dist: trusty
 
 addons:
   apt:
-    sources:
+  sources:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty-7
     packages:
       - clang-tidy-7
       - clang-format-7
+      - zsh
 
 script:
   - ./ci_run.sh
