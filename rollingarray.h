@@ -26,5 +26,6 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val);
 int rollingarray_size(rollingarray_t *ra);
 size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
                              bool reversed);
+bool rollingarray_has_item(rollingarray_t *ra, ra_item_t item);
 
 #endif  // !defined (ROLLINGARRAY_H_)

@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <sysexits.h>
 
+#include "ac_log.h"
+
 #include "dracula_view.h"
 #include "game.h"
 #include "internal_game_view.h"
@@ -102,46 +104,17 @@ void dv_get_trail(dracula_view *dv, enum player player,
 
 location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
                          bool sea) {
-  location_t current_location = dv_get_location(dv, PLAYER_DRACULA);
-  round_t current_round = dv_get_round(dv);
-  location_t *valid_connections =
-      _gv_get_connections(dv->gv, n_locations, current_location, PLAYER_DRACULA,
-                          current_round, road, false, sea);
-
-  location_t trail[TRAIL_SIZE];
-  dv_get_trail(dv, PLAYER_DRACULA, trail);
-  size_t original_array_size = *n_locations;
-
-  for (size_t i = 0; i < original_array_size; i++) {  // remove trail
-    for (size_t j = 0; j < TRAIL_SIZE; j++) {
-      if (valid_connections[i] == trail[j]) {
-        valid_connections[i] = UNKNOWN_LOCATION;
-        (*n_locations)--;
-      }
-    }
-  }
-
-  location_t *dests = NULL;
-  if (*n_locations > 0)
-    dests =
-        malloc(sizeof(location_t) * (*n_locations));  // get final array size
-  size_t k = 0;
-  for (size_t i = 0; i < original_array_size; i++) {  // copy non-trail dests
-    if (valid_connections[i] != UNKNOWN_LOCATION) {
-      dests[k] = valid_connections[i];
-      k++;
-    }
-  }
-  free(valid_connections);
-  return dests;
+  location_t *ret = _gv_get_connections_with_trail(dv->gv, n_locations, dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA,
+                             dv_get_round(dv), road, false, sea);
+  ac_log(AC_LOG_ERROR, "%d", *n_locations);
+  ac_log(AC_LOG_ERROR, "%s", location_get_name(ret[0]));
+  return ret;
 }
 
 location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
   if (player == PLAYER_DRACULA) return dv_get_dests(dv, n_locations, road, sea);
-  location_t current_location = dv_get_location(dv, player);
-  round_t current_round = dv_get_round(dv);
-  return _gv_get_connections(dv->gv, n_locations, current_location, player,
-                             current_round, road, rail, sea);
+  return _gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player), player,
+                             dv_get_round(dv), road, rail, sea);
 }

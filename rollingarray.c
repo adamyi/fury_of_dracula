@@ -74,3 +74,12 @@ size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
   for (int i = ra->size; i < ra->capacity; i++) arr[i] = RA_UNKNOWN_ITEM;
   return ra->size;
 }
+
+bool rollingarray_has_item(rollingarray_t *ra, ra_item_t item) {
+  int endind = (ra->size < ra->capacity) ? ra->size : ra->capacity;
+  for (int i = 0; i < endind; i++) {
+    if (ra->value[i] == item)
+      return true;
+  }
+  return false;
+}

@@ -66,27 +66,6 @@ location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
 location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  /*
-    EXPECT_TO_SEE(MEDITERRANEAN_SEA);
-    EXPECT_TO_SEE(SARAGOSSA);
-    EXPECT_TO_SEE(BARCELONA);
-    [INFO] - [hunter_view.c:79 | _game_view] - 16:10:51: Barcelona
-[INFO] - [hunter_view.c:80 | _game_view] - 16:10:51: Mediterranean Sea
-[INFO] - [hunter_view.c:81 | _game_view] - 16:10:51: Saragossa
-[INFO] - [hunter_view.c:82 | _game_view] - 16:10:51: Toulouse
-    */
-  // FIXME(adamyi): deal with Dracula HIDE/DOUBLE_BACK (re-use code for
-  // DraculaView)
-  ac_log(AC_LOG_INFO, "!! %s", location_get_name(hv_get_location(hv, player)));
-  location_t *ret =
-      _gv_get_connections(hv->gv, n_locations, hv_get_location(hv, player),
+  return _gv_get_connections_with_trail(hv->gv, n_locations, hv_get_location(hv, player),
                           player, hv_get_round(hv), road, rail, sea);
-  ac_log(AC_LOG_INFO, "%d", *n_locations);
-  if (*n_locations == 4) {
-    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[0]));
-    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[1]));
-    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[2]));
-    ac_log(AC_LOG_INFO, "%s", location_get_name(ret[3]));
-  }
-  return ret;
 }

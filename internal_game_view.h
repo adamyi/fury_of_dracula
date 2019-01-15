@@ -123,5 +123,8 @@ void _gv_get_location_history(_GameView gv, enum player player,
 location_t *_gv_get_connections(_GameView gv, size_t *n_locations,
                                 location_t from, enum player player,
                                 round_t round, bool road, bool rail, bool sea);
+location_t *_gv_get_connections_with_trail(_GameView gv, size_t *n_locations,
+                                location_t from, enum player player,
+                                round_t round, bool road, bool rail, bool sea);
 
 #endif  // !defined (FOD__INTERNAL_GAME_VIEW_H_)
