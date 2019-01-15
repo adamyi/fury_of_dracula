@@ -33,22 +33,22 @@
 
 #define TEST_FIXSET_NAME_(test_case_name) test_case_name##_fixture
 
-#define regTest(test_case_name, test_name)                               \
-  _regTest(&TEST_CASE_NAME_(test_case_name, test_name), #test_case_name, \
-           #test_name)
+#define ac_regTest(test_case_name, test_name)                               \
+  _ac_regTest(&TEST_CASE_NAME_(test_case_name, test_name), #test_case_name, \
+              #test_name)
 
-#define TEST(test_case_name, test_name)                          \
-  static void TEST_BODY_NAME_(test_case_name, test_name)(void);  \
-  static testInfo TEST_CASE_NAME_(test_case_name, test_name) = { \
-      .testCaseName = #test_case_name,                           \
-      .testName = #test_name,                                    \
-      .testBody = &TEST_BODY_NAME_(test_case_name, test_name)};  \
+#define TEST(test_case_name, test_name)                             \
+  static void TEST_BODY_NAME_(test_case_name, test_name)(void);     \
+  static ac_testInfo TEST_CASE_NAME_(test_case_name, test_name) = { \
+      .testCaseName = #test_case_name,                              \
+      .testName = #test_name,                                       \
+      .testBody = &TEST_BODY_NAME_(test_case_name, test_name)};     \
   static void TEST_BODY_NAME_(test_case_name, test_name)(void)
 
 #define TEST_F(test_case_name, test_name)                                \
   static void TEST_BODY_NAME_(test_case_name, test_name)(void *fixture); \
   static void *TEST_FIXSET_NAME_(test_case_name)(void);                  \
-  static testInfo TEST_CASE_NAME_(test_case_name, test_name) = {         \
+  static ac_testInfo TEST_CASE_NAME_(test_case_name, test_name) = {      \
       .testCaseName = #test_case_name,                                   \
       .testName = #test_name,                                            \
       .fixtureSetter = &TEST_FIXSET_NAME_(test_case_name),               \
