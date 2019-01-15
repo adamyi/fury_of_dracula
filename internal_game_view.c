@@ -40,6 +40,78 @@ static inline void hunter_lose_health(_game_view *gv, enum player player,
   }
 }
 
+static inline char *parse_dracula_move(char *move, _game_view *gv,
+                                       enum player pid, bool is_sea,
+                                       location_t real_loc) {
+  if (is_sea) player_lose_health(gv->players[pid], LIFE_LOSS_SEA);
+
+  // parse minion
+  if (move[0] == 'T') {
+    ac_log(AC_LOG_DEBUG, "placed trap");
+    if (gv->track_minions) {
+      if (gv->traps[real_loc] >= 3)
+        ac_log(AC_LOG_FATAL, "shouldn't place a trap because already 3!");
+      gv->traps[real_loc]++;
+    }
+  } else if (move[1] == 'V') {
+    ac_log(AC_LOG_DEBUG, "placed vampire");
+    if (gv->track_minions) gv->vampire = real_loc;
+  }
+  move += 2;
+
+  // parse left trail
+  if (*move == 'M') {
+    ac_log(AC_LOG_DEBUG, "trap invalidates");
+    if (gv->track_minions && gv->round >= TRAIL_SIZE)
+      gv->traps[rollingarray_get_item(gv->players[pid]->location_history, 0)]--;
+  } else if (*move == 'V') {
+    ac_log(AC_LOG_DEBUG, "vampire matures");
+    if (gv->track_minions) gv->vampire = NOWHERE;
+    gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
+  }
+  move += 2;
+
+  gv->round++;
+  gv->current_player = 0;
+  gv->score -= SCORE_LOSS_DRACULA_TURN;
+
+  return move;
+}
+
+static inline char *parse_hunter_move(char *move, _game_view *gv,
+                                      enum player pid, location_t old_loc,
+                                      location_t real_loc) {
+  if (old_loc == real_loc) gv->players[pid]->health += LIFE_GAIN_REST;
+  // parse encounter
+  for (int i = 0; i < 4; i++) {
+    switch (*move) {
+      case 'T':
+        ac_log(AC_LOG_DEBUG, "encounter trap");
+        if (gv->track_minions) gv->traps[real_loc]--;
+        hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
+        break;
+      case 'V':
+        ac_log(AC_LOG_DEBUG, "encounter immature vampire");
+        if (gv->track_minions) gv->vampire = NOWHERE;
+        break;
+      case 'D':
+        ac_log(AC_LOG_DEBUG, "encounter dracula");
+        player_lose_health(gv->players[PLAYER_DRACULA],
+                           LIFE_LOSS_HUNTER_ENCOUNTER);
+        hunter_lose_health(gv, pid, LIFE_LOSS_DRACULA_ENCOUNTER);
+        break;
+      default:
+        // encountered nothing
+        break;
+    }
+    move++;
+  }
+
+  gv->current_player++;
+
+  return move;
+}
+
 // parse 7-char move
 char *parse_move(char *move, _game_view *gv) {
   // move format (hunter):
@@ -79,82 +151,19 @@ char *parse_move(char *move, _game_view *gv) {
     real_loc = CASTLE_DRACULA;
   }
 
+  location_t old_loc = player_get_location(gv->players[pid]);
+
   ac_log(AC_LOG_INFO, "player %d at %s (%s) makes move %s (%s) to %s (%s)", pid,
-         location_get_abbrev(player_get_location(gv->players[pid])),
-         location_get_name(player_get_location(gv->players[pid])),
+         location_get_abbrev(old_loc), location_get_name(old_loc),
          location_get_abbrev(loc), location_get_name(loc),
          location_get_abbrev(real_loc), location_get_name(real_loc));
   player_move_to(gv->players[pid], real_loc, loc);
 
   move += 2;
 
-  if (pid == PLAYER_DRACULA && is_sea)
-    player_lose_health(gv->players[pid],
-                       LIFE_LOSS_SEA);  // TODO(adamyi): check if game ends
-
-  if (pid == PLAYER_DRACULA) {
-    // get first location in trail for trap to invalidate
-    location_t loc_trail_first = NOWHERE;
-    if (gv->round >= TRAIL_SIZE)
-      loc_trail_first = rollingarray_get_item(gv->players[pid]->trail, 0);
-
-    // parse minion
-    if (move[0] == 'T') {
-      ac_log(AC_LOG_DEBUG, "placed trap");
-      // TODO(adamyi): max minions
-      if (gv->track_minions) gv->traps[real_loc]++;
-    } else if (move[1] == 'V') {
-      ac_log(AC_LOG_DEBUG, "placed vampire");
-      if (gv->track_minions) gv->vampire = real_loc;
-    }
-    move += 2;
-
-    // parse left trail
-    if (*move == 'M') {
-      ac_log(AC_LOG_DEBUG, "trap invalidates");
-      if (loc_trail_first >= MIN_MAP_LOCATION &&
-          loc_trail_first <= MAX_MAP_LOCATION && gv->track_minions)
-        gv->traps[loc_trail_first]--;
-    } else if (*move == 'V') {
-      ac_log(AC_LOG_DEBUG, "vampire matures");
-      if (gv->track_minions) gv->vampire = NOWHERE;
-      gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
-    }
-    move += 2;
-
-    gv->round++;
-    gv->current_player = 0;
-    gv->score -= SCORE_LOSS_DRACULA_TURN;
-  } else {
-    // parse encounter
-    for (int i = 0; i < 4; i++) {
-      switch (*move) {
-        case 'T':
-          ac_log(AC_LOG_DEBUG, "encounter trap");
-          if (gv->track_minions) gv->traps[loc]--;
-          hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
-          break;
-        case 'V':
-          ac_log(AC_LOG_DEBUG, "encounter immature vampire");
-          if (gv->track_minions) gv->vampire = NOWHERE;
-          break;
-        case 'D':
-          ac_log(AC_LOG_DEBUG, "encounter dracula");
-          player_lose_health(gv->players[PLAYER_DRACULA],
-                             LIFE_LOSS_HUNTER_ENCOUNTER);
-          hunter_lose_health(gv, pid, LIFE_LOSS_DRACULA_ENCOUNTER);
-          break;
-        default:
-          // encountered nothing
-          break;
-      }
-      move++;
-    }
-
-    gv->current_player++;
-  }
-
-  return move;
+  if (pid == PLAYER_DRACULA)
+    return parse_dracula_move(move, gv, pid, is_sea, real_loc);
+  return parse_hunter_move(move, gv, pid, old_loc, real_loc);
 }
 
 _game_view *_gv_new(char *past_plays,
