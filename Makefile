@@ -3,7 +3,7 @@
 #
 # Adam Yi <i@adamyi.com>
 
-# CC	 = gcc
+# CC	 = clang
 CFLAGS	= -std=c99 -g
 BINS	 = test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view
 
@@ -56,4 +56,4 @@ clean:
 
 .PHONY: prove
 prove: test_game_view test_hunter_view test_dracula_view
-	prove -f ./test_game_view ./test_hunter_view ./test_dracula_view
+	prove -f ./tap_game_view ./tap_hunter_view ./tap_dracula_view

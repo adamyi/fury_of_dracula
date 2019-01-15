@@ -66,6 +66,7 @@ location_t *hv_get_dests(hunter_view *hv, size_t *n_locations, bool road,
 location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
-  return _gv_get_connections_with_trail(hv->gv, n_locations, hv_get_location(hv, player),
-                          player, hv_get_round(hv), road, rail, sea);
+  return _gv_get_connections_with_trail(hv->gv, n_locations,
+                                        hv_get_location(hv, player), player,
+                                        hv_get_round(hv), road, rail, sea);
 }

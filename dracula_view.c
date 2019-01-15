@@ -104,17 +104,15 @@ void dv_get_trail(dracula_view *dv, enum player player,
 
 location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,
                          bool sea) {
-  location_t *ret = _gv_get_connections_with_trail(dv->gv, n_locations, dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA,
-                             dv_get_round(dv), road, false, sea);
-  ac_log(AC_LOG_ERROR, "%d", *n_locations);
-  ac_log(AC_LOG_ERROR, "%s", location_get_name(ret[0]));
-  return ret;
+  return _gv_get_connections_with_trail(
+      dv->gv, n_locations, dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA,
+      dv_get_round(dv), road, false, sea);
 }
 
 location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
   if (player == PLAYER_DRACULA) return dv_get_dests(dv, n_locations, road, sea);
-  return _gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player), player,
-                             dv_get_round(dv), road, rail, sea);
+  return _gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player),
+                             player, dv_get_round(dv), road, rail, sea);
 }
