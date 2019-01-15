@@ -56,6 +56,8 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
     ra->value[get_ra_ind(ra->start, ra->capacity, ra->size++)] = val;
   else
     ra->value[ra->start++] = val;
+  if (ra->start == ra->capacity)
+    ra->start = 0;
 }
 
 size_t rollingarray_size(rollingarray_t *ra) { return ra->size; }

@@ -13,7 +13,7 @@
 #include "ac_log.h"
 #include "ac_test.h"
 
-#include "game_view.h"
+#include "hunter_view.h"
 
 TEST_SET_FIXTURE(sampleFixtureTest) {
   int *x = malloc(3 * sizeof(int));
