@@ -144,9 +144,8 @@ location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea) {
   if (player == PLAYER_DRACULA) return dv_get_dests(dv, n_locations, road, sea);
-  location_t current_location =  dv_get_location(dv, player);
-  round_t current_round =  dv_get_round(dv);
-  return gv_get_connections(dv->gv, n_locations,
-                                   current_location,  player,
-                                   current_round, road, rail, sea);
+  location_t current_location = dv_get_location(dv, player);
+  round_t current_round = dv_get_round(dv);
+  return _gv_get_connections(dv->gv, n_locations, current_location, player,
+                             current_round, road, rail, sea);
 }
