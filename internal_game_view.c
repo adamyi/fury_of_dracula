@@ -29,6 +29,7 @@ typedef struct _game_view {
   player_t *players[NUM_PLAYERS];
   int traps[NUM_MAP_LOCATIONS];
   location_t vampire;
+  bool track_minions;
 } _game_view;
 
 static inline void hunter_lose_health(_game_view *gv, enum player player,
@@ -101,10 +102,10 @@ char *parse_move(char *move, _game_view *gv) {
     if (move[0] == 'T') {
       ac_log(AC_LOG_DEBUG, "placed trap");
       // TODO(adamyi): max minions
-      gv->traps[real_loc]++;
+      if (gv->track_minions) gv->traps[real_loc]++;
     } else if (move[1] == 'V') {
       ac_log(AC_LOG_DEBUG, "placed vampire");
-      gv->vampire = real_loc;
+      if (gv->track_minions) gv->vampire = real_loc;
     }
     move += 2;
 
@@ -112,11 +113,11 @@ char *parse_move(char *move, _game_view *gv) {
     if (*move == 'M') {
       ac_log(AC_LOG_DEBUG, "trap invalidates");
       if (loc_trail_first >= MIN_MAP_LOCATION &&
-          loc_trail_first <= MAX_MAP_LOCATION)
+          loc_trail_first <= MAX_MAP_LOCATION && gv->track_minions)
         gv->traps[loc_trail_first]--;
     } else if (*move == 'V') {
       ac_log(AC_LOG_DEBUG, "vampire matures");
-      gv->vampire = NOWHERE;
+      if (gv->track_minions) gv->vampire = NOWHERE;
       gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
     }
     move += 2;
@@ -130,12 +131,12 @@ char *parse_move(char *move, _game_view *gv) {
       switch (*move) {
         case 'T':
           ac_log(AC_LOG_DEBUG, "encounter trap");
-          gv->traps[loc]--;
+          if (gv->track_minions) gv->traps[loc]--;
           hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
           break;
         case 'V':
           ac_log(AC_LOG_DEBUG, "encounter immature vampire");
-          gv->vampire = NOWHERE;
+          if (gv->track_minions) gv->vampire = NOWHERE;
           break;
         case 'D':
           ac_log(AC_LOG_DEBUG, "encounter dracula");
@@ -157,7 +158,8 @@ char *parse_move(char *move, _game_view *gv) {
 }
 
 _game_view *_gv_new(char *past_plays,
-                    player_message messages[] __attribute__((unused))) {
+                    player_message messages[] __attribute__((unused)),
+                    bool track_minions) {
   ac_setLoggingTag("_game_view");
   ac_log(AC_LOG_DEBUG, "Creating new GameView based on past_plays string: %s",
          past_plays);
@@ -167,6 +169,7 @@ _game_view *_gv_new(char *past_plays,
   new->current_player = 0;
   new->score = GAME_START_SCORE;
   new->vampire = NOWHERE;
+  new->track_minions = track_minions;
   memset(new->traps, 0, NUM_MAP_LOCATIONS * sizeof(int));
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
   while (*past_plays != '\0') past_plays = parse_move(past_plays, new);
@@ -306,4 +309,11 @@ location_t *_gv_get_connections_with_trail(_game_view *gv, size_t *n_locations,
                                            bool sea) {
   return _gv_do_get_connections(gv, n_locations, from, player, round, road,
                                 rail, sea, true);
+}
+
+void _gv_get_locale_info(_game_view *gv, location_t where, int *n_traps,
+                         int *n_vamps) {
+  assert(gv->track_minions);
+  *n_vamps = (gv->vampire == where);
+  *n_traps = gv->traps[where];
 }

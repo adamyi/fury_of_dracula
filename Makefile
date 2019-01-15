@@ -3,7 +3,7 @@
 #
 # Adam Yi <i@adamyi.com>
 
-# CC	 = clang
+# CC	 = 2521 3c
 CFLAGS	= -std=c99 -g
 BINS	 = test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view
 
@@ -55,5 +55,5 @@ clean:
 	-rm -f ${BINS} *.o core mapdata.*
 
 .PHONY: prove
-prove: test_game_view test_hunter_view test_dracula_view
+prove: tap_game_view tap_hunter_view tap_dracula_view
 	prove -f ./tap_game_view ./tap_hunter_view ./tap_dracula_view

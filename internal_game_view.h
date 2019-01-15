@@ -29,7 +29,8 @@ typedef struct _game_view *_GameView;
  * The "player_message" type is defined in game.h.
  * You are free to ignore messages if you wish.
  */
-_GameView _gv_new(char *past_plays, player_message messages[]);
+_GameView _gv_new(char *past_plays, player_message messages[],
+                  bool track_minions);
 
 /**
  * Frees all resources allocated for `gv`.
@@ -127,5 +128,8 @@ location_t *_gv_get_connections_with_trail(_GameView gv, size_t *n_locations,
                                            location_t from, enum player player,
                                            round_t round, bool road, bool rail,
                                            bool sea);
+
+void _gv_get_locale_info(_GameView gv, location_t where, int *n_traps,
+                         int *n_vamps);
 
 #endif  // !defined (FOD__INTERNAL_GAME_VIEW_H_)
