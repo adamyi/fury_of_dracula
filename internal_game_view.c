@@ -36,10 +36,15 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   if (is_sea) player_lose_health(gv->players[pid], LIFE_LOSS_SEA);
   gv->rests = 0;
 
+  if (gv->round >= 5)
+    gv->trail_last_loc =
+        rollingarray_get_item(gv->players[pid]->location_history, 0);
+
   // parse minion
   if (move[0] == 'T') {
     ac_log(AC_LOG_DEBUG, "placed trap");
     if (gv->track_minions) {
+      // NOTES: shouldn't place when vampire and 2 traps are there as well
       if (gv->traps[real_loc] >= 3)
         ac_log(AC_LOG_FATAL, "shouldn't place a trap because already 3!");
       gv->traps[real_loc]++;
@@ -174,6 +179,7 @@ _game_view *_gv_new(char *past_plays,
   new->vampire = NOWHERE;
   new->rests = 0;
   new->track_minions = track_minions;
+  new->trail_last_loc = NOWHERE;
   memset(new->traps, 0, NUM_MAP_LOCATIONS * sizeof(int));
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
   while (*past_plays != '\0') past_plays = parse_move(past_plays, new);

@@ -23,7 +23,8 @@ typedef struct _game_view {
   int traps[NUM_MAP_LOCATIONS];
   location_t vampire;
   bool track_minions;
-  int rests;  // for neural network feature generator
+  int rests;                  // for neural network feature generator
+  location_t trail_last_loc;  // for neural network feature generator
 } _game_view;
 
 /**
