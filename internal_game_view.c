@@ -37,10 +37,6 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   if (is_sea) player_lose_health(gv->players[pid], LIFE_LOSS_SEA);
   gv->rests = 0;
 
-  if (gv->round >= 5)
-    gv->trail_last_loc =
-        rollingarray_get_item(gv->players[pid]->location_history, 0);
-
   // parse minion
   if (move[0] == 'T') {
     ac_log(AC_LOG_DEBUG, "placed trap");
@@ -60,7 +56,7 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   if (*move == 'M') {
     ac_log(AC_LOG_DEBUG, "trap invalidates");
     if (gv->track_minions && gv->round >= TRAIL_SIZE)
-      gv->traps[rollingarray_get_item(gv->players[pid]->location_history, 0)]--;
+      gv->traps[gv->trail_last_loc]--;
   } else if (*move == 'V') {
     ac_log(AC_LOG_DEBUG, "vampire matures");
     if (gv->track_minions) gv->vampire = NOWHERE;
@@ -152,6 +148,11 @@ char *parse_move(char *move, _game_view *gv) {
   }
 
   location_t old_loc = player_get_location(gv->players[pid]);
+
+  if (gv->round >= TRAIL_SIZE) {
+    gv->trail_last_loc =
+        rollingarray_get_item(gv->players[pid]->location_history, 0);
+  }
 
   ac_log(AC_LOG_INFO, "player %d at %s (%s) makes move %s (%s) to %s (%s)", pid,
          location_get_abbrev(old_loc), location_get_name(old_loc),

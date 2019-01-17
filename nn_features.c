@@ -20,10 +20,13 @@
 // print out feature vector,
 // round number of dracula moves that are revealed due to the latest
 // move, and the correct string of this move
-int main() {
+int main(int argc, const char *argv[]) {
+  bool track_minions = false;
+  if (argc > 1)
+    track_minions = argv[1][0] - '0';
   char past_plays[MAXL];
   fgets(past_plays, MAXL, stdin);
-  struct _game_view *gv = _gv_new(past_plays, NULL, true);
+  struct _game_view *gv = _gv_new(past_plays, NULL, track_minions);
   printf("{\"features\": [");
   for (int i = 0; i < 5; i++) {
     // one-hot encoding of location
@@ -99,9 +102,9 @@ int main() {
       else
         printf("T.");
     }
-    if (gv->vampire == gv->trail_last_loc)
+    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
       putchar('V');
-    else if (gv->traps[gv->trail_last_loc] > 0)
+    else if (gv->trail_last_loc != NOWHERE && gv->traps[gv->trail_last_loc] > 0)
       putchar('M');
     else
       putchar('.');
