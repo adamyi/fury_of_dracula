@@ -11,6 +11,7 @@
 #include <sysexits.h>
 
 #include "ac_log.h"
+#include "ac_memory.h"
 
 #include "game.h"
 #include "hunter_view.h"
@@ -23,8 +24,7 @@ typedef struct hunter_view {
 } hunter_view;
 
 hunter_view *hv_new(char *past_plays, player_message messages[]) {
-  hunter_view *new = malloc(sizeof *new);
-  if (new == NULL) err(EX_OSERR, "couldn't allocate HunterView");
+  hunter_view *new = ac_malloc(sizeof *new, "new hunter view");
   new->gv = _gv_new(past_plays, messages, false);
 
   return new;

@@ -11,6 +11,7 @@
 #include <sysexits.h>
 
 #include "ac_log.h"
+#include "ac_memory.h"
 
 #include "dracula_view.h"
 #include "game.h"
@@ -23,8 +24,7 @@ typedef struct dracula_view {
 } dracula_view;
 
 dracula_view *dv_new(char *past_plays, player_message messages[]) {
-  dracula_view *new = malloc(sizeof *new);
-  if (new == NULL) err(EX_OSERR, "couldn't allocate DraculaView");
+  dracula_view *new = ac_malloc(sizeof *new, "new dracula view");
   new->gv = _gv_new(past_plays, messages, true);
 
   return new;

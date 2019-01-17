@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "ac_log.h"
+#include "ac_memory.h"
 
 #include "game.h"
 #include "places.h"
@@ -8,7 +9,7 @@
 #include "rollingarray.h"
 
 player_t *new_player(enum player id) {
-  player_t *player = malloc(sizeof(player_t));
+  player_t *player = ac_malloc(sizeof(player_t), "new player");
   player->id = id;
   if (id == PLAYER_DRACULA)
     player->health = GAME_START_BLOOD_POINTS;

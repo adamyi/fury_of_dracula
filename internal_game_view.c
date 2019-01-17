@@ -13,6 +13,7 @@
 #include <sysexits.h>
 
 #include "ac_log.h"
+#include "ac_memory.h"
 
 #include "game.h"
 #include "internal_game_view.h"
@@ -171,8 +172,7 @@ _game_view *_gv_new(char *past_plays,
   ac_setLoggingTag("_game_view");
   ac_log(AC_LOG_DEBUG, "Creating new GameView based on past_plays string: %s",
          past_plays);
-  _game_view *new = malloc(sizeof *new);
-  if (new == NULL) err(EX_OSERR, "couldn't allocate GameView");
+  _game_view *new = ac_malloc(sizeof *new, "new game view");
   new->round = 0;
   new->current_player = 0;
   new->score = GAME_START_SCORE;
@@ -298,7 +298,8 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
     (*n_locations)++;
   }
 
-  location_t *valid_conns = malloc(sizeof(location_t) * (*n_locations));
+  location_t *valid_conns = ac_malloc(sizeof(location_t) * (*n_locations),
+                                      "connections array for gv");
   for (size_t i = 0, j = 0; i < NUM_MAP_LOCATIONS; i++) {
     if (can_go[i]) valid_conns[j++] = i;
   }

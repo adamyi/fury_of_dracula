@@ -13,6 +13,8 @@
 #include <string.h>
 #include <sysexits.h>
 
+#include "ac_memory.h"
+
 #include "internal_game_view.h"
 
 typedef struct game_view {
@@ -20,8 +22,7 @@ typedef struct game_view {
 } game_view;
 
 game_view *gv_new(char *past_plays, player_message messages[]) {
-  game_view *new = malloc(sizeof *new);
-  if (new == NULL) err(EX_OSERR, "couldn't allocate GameView");
+  game_view *new = ac_malloc(sizeof *new, "new game view (wrapper)");
   new->gv = _gv_new(past_plays, messages, false);
   return new;
 }

@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "ac_memory.h"
+
 static inline size_t get_ra_ind(size_t start, size_t capacity, size_t ind) {
   ind += start;
   if (ind >= capacity) ind -= capacity;
@@ -23,9 +25,10 @@ static inline size_t get_ra_ind_backwards(size_t start, size_t capacity,
 }
 
 rollingarray_t *new_rollingarray(size_t capacity) {
-  rollingarray_t *new = malloc(sizeof(rollingarray_t));
+  rollingarray_t *new = ac_malloc(sizeof(rollingarray_t), "new rollingarray");
   new->capacity = capacity;
-  new->value = malloc(capacity * sizeof(ra_item_t));
+  new->value = ac_malloc(capacity * sizeof(ra_item_t),
+                         "value array for new rollingarray");
   memset(new->value, 0, capacity);
   new->size = new->start = 0;
   return new;
