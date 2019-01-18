@@ -16,3 +16,5 @@ hunter_ai
 test_ai.log
 test
 nn_features
+in
+do_not_upload

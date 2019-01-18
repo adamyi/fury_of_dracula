@@ -46,7 +46,7 @@ void _ac_log(const char *file, int line, int level, const char *fmt, ...) {
     if (level <= AC_LOG_ERROR)
       out = stderr;
     else
-      out = stdout;
+      out = stderr;  // temporarily set to stderr, TODO(adamyi): config option
     char buffer[AC_HELPER_MAX_BUFFER_LENGTH];
 
     // parse format string

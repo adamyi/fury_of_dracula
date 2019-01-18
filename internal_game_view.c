@@ -26,8 +26,36 @@ static inline int get_rail_travel_dist(round_t round, enum player player);
 static inline void hunter_lose_health(_game_view *gv, enum player player,
                                       int lose) {
   if (player_lose_health(gv->players[player], lose)) {
-    gv->players[player]->location = ST_JOSEPH_AND_ST_MARYS;
+    gv->players[player]->location = HOSPITAL_LOCATION;
     gv->score -= SCORE_LOSS_HUNTER_HOSPITAL;
+  }
+}
+
+void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
+                                    char minion) {
+  if (minion == 'T') {
+    ac_log(AC_LOG_DEBUG, "placed trap");
+    if (gv->track_minions) {
+      // NOTES: shouldn't place when vampire and 2 traps are there as well
+      if (gv->traps[real_loc] >= 3)
+        ac_log(AC_LOG_FATAL, "shouldn't place a trap because already 3!");
+      gv->traps[real_loc]++;
+    }
+  } else if (minion == 'V') {
+    ac_log(AC_LOG_DEBUG, "placed vampire");
+    if (gv->track_minions) gv->vampire = real_loc;
+  }
+}
+
+void parse_dracula_minion_left_trail(_game_view *gv, char left) {
+  if (left == 'M') {
+    ac_log(AC_LOG_DEBUG, "trap invalidates");
+    if (gv->track_minions && gv->round >= TRAIL_SIZE)
+      gv->traps[gv->trail_last_loc]--;
+  } else if (left == 'V') {
+    ac_log(AC_LOG_DEBUG, "vampire matures");
+    if (gv->track_minions) gv->vampire = NOWHERE;
+    gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
   }
 }
 
@@ -38,30 +66,11 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   gv->rests = 0;
 
   // parse minion
-  if (move[0] == 'T') {
-    ac_log(AC_LOG_DEBUG, "placed trap");
-    if (gv->track_minions) {
-      // NOTES: shouldn't place when vampire and 2 traps are there as well
-      if (gv->traps[real_loc] >= 3)
-        ac_log(AC_LOG_FATAL, "shouldn't place a trap because already 3!");
-      gv->traps[real_loc]++;
-    }
-  } else if (move[1] == 'V') {
-    ac_log(AC_LOG_DEBUG, "placed vampire");
-    if (gv->track_minions) gv->vampire = real_loc;
-  }
-  move += 2;
+  parse_dracula_minion_placement(gv, real_loc, *(move++));
+  parse_dracula_minion_placement(gv, real_loc, *(move++));
 
   // parse left trail
-  if (*move == 'M') {
-    ac_log(AC_LOG_DEBUG, "trap invalidates");
-    if (gv->track_minions && gv->round >= TRAIL_SIZE)
-      gv->traps[gv->trail_last_loc]--;
-  } else if (*move == 'V') {
-    ac_log(AC_LOG_DEBUG, "vampire matures");
-    if (gv->track_minions) gv->vampire = NOWHERE;
-    gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
-  }
+  parse_dracula_minion_left_trail(gv, *move);
   move += 2;
 
   gv->round++;
@@ -69,6 +78,30 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   gv->score -= SCORE_LOSS_DRACULA_TURN;
 
   return move;
+}
+
+void parse_hunter_encounter(_game_view *gv, enum player pid,
+                            location_t real_loc, char encounter) {
+  switch (encounter) {
+    case 'T':
+      ac_log(AC_LOG_DEBUG, "encounter trap");
+      if (gv->track_minions) gv->traps[real_loc]--;
+      hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
+      break;
+    case 'V':
+      ac_log(AC_LOG_DEBUG, "encounter immature vampire");
+      if (gv->track_minions) gv->vampire = NOWHERE;
+      break;
+    case 'D':
+      ac_log(AC_LOG_DEBUG, "encounter dracula");
+      player_lose_health(gv->players[PLAYER_DRACULA],
+                         LIFE_LOSS_HUNTER_ENCOUNTER);
+      hunter_lose_health(gv, pid, LIFE_LOSS_DRACULA_ENCOUNTER);
+      break;
+    default:
+      // encountered nothing
+      break;
+  }
 }
 
 static inline char *parse_hunter_move(char *move, _game_view *gv,
@@ -79,29 +112,8 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
     gv->rests++;
   }
   // parse encounter
-  for (int i = 0; i < 4; i++) {
-    switch (*move) {
-      case 'T':
-        ac_log(AC_LOG_DEBUG, "encounter trap");
-        if (gv->track_minions) gv->traps[real_loc]--;
-        hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
-        break;
-      case 'V':
-        ac_log(AC_LOG_DEBUG, "encounter immature vampire");
-        if (gv->track_minions) gv->vampire = NOWHERE;
-        break;
-      case 'D':
-        ac_log(AC_LOG_DEBUG, "encounter dracula");
-        player_lose_health(gv->players[PLAYER_DRACULA],
-                           LIFE_LOSS_HUNTER_ENCOUNTER);
-        hunter_lose_health(gv, pid, LIFE_LOSS_DRACULA_ENCOUNTER);
-        break;
-      default:
-        // encountered nothing
-        break;
-    }
-    move++;
-  }
+  for (int i = 0; i < 4; i++)
+    parse_hunter_encounter(gv, pid, real_loc, *(move++));
 
   gv->current_player++;
 
@@ -240,8 +252,7 @@ static void _gv_get_connections_rec(_game_view *gv, size_t *n_locations,
   struct adj_connection *conns = getConnections(from);
 
   for (int i = 0; i < ADJLIST_COUNT[from]; i++) {
-    if (player == PLAYER_DRACULA && conns[i].v == ST_JOSEPH_AND_ST_MARYS)
-      continue;
+    if (player == PLAYER_DRACULA && conns[i].v == HOSPITAL_LOCATION) continue;
     if (conns[i].type == ROAD && road) {
       can_go[conns[i].v] = true;
       (*n_locations)++;
@@ -261,7 +272,7 @@ static void _gv_get_connections_rec(_game_view *gv, size_t *n_locations,
 location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
                                    location_t from, enum player player,
                                    round_t round, bool road, bool rail,
-                                   bool sea, bool trail) {
+                                   bool sea, bool trail, bool stay, bool hide) {
   if (from < MIN_MAP_LOCATION ||
       from > MAX_MAP_LOCATION)  // don't know exact loc
     return 0;
@@ -281,6 +292,8 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   _gv_get_connections_rec(gv, n_locations, can_go, from, player, round, road,
                           rail, sea, max_rail_dist);
 
+  bool canhide = hide && player == PLAYER_DRACULA;
+  bool candb = canhide;
   if (trail) {
     location_t hist[TRAIL_SIZE];
     player_get_trail(gv->players[player], hist);
@@ -290,20 +303,42 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
           can_go[hist[i]] = false;
           (*n_locations)--;
         }
+      } else if (hist[i] == HIDE) {
+        canhide = false;
+      } else if (hist[i] >= DOUBLE_BACK_1 && hist[i] <= DOUBLE_BACK_5) {
+        candb = false;
       }
     }
+    if (hist[0] >= MIN_MAP_LOCATION && hist[0] <= MAX_MAP_LOCATION &&
+        location_get_type(hist[0]) == SEA)
+      canhide = false;
   }
 
-  if (!can_go[from]) {
+  if (canhide) (*n_locations)++;
+  if (candb) (*n_locations) += 5;
+
+  if (stay && (!can_go[from])) {
     can_go[from] = true;
     (*n_locations)++;
   }
 
+  if (hide && (*n_locations) == 0) (*n_locations) = 1;
+
   location_t *valid_conns = ac_malloc(sizeof(location_t) * (*n_locations),
                                       "connections array for gv");
-  for (size_t i = 0, j = 0; i < NUM_MAP_LOCATIONS; i++) {
+  size_t j = 0;
+  for (size_t i = 0; i < NUM_MAP_LOCATIONS; i++) {
     if (can_go[i]) valid_conns[j++] = i;
   }
+  if (canhide) valid_conns[j++] = HIDE;
+  if (candb) {
+    valid_conns[j++] = DOUBLE_BACK_1;
+    valid_conns[j++] = DOUBLE_BACK_2;
+    valid_conns[j++] = DOUBLE_BACK_3;
+    valid_conns[j++] = DOUBLE_BACK_4;
+    valid_conns[j++] = DOUBLE_BACK_5;
+  }
+  if (hide && j == 0) valid_conns[0] = TELEPORT;
 
   return valid_conns;
 }
@@ -312,7 +347,7 @@ location_t *_gv_get_connections(_game_view *gv, size_t *n_locations,
                                 location_t from, enum player player,
                                 round_t round, bool road, bool rail, bool sea) {
   return _gv_do_get_connections(gv, n_locations, from, player, round, road,
-                                rail, sea, false);
+                                rail, sea, false, true, false);
 }
 
 location_t *_gv_get_connections_with_trail(_game_view *gv, size_t *n_locations,
@@ -320,7 +355,7 @@ location_t *_gv_get_connections_with_trail(_game_view *gv, size_t *n_locations,
                                            round_t round, bool road, bool rail,
                                            bool sea) {
   return _gv_do_get_connections(gv, n_locations, from, player, round, road,
-                                rail, sea, true);
+                                rail, sea, true, true, false);
 }
 
 void _gv_get_locale_info(_game_view *gv, location_t where, int *n_traps,
