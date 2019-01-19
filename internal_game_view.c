@@ -77,6 +77,8 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   gv->round++;
   gv->current_player = 0;
   gv->score -= SCORE_LOSS_DRACULA_TURN;
+  //  code adjusted to give Dracula Blood when at the Castle
+  if(real_loc == CASTLE_DRACULA) gv->players[pid]->health += LIFE_GAIN_CASTLE_DRACULA;
 
   return move;
 }
@@ -109,7 +111,10 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
                                       enum player pid, location_t old_loc,
                                       location_t real_loc) {
   if (old_loc == real_loc) {
-    gv->players[pid]->health += LIFE_GAIN_REST;
+    //  code adjusted to cap hunter HP at 9
+    if (gv->players[pid]->health + LIFE_GAIN_REST >
+                           GAME_START_HUNTER_LIFE_POINTS) gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
+    else gv->players[pid]->health += LIFE_GAIN_REST;
     gv->rests++;
   }
   // parse encounter
