@@ -7,6 +7,7 @@ import math
 from keras.layers import Input, Conv2D, LeakyReLU, Flatten, Dense, concatenate
 from keras.models import Model
 from keras.utils import to_categorical
+from keras.optimizers import Adam
 from collections import deque
 from schedule import LinearSchedule
 from replay_buffer import PrioritizedReplayBuffer, ReplayBuffer
@@ -15,37 +16,37 @@ import envs
 
 ENV_NAME = 'FuryOfDracula-v0'
 WEIGHTS_PATH = 'models/dqn_{}_dracula_weights.h5f'.format(ENV_NAME)
-MEMORY = 1000
+MEMORY = 50000
 GAMMA = 0.95
 EPSILON = 1.0
-EPSILON_DECREASE = 1.0/2000
+MIN_EPSILON = 0.1
+EPSILON_DECREASE = 1.0/10000
 SAMPLE_SIZE = 32
-EXPLORE_RATE = 0.1
 prioritized_replay_alpha=0.6
 prioritized_replay_beta0=0.4
 prioritized_replay_beta_iters=None
 prioritized_replay_eps=1e-6
-total_timesteps = 10000
+total_timesteps = 2500000
 
 
 
 def create_model():
-    state_input = Input(shape=(392,))
+    state_input = Input(shape=(2807,))
     action_input = Input(shape=(1,))
 
     merged_layer = concatenate([state_input, action_input])
-    dense_1 = Dense(196)(merged_layer)
+    dense_1 = Dense(1404)(merged_layer)
     dense_1_a = LeakyReLU()(dense_1)
-    dense_2 = Dense(196)(dense_1_a)
+    dense_2 = Dense(702)(dense_1_a)
     dense_2_a = LeakyReLU()(dense_2)
-    dense_3 = Dense(98)(dense_2_a)
+    dense_3 = Dense(352)(dense_2_a)
     dense_3_a = LeakyReLU()(dense_3)
-    dense_4 = Dense(98)(dense_3_a)
+    dense_4 = Dense(176)(dense_3_a)
     dense_4_a = LeakyReLU()(dense_4)
     output = Dense(1)(dense_4_a)
 
     model = Model([state_input, action_input], output)
-    model.compile('adam', loss='mse')
+    model.compile(optimizer=Adam(lr=0.001), loss='mse')
     model.summary()
     return model
 
@@ -183,7 +184,8 @@ if mode == 'train':
             # if mode != 'silent':
             #     env.render()
 
-            EPSILON -= EPSILON_DECREASE
+            if EPSILON > MIN_EPSILON:
+                EPSILON -= EPSILON_DECREASE
 
             if done:
                 break
@@ -191,7 +193,8 @@ if mode == 'train':
         # think
         print('%d steps passed' % t)
         # print(env.past_plays_dracula)
-        train()
+        if t > 1000:
+            train()
         model.save_weights(WEIGHTS_PATH)
         if t > total_timesteps:
             break

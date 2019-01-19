@@ -14,6 +14,30 @@
 #include "mapdata.h"
 #include "places.h"
 
+static inline void oneHotEncoding(location_t t) {
+  /*
+  CITY_UNKNOWN = 100,
+  SEA_UNKNOWN = 101,
+  HIDE = 102,
+  DOUBLE_BACK_1 = 103,
+  DOUBLE_BACK_2 = 104,
+  DOUBLE_BACK_3 = 105,
+  DOUBLE_BACK_4 = 106,
+  DOUBLE_BACK_5 = 107,
+  TELEPORT = 108,
+  */
+  int MAX = 9 + MAX_MAP_LOCATION;
+  if (t == NOWHERE) {
+    for (int i = MIN_MAP_LOCATION; i <= MAX; i++) printf("0, ");
+  } else {
+    int loc = (int)t;
+    if (t >= CITY_UNKNOWN) loc += MAX_MAP_LOCATION - CITY_UNKNOWN + 1;
+    for (int i = MIN_MAP_LOCATION; i < loc; i++) printf("0, ");
+    printf("1, ");
+    for (int i = loc + 1; i <= MAX; i++) printf("0, ");
+  }
+}
+
 static inline void printRevealed(_game_view *gv, enum player p, int round,
                                  location_t rl) {
   printf("\"revealed\": [");
@@ -120,19 +144,13 @@ static inline void printFeatures(_game_view *gv) {
   for (int i = 0; i < 5; i++) {
     // one-hot encoding of location
     location_t loc = _gv_get_real_location(gv, i);
-    if (loc < MIN_MAP_LOCATION || loc > MIN_MAP_LOCATION) {
-      for (int j = MIN_MAP_LOCATION; j <= MAX_MAP_LOCATION; j++) printf("0, ");
-    } else {
-      for (int j = MIN_MAP_LOCATION; j < loc; j++) printf("0, ");
-      printf("1, ");
-      for (int j = loc; j < MAX_MAP_LOCATION; j++) printf("0, ");
-    }
+    oneHotEncoding(loc);
   }
   printf("%d, ", _gv_get_round(gv));
   for (int i = 0; i < 5; i++) {
     location_t trail[TRAIL_SIZE];
     _gv_get_move_history(gv, i, trail);
-    for (int j = 0; j < 6; j++) printf("%d, ", trail[j]);
+    for (int j = 0; j < 6; j++) oneHotEncoding(trail[j]);
   }
   for (int i = 0; i < 5; i++) printf("%d, ", _gv_get_health(gv, i));
   printf("%d]", _gv_get_score(gv));
