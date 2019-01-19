@@ -24,45 +24,53 @@ TEST_SET_FIXTURE(sampleFixtureTest) {
 }
 
 TEST(basicTest, replicate_dryrun1) {
-
   char *trail = "";
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
-
-
-  ac_compare_int((int)gv_get_player(gv), PLAYER_LORD_GODALMING, "gv_get_player(gv) == Godalming");
+  ac_compare_int((int)gv_get_player(gv), PLAYER_LORD_GODALMING,
+                 "gv_get_player(gv) == Godalming");
   ac_compare_int((int)gv_get_round(gv), 0, "round is 0");
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD), GAME_START_HUNTER_LIFE_POINTS, "Dr Steward has correct starting life");
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS, "gv_get_health(gv, Dracula) == 40 (start)");
-  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE, "gv_get_score(gv) == 366");
-  ac_compare_int((int)gv_get_location(gv, PLAYER_LORD_GODALMING), (int)UNKNOWN_LOCATION, "Godalming is in correct start location");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD),
+                 GAME_START_HUNTER_LIFE_POINTS,
+                 "Dr Steward has correct starting life");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA),
+                 GAME_START_BLOOD_POINTS,
+                 "gv_get_health(gv, Dracula) == 40 (start)");
+  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE,
+                 "gv_get_score(gv) == 366");
+  ac_compare_int((int)gv_get_location(gv, PLAYER_LORD_GODALMING),
+                 (int)UNKNOWN_LOCATION,
+                 "Godalming is in correct start location");
 
   gv_drop(gv);
 }
 
-TEST(encounterTest, drS_encounters_drac_and_vamp){
+TEST(encounterTest, drS_encounters_drac_and_vamp) {
   char *trail =
-    "GED.... SGE.... HZU.... MCA.... DCF.V.."
-    "GMN.... SCFVD.. HGE.... MLS.... DBOT..."
-    "GLO.... SMR.... HCF.... MMA.... DTOT..."
-    "GPL.... SMS.... HMR.... MGR....";
-
-
+      "GED.... SGE.... HZU.... MCA.... DCF.V.."
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT..."
+      "GLO.... SMR.... HCF.... MMA.... DTOT..."
+      "GPL.... SMS.... HMR.... MGR....";
 
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
-  ac_compare_int((int)gv_get_player(gv), PLAYER_DRACULA, "gv_get_player(gv) == Dracula");
+  ac_compare_int((int)gv_get_player(gv), PLAYER_DRACULA,
+                 "gv_get_player(gv) == Dracula");
   ac_compare_int((int)gv_get_round(gv), 3, "round is 3");
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD), GAME_START_HUNTER_LIFE_POINTS - 4, "Dr Steward has correct life (5)");
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS - 10, "gv_get_health(gv, Dracula) == 30 (start - encounter)");
-  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE - 3, "gv_get_score(gv) == 366 - 3");
-  ac_compare_int((int)gv_get_location(gv, PLAYER_DR_SEWARD), (int)MEDITERRANEAN_SEA, "Dr S is in Med Sea");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD),
+                 GAME_START_HUNTER_LIFE_POINTS - 4,
+                 "Dr Steward has correct life (5)");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA),
+                 GAME_START_BLOOD_POINTS - 10,
+                 "gv_get_health(gv, Dracula) == 30 (start - encounter)");
+  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE - 3,
+                 "gv_get_score(gv) == 366 - 3");
+  ac_compare_int((int)gv_get_location(gv, PLAYER_DR_SEWARD),
+                 (int)MEDITERRANEAN_SEA, "Dr S is in Med Sea");
 
   gv_drop(gv);
-
-
 }
 
 TEST(sampleTest, intTest) {

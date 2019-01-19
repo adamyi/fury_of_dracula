@@ -64,6 +64,8 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
                                        enum player pid, bool is_sea,
                                        location_t real_loc) {
   if (is_sea) player_lose_health(gv->players[pid], LIFE_LOSS_SEA);
+  if (real_loc == CASTLE_DRACULA)
+    gv->players[pid]->health += LIFE_GAIN_CASTLE_DRACULA;
   gv->rests = 0;
 
   // parse minion
@@ -77,8 +79,6 @@ static inline char *parse_dracula_move(char *move, _game_view *gv,
   gv->round++;
   gv->current_player = 0;
   gv->score -= SCORE_LOSS_DRACULA_TURN;
-  //  code adjusted to give Dracula Blood when at the Castle
-  if(real_loc == CASTLE_DRACULA) gv->players[pid]->health += LIFE_GAIN_CASTLE_DRACULA;
 
   return move;
 }
@@ -111,10 +111,9 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
                                       enum player pid, location_t old_loc,
                                       location_t real_loc) {
   if (old_loc == real_loc) {
-    //  code adjusted to cap hunter HP at 9
-    if (gv->players[pid]->health + LIFE_GAIN_REST >
-                           GAME_START_HUNTER_LIFE_POINTS) gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
-    else gv->players[pid]->health += LIFE_GAIN_REST;
+    gv->players[pid]->health += LIFE_GAIN_REST;
+    if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
+      gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
     gv->rests++;
   }
   // parse encounter
@@ -321,7 +320,7 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   }
 
   if (canhide) (*n_locations)++;
-  if (candb) (*n_locations) += fmin(gv->round, 5);
+  if (candb) (*n_locations) += (size_t)fmin(gv->round, 5);
 
   if (stay && (!can_go[from])) {
     can_go[from] = true;
@@ -338,7 +337,8 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   }
   if (canhide) valid_conns[j++] = HIDE;
   if (candb) {
-    for (int i = fmin(gv->round, 5), k = DOUBLE_BACK_1; i >=0; i--, j++, k++)
+    for (int i = (int)fmin(gv->round, 5), k = DOUBLE_BACK_1; i >= 0;
+         i--, j++, k++)
       valid_conns[j] = k;
   }
   if (hide && j == 0) valid_conns[0] = TELEPORT;

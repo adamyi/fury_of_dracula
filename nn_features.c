@@ -83,8 +83,7 @@ static inline void printMove(_game_view *gv, enum player p, int round,
     }
     if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
       left = 'V';
-    else if (gv->trail_last_loc != NOWHERE &&
-              gv->traps[gv->trail_last_loc] > 0)
+    else if (gv->trail_last_loc != NOWHERE && gv->traps[gv->trail_last_loc] > 0)
       left = 'M';
     putchar(left);
     putchar('.');
