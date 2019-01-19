@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "game.h"
 #include "hunter.h"
@@ -14,14 +15,17 @@
 
 void decide_hunter_move(HunterView state __attribute__((unused))) {
   // TODO(unassigned): Replace this with something better!
+  srand(time(0));
   size_t round = hv_get_round(state);
   location_t ret;
-  if (round == 0)
-    ret = arc4random_uniform(MAX_MAP_LOCATION);
-  else {
+  if (round == 0) {
+    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
+    ret = rand() % MAX_MAP_LOCATION;
+  } else {
     size_t num = 0;
     location_t *possible = hv_get_dests(state, &num, true, true, true);
-    int t = arc4random_uniform(num);
+    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
+    int t = rand() % num;
     ret = possible[t];
   }
   char name[3];
