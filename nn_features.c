@@ -67,53 +67,51 @@ static inline void printMove(_game_view *gv, enum player p, int round,
   printf("\"move\": \"");
   if (strcmp(move, "....") != 0) {
     printf("%s", move);
-  } else {
-    if (p == PLAYER_DRACULA) {
-      char placement = '.', left = '.';
-      if ((gv->vampire != *rl && gv->traps[*rl] < 3) ||
-          (gv->vampire == *rl && gv->traps[*rl] < 2)) {
-        if (round % 13 == 0) {
-          placement = 'V';
-          printf(".V");
-        } else {
-          placement = 'T';
-          printf("T.");
-        }
+  } else if (p == PLAYER_DRACULA) {
+    char placement = '.', left = '.';
+    if ((gv->vampire != *rl && gv->traps[*rl] < 3) ||
+        (gv->vampire == *rl && gv->traps[*rl] < 2)) {
+      if (round % 13 == 0) {
+        placement = 'V';
+        printf(".V");
       } else {
-        printf("..");
+        placement = 'T';
+        printf("T.");
       }
-      if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
-        left = 'V';
-      else if (gv->trail_last_loc != NOWHERE &&
-               gv->traps[gv->trail_last_loc] > 0)
-        left = 'M';
-      putchar(left);
-      putchar('.');
-      parse_dracula_minion_placement(gv, *rl, placement);
-      parse_dracula_minion_left_trail(gv, left);
     } else {
-      int c = 0;
-      while (gv->traps[*rl] > 0) {
-        gv->traps[*rl]--;
-        c++;
-        putchar('T');
-        parse_hunter_encounter(gv, p, *rl, 'T');
-        *rl = _gv_get_real_location(gv, p);
-      }
-      if (gv->vampire == *rl) {
-        putchar('V');
-        c++;
-        parse_hunter_encounter(gv, p, *rl, 'V');
-        *rl = _gv_get_real_location(gv, p);
-      }
-      if (*rl == _gv_get_real_location(gv, PLAYER_DRACULA)) {
-        putchar('D');
-        c++;
-        parse_hunter_encounter(gv, p, *rl, 'D');
-        *rl = _gv_get_real_location(gv, p);
-      }
-      for (; c < 4; c++) putchar('.');
+      printf("..");
     }
+    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
+      left = 'V';
+    else if (gv->trail_last_loc != NOWHERE &&
+              gv->traps[gv->trail_last_loc] > 0)
+      left = 'M';
+    putchar(left);
+    putchar('.');
+    parse_dracula_minion_placement(gv, *rl, placement);
+    parse_dracula_minion_left_trail(gv, left);
+  } else {
+    int c = 0;
+    while (gv->traps[*rl] > 0) {
+      gv->traps[*rl]--;
+      c++;
+      putchar('T');
+      parse_hunter_encounter(gv, p, *rl, 'T');
+      *rl = _gv_get_real_location(gv, p);
+    }
+    if (gv->vampire == *rl) {
+      putchar('V');
+      c++;
+      parse_hunter_encounter(gv, p, *rl, 'V');
+      *rl = _gv_get_real_location(gv, p);
+    }
+    if (*rl == _gv_get_real_location(gv, PLAYER_DRACULA)) {
+      putchar('D');
+      c++;
+      parse_hunter_encounter(gv, p, *rl, 'D');
+      *rl = _gv_get_real_location(gv, p);
+    }
+    for (; c < 4; c++) putchar('.');
   }
   putchar('"');
 }
@@ -123,9 +121,13 @@ static inline void printFeatures(_game_view *gv) {
   for (int i = 0; i < 5; i++) {
     // one-hot encoding of location
     location_t loc = _gv_get_real_location(gv, i);
-    for (int j = MIN_MAP_LOCATION; j < loc; j++) printf("0, ");
-    printf("1, ");
-    for (int j = loc; j < MAX_MAP_LOCATION; j++) printf("0, ");
+    if (loc < MIN_MAP_LOCATION || loc > MIN_MAP_LOCATION) {
+      for (int j = MIN_MAP_LOCATION; j <= MAX_MAP_LOCATION; j++) printf("0, ");
+    } else {
+      for (int j = MIN_MAP_LOCATION; j < loc; j++) printf("0, ");
+      printf("1, ");
+      for (int j = loc; j < MAX_MAP_LOCATION; j++) printf("0, ");
+    }
   }
   printf("%d, ", _gv_get_round(gv));
   for (int i = 0; i < 5; i++) {
@@ -180,8 +182,10 @@ int main(int argc, const char *argv[]) {
   // fgets(past_plays, MAXL, stdin);
   size_t len;
   getline(&past_plays, &len, stdin);
+  // getline's len is wrong sometimes... don't know why
+  len = strlen(past_plays);
   while (past_plays[len - 1] != '.' &&
-         (past_plays[len - 1] < 'A' || past_plays[len - 1] > 'Z'))
+         (past_plays[len - 1] < 'A' || past_plays[len - 1] > 'Z') && len > 0)
     past_plays[--len] = '\0';
 
   struct _game_view *gv = _gv_new(past_plays, NULL, track_minions);

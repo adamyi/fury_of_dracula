@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <err.h>
+#include <math.h>
 #include <memory.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -315,7 +316,7 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   }
 
   if (canhide) (*n_locations)++;
-  if (candb) (*n_locations) += 5;
+  if (candb) (*n_locations) += fmin(gv->round, 5);
 
   if (stay && (!can_go[from])) {
     can_go[from] = true;
@@ -332,11 +333,8 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   }
   if (canhide) valid_conns[j++] = HIDE;
   if (candb) {
-    valid_conns[j++] = DOUBLE_BACK_1;
-    valid_conns[j++] = DOUBLE_BACK_2;
-    valid_conns[j++] = DOUBLE_BACK_3;
-    valid_conns[j++] = DOUBLE_BACK_4;
-    valid_conns[j++] = DOUBLE_BACK_5;
+    for (int i = fmin(gv->round, 5), k = DOUBLE_BACK_1; i >=0; i--, j++, k++)
+      valid_conns[j] = k;
   }
   if (hide && j == 0) valid_conns[0] = TELEPORT;
 
