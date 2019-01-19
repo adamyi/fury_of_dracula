@@ -39,10 +39,13 @@ class FuryOfDraculaEnv(Env):
 
         # print("past plays (dracula_view): " + self.past_plays_dracula)
         # print("past plays (hunter view): " + self.past_plays_hunter)
+        # print(stdoutdata)
         # print(self.player)
 
         process = subprocess.Popen([os.path.join(ROOT_DIR, "nn_features"), '0'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        if self.player == 4:
+
+        is_dracula = (self.player == 4)
+        if is_dracula:
             stdoutdata,_ = process.communicate(input = self.past_plays_dracula)
             self.player = 0
         else:
@@ -60,34 +63,42 @@ class FuryOfDraculaEnv(Env):
             reward = -100
             done = True
         elif self.features[-1] <= 0:
+            self.win = 1
             reward = 100
             done = True
         else:
-            reward = self.features[-1] - result['features'][-1] + result['features'][-2] - self.features[-2]
+            reward = self.features[-1] - result['features'][-1] + 9 * (result['features'][-2] - self.features[-2])
 
+        # print('score: %d (%d-%d)' % (self.features[-1] - result['features'][-1], result['features'][-1], self.features[-1]))
+        # print('health: %d (%d-%d)' % (9 * (result['features'][-2] - self.features[-2]), result['features'][-2], self.features[-2]))
         self.features = np.asarray(result['features'])
-        if self.player == 0:
-            self.rewards += reward
         if done:
             print("done")
-            print(reward)
+            if is_dracula:
+                self.rewards += reward
+                # print("reward: %d" % reward)
             return self.features, reward, done, {}
         if self.player == 4:
             return self.features, reward, done, {}
         # return self.step(self.getRandomMove())
-        _, _, done, _ = self.step(self.getRandomMove())
+        _, nxtrwd, done, _ = self.step(self.getRandomMove())
+        reward += nxtrwd
+        if is_dracula:
+            self.rewards += reward
+            # print("reward: %d" % reward)
         return self.features, reward, done, {}
     def reset(self):
         self.action_space = np.asarray([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70])
         self.player = 0
         self.rewards = 0
+        self.win = 0
         self.past_plays_dracula = ""
         self.past_plays_hunter = ""
         self.features = np.asarray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 9, 9, 9, 9, 40, 366])
         ob,_,_,_ = self.step(self.getRandomMove())
         return ob
     def getRandomMove(self):
-        return random.randint(0, len(self.action_space) - 1)
+        return self.action_space[random.randint(0, len(self.action_space) - 1)]
     def getHunterAIMove(self):
         process = subprocess.Popen(os.path.join(ROOT_DIR, "hunter_ai"), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         instr =  "{\"past_plays\": \"%s\", \"messages\": []}" % self.past_plays_hunter

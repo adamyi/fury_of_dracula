@@ -259,15 +259,21 @@ static void _gv_get_connections_rec(_game_view *gv, size_t *n_locations,
   for (int i = 0; i < ADJLIST_COUNT[from]; i++) {
     if (player == PLAYER_DRACULA && conns[i].v == HOSPITAL_LOCATION) continue;
     if (conns[i].type == ROAD && road) {
-      can_go[conns[i].v] = true;
-      (*n_locations)++;
+      if (!can_go[conns[i].v]) {
+        can_go[conns[i].v] = true;
+        (*n_locations)++;
+      }
     } else if (conns[i].type == BOAT && sea) {
-      can_go[conns[i].v] = true;
-      (*n_locations)++;
+      if (!can_go[conns[i].v]) {
+        can_go[conns[i].v] = true;
+        (*n_locations)++;
+      }
     } else if (conns[i].type == RAIL && rail && max_rail_dist > 0 &&
                conns[i].v != from) {
-      can_go[conns[i].v] = true;
-      (*n_locations)++;
+      if (!can_go[conns[i].v]) {
+        can_go[conns[i].v] = true;
+        (*n_locations)++;
+      }
       _gv_get_connections_rec(gv, n_locations, can_go, conns[i].v, player,
                               round, false, rail, false, max_rail_dist - 1);
     }
@@ -297,8 +303,8 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   _gv_get_connections_rec(gv, n_locations, can_go, from, player, round, road,
                           rail, sea, max_rail_dist);
 
-  bool canhide = hide && player == PLAYER_DRACULA;
-  bool candb = canhide;
+  bool candb = hide && player == PLAYER_DRACULA;
+  bool canhide = candb && location_get_type(from) != SEA;
   if (trail) {
     location_t hist[TRAIL_SIZE];
     player_get_trail(gv->players[player], hist);
