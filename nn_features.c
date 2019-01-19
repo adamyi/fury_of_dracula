@@ -63,50 +63,57 @@ static inline void printRevealed(_game_view *gv, enum player p, int round,
 }
 
 static inline void printMove(_game_view *gv, enum player p, int round,
-                             location_t *rl) {
+                             location_t *rl, const char *move) {
   printf("\"move\": \"");
-  if (p == PLAYER_DRACULA) {
-    char placement = '.', left = '.';
-    if ((gv->vampire != *rl && gv->traps[*rl] < 3) ||
-        (gv->vampire == *rl && gv->traps[*rl] < 2)) {
-      if (round % 13 == 0) {
-        placement = 'V';
-        printf(".V");
-      } else {
-        placement = 'T';
-        printf("T.");
-      }
-    }
-    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
-      left = 'V';
-    else if (gv->trail_last_loc != NOWHERE && gv->traps[gv->trail_last_loc] > 0)
-      left = 'M';
-    putchar(left);
-    putchar('.');
-    parse_dracula_minion_placement(gv, *rl, placement);
-    parse_dracula_minion_left_trail(gv, left);
+  if (strcmp(move, "....") != 0) {
+    printf("%s", move);
   } else {
-    int c = 0;
-    while (gv->traps[*rl] > 0) {
-      gv->traps[*rl]--;
-      c++;
-      putchar('T');
-      parse_hunter_encounter(gv, p, *rl, 'T');
-      *rl = _gv_get_real_location(gv, p);
+    if (p == PLAYER_DRACULA) {
+      char placement = '.', left = '.';
+      if ((gv->vampire != *rl && gv->traps[*rl] < 3) ||
+          (gv->vampire == *rl && gv->traps[*rl] < 2)) {
+        if (round % 13 == 0) {
+          placement = 'V';
+          printf(".V");
+        } else {
+          placement = 'T';
+          printf("T.");
+        }
+      } else {
+        printf("..");
+      }
+      if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
+        left = 'V';
+      else if (gv->trail_last_loc != NOWHERE &&
+               gv->traps[gv->trail_last_loc] > 0)
+        left = 'M';
+      putchar(left);
+      putchar('.');
+      parse_dracula_minion_placement(gv, *rl, placement);
+      parse_dracula_minion_left_trail(gv, left);
+    } else {
+      int c = 0;
+      while (gv->traps[*rl] > 0) {
+        gv->traps[*rl]--;
+        c++;
+        putchar('T');
+        parse_hunter_encounter(gv, p, *rl, 'T');
+        *rl = _gv_get_real_location(gv, p);
+      }
+      if (gv->vampire == *rl) {
+        putchar('V');
+        c++;
+        parse_hunter_encounter(gv, p, *rl, 'V');
+        *rl = _gv_get_real_location(gv, p);
+      }
+      if (*rl == _gv_get_real_location(gv, PLAYER_DRACULA)) {
+        putchar('D');
+        c++;
+        parse_hunter_encounter(gv, p, *rl, 'D');
+        *rl = _gv_get_real_location(gv, p);
+      }
+      for (; c < 4; c++) putchar('.');
     }
-    if (gv->vampire == *rl) {
-      putchar('V');
-      c++;
-      parse_hunter_encounter(gv, p, *rl, 'V');
-      *rl = _gv_get_real_location(gv, p);
-    }
-    if (*rl == _gv_get_real_location(gv, PLAYER_DRACULA)) {
-      putchar('D');
-      c++;
-      parse_hunter_encounter(gv, p, *rl, 'D');
-      *rl = _gv_get_real_location(gv, p);
-    }
-    for (; c < 4; c++) putchar('.');
   }
   putchar('"');
 }
@@ -162,6 +169,10 @@ static inline void printActionSpace(_game_view *gv, enum player p,
 // round number of dracula moves that are revealed due to the latest
 // move, and the correct string of this move
 int main(int argc, const char *argv[]) {
+  /* for (int i = 0; i <= MAX_MAP_LOCATION; i++)
+    printf("%d: \"%s\", ", i, location_get_abbrev(i));
+  for (int i = 102; i <= 108; i++)
+    printf("%d: \"%s\", ", i, location_get_abbrev(i)); */
   bool track_minions = false;
   if (argc > 1) track_minions = argv[1][0] - '0';
 
@@ -187,7 +198,7 @@ int main(int argc, const char *argv[]) {
   putchar('{');
   printRevealed(gv, p, round, rl);
   printf(", ");
-  printMove(gv, p, round, &rl);
+  printMove(gv, p, round, &rl, &past_plays[len - 4]);
   printf(", ");
   printFeatures(gv);
   printf(", \"player\": %d, ", p);
