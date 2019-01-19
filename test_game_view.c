@@ -24,17 +24,21 @@ TEST_SET_FIXTURE(sampleFixtureTest) {
 }
 
 TEST(basicTest, replicate_dryrun1) {
-
   char *trail = "";
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
-  ac_compare_int(gv_get_player(gv), PLAYER_LORD_GODALMING, "gv_get_player(gv) == Godalming");
+  ac_compare_int(gv_get_player(gv), PLAYER_LORD_GODALMING,
+                 "gv_get_player(gv) == Godalming");
   ac_compare_int(gv_get_round(gv), 0, "round is 0");
-  ac_compare_int(gv_get_health(gv, PLAYER_DR_SEWARD), GAME_START_HUNTER_LIFE_POINTS, "Dr Steward has correct starting life");
-  ac_compare_int(gv_get_health(gv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS, "gv_get_health(gv, Dracula) == 40 (start)");
+  ac_compare_int(gv_get_health(gv, PLAYER_DR_SEWARD),
+                 GAME_START_HUNTER_LIFE_POINTS,
+                 "Dr Steward has correct starting life");
+  ac_compare_int(gv_get_health(gv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS,
+                 "gv_get_health(gv, Dracula) == 40 (start)");
   ac_compare_int(gv_get_score(gv), GAME_START_SCORE, "gv_get_score(gv) == 366");
-  ac_compare_int(gv_get_location(gv, PLAYER_LORD_GODALMING), UNKNOWN_LOCATION, "Godalming is in correct start location");
+  ac_compare_int(gv_get_location(gv, PLAYER_LORD_GODALMING), UNKNOWN_LOCATION,
+                 "Godalming is in correct start location");
 
   gv_drop(gv);
 }
@@ -60,8 +64,8 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
                  "gv_get_health(gv, Dracula) == 30 (start - encounter)");
   ac_compare_int(gv_get_score(gv), GAME_START_SCORE - 3,
                  "gv_get_score(gv) == 366 - 3");
-  ac_compare_int(gv_get_location(gv, PLAYER_DR_SEWARD),
-                 MEDITERRANEAN_SEA, "Dr S is in Med Sea");
+  ac_compare_int(gv_get_location(gv, PLAYER_DR_SEWARD), MEDITERRANEAN_SEA,
+                 "Dr S is in Med Sea");
   gv_drop(gv);
 }
 
@@ -148,7 +152,7 @@ TEST(castleDracTest, drac_heals_in_castle) {
 
 TEST(castleDracTest, drac_heals_in_castle_to_max) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.."   // 0
+      "GED.... SGE.... HZU.... MCA.... DCD.V.."  // 0
       "GED.... SGE.... HZU.... MCA.... DHIT...";
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
@@ -173,45 +177,52 @@ TEST(castleDracTest, drac_heals_in_castle_to_max) {
   gv_drop(gv);
 }
 
-TEST(vamp_mat_test, test_vamp_maturity_consequences){
+TEST(vamp_mat_test, test_vamp_maturity_consequences) {
   char *trail =
-    "GED.... SGE.... HZU.... MCA.... DC?.V.."//0
-    "GMN.... SCF.... HGE.... MLS.... DC?T..."//1
-    "GLO.... SMR.... HCF.... MMA.... DC?T..."//2
-    "GPL.... SMS.... HMR.... MGR.... DC?T..."//3
-    "GEC.... SBA.... HGO.... MAL.... DC?T..."//4
-    "GLE.... SZA.... HTS.... MMS.... DC?T..."//5
-    "GPA.... SVI.... HIO.... MCG.... DC?T.V.";//6
-                                              //7
-
+      "GED.... SGE.... HZU.... MCA.... DC?.V.."   // 0
+      "GMN.... SCF.... HGE.... MLS.... DC?T..."   // 1
+      "GLO.... SMR.... HCF.... MMA.... DC?T..."   // 2
+      "GPL.... SMS.... HMR.... MGR.... DC?T..."   // 3
+      "GEC.... SBA.... HGO.... MAL.... DC?T..."   // 4
+      "GLE.... SZA.... HTS.... MMS.... DC?T..."   // 5
+      "GPA.... SVI.... HIO.... MCG.... DC?T.V.";  // 6
+                                                  // 7
 
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
-  ac_compare_int((int)gv_get_player(gv), PLAYER_LORD_GODALMING, "gv_get_player(gv) == Dracula");
+  ac_compare_int((int)gv_get_player(gv), PLAYER_LORD_GODALMING,
+                 "gv_get_player(gv) == Dracula");
   ac_compare_int((int)gv_get_round(gv), 7, "round is 7");
 
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD), GAME_START_HUNTER_LIFE_POINTS, "Dr Steward has correct life (9)");
-  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS, "gv_get_health(gv, Dracula) == 40");
-  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE - 7 - 13, "gv_get_score(gv) == 366 - 20");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DR_SEWARD),
+                 GAME_START_HUNTER_LIFE_POINTS,
+                 "Dr Steward has correct life (9)");
+  ac_compare_int((int)gv_get_health(gv, PLAYER_DRACULA),
+                 GAME_START_BLOOD_POINTS, "gv_get_health(gv, Dracula) == 40");
+  ac_compare_int((int)gv_get_score(gv), GAME_START_SCORE - 7 - 13,
+                 "gv_get_score(gv) == 366 - 20");
   gv_drop(gv);
 }
 
-TEST(conn_test, test_connections_from_start_locs){
-  char *trail =
-      "GED.... SGE.... HZU.... MCA....";   // 0
+TEST(conn_test, test_connections_from_start_locs) {
+  char *trail = "GED.... SGE.... HZU.... MCA....";  // 0
 
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
   size_t n_locations = 0;
-  location_t *destsLG = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING), PLAYER_LORD_GODALMING, gv_get_round(gv), true, false, false);
+  location_t *destsLG = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
+      PLAYER_LORD_GODALMING, gv_get_round(gv), true, false, false);
 
   ac_compare_int(destsLG[0], EDINBURGH, "current loc Ed");
   ac_compare_int(destsLG[1], MANCHESTER, "Man avaialbe by road");
   free(destsLG);
   n_locations = 0;
-  location_t *destsLGrail = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING), PLAYER_LORD_GODALMING, gv_get_round(gv), false, true, false);
+  location_t *destsLGrail = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
+      PLAYER_LORD_GODALMING, gv_get_round(gv), false, true, false);
   /*puts("LG RAIL LOCS");
   printf("0%4: %d\n", 0%4);
   for(size_t i = 0; i < n_locations; i++){
@@ -220,21 +231,26 @@ TEST(conn_test, test_connections_from_start_locs){
   ac_compare_int(destsLGrail[0], EDINBURGH, "current loc Ed");
   free(destsLGrail);
   n_locations = 0;
-  location_t *destsLGsea = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING), PLAYER_LORD_GODALMING, gv_get_round(gv), false, false, true);
+  location_t *destsLGsea = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
+      PLAYER_LORD_GODALMING, gv_get_round(gv), false, false, true);
   ac_compare_int(destsLGsea[0], EDINBURGH, "current loc Ed");
   ac_compare_int(destsLGsea[1], NORTH_SEA, "North Sea should be accessable");
 
   n_locations = 0;
-  location_t *destsLGall = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING), PLAYER_LORD_GODALMING, gv_get_round(gv), true, true, true);
+  location_t *destsLGall = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
+      PLAYER_LORD_GODALMING, gv_get_round(gv), true, true, true);
   ac_compare_int(destsLGall[0], EDINBURGH, "current loc Ed");
   ac_compare_int(destsLGall[1], MANCHESTER, "man is adjacent");
   ac_compare_int(destsLGall[2], NORTH_SEA, "NS is adjacent");
   ac_compare_int(n_locations, 3, "n_locations == 3");
   free(destsLGall);
 
-
   n_locations = 0;
-  location_t *destsVHroad = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING), PLAYER_VAN_HELSING, gv_get_round(gv), true, false, true);
+  location_t *destsVHroad = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
+      PLAYER_VAN_HELSING, gv_get_round(gv), true, false, true);
   ac_compare_int(destsVHroad[0], GENEVA, "Geneva");
   ac_compare_int(destsVHroad[1], MARSEILLES, "MARSEILLES");
   ac_compare_int(destsVHroad[2], MILAN, "MILAN");
@@ -245,7 +261,9 @@ TEST(conn_test, test_connections_from_start_locs){
   free(destsVHroad);
 
   n_locations = 0;
-  location_t *destsVHrail = gv_get_connections(gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING), PLAYER_VAN_HELSING, gv_get_round(gv), false, true, true);
+  location_t *destsVHrail = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
+      PLAYER_VAN_HELSING, gv_get_round(gv), false, true, true);
 
   ac_compare_int(n_locations, 7, "7 == n_locations");
   ac_compare_int(destsVHrail[0], 24, "Florence");
@@ -257,11 +275,10 @@ TEST(conn_test, test_connections_from_start_locs){
   ac_compare_int(destsVHrail[6], 70, "Zurich");
 
   puts("VH RAIL LOCS");
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     printf("loc: %d\n", destsVHrail[i]);
   }
   free(destsVHrail);
-
 
   gv_drop(gv);
 }
@@ -300,7 +317,6 @@ TEST_F(sampleFixtureTest, exampleFailTest) {
   ac_compare_int(x[2], x[1], "x should be identical");
   free(x);
 }
-
 
 // register all tests
 // tests will run in the same order they are registered.
