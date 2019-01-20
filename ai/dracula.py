@@ -24,7 +24,7 @@ EPSILON_DECREASE = 1.0/10000
 SAMPLE_SIZE = 32
 prioritized_replay_alpha=0.6
 prioritized_replay_beta0=0.4
-prioritized_replay_beta_iters=None
+prioritized_replay_beta_iters=100000
 prioritized_replay_eps=1e-6
 total_timesteps = 2500000
 
@@ -60,8 +60,6 @@ if os.path.isfile(WEIGHTS_PATH) and os.access(WEIGHTS_PATH, os.R_OK):
 env = gym.make(ENV_NAME)
 
 replay_buffer = PrioritizedReplayBuffer(MEMORY, alpha=prioritized_replay_alpha)
-if prioritized_replay_beta_iters is None:
-    prioritized_replay_beta_iters = total_timesteps
 beta_schedule = LinearSchedule(prioritized_replay_beta_iters,
                                 initial_p=prioritized_replay_beta0,
                                 final_p=1.0)
@@ -159,7 +157,30 @@ def train():
 
 mode = sys.argv[1] if len(sys.argv) > 1 else ''
 
-if mode == 'train':
+if mode == 'train_past_data':
+    t = 0
+    f = open('past_data_list.txt')
+    for line in f:
+        print(line)
+        ob = env.reset(line[:-1])
+        if env.autoHunter:
+            print("Skipping")
+            continue
+        a = env.getSourceAction()
+        while a is not None:
+            t += 1
+            next_ob, reward, done, info = env.step(a)
+            remember(ob, a, next_ob, reward, done, env.action_space)
+            ob = next_ob
+            if done:
+                break
+            a = env.getSourceAction()
+        if done == False:
+            print("NOT DONE!")
+        train()
+        model.save_weights(WEIGHTS_PATH)
+
+elif mode == 'train':
 
     t = 0
     while True:
