@@ -35,11 +35,15 @@ static inline void hunter_lose_health(_game_view *gv, enum player player,
 void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
                                     char minion) {
   if (minion == 'T') {
-    ac_log(AC_LOG_DEBUG, "placed trap");
-    if (gv->track_minions)
+    ac_log(AC_LOG_DEBUG, "placed trap at %s(%s)", location_get_abbrev(real_loc),
+           location_get_name(real_loc));
+    if (gv->track_minions) {
       gv->traps[real_loc]++;
+      ac_log(AC_LOG_DEBUG, "there are %d traps there", gv->traps[real_loc]);
+    }
   } else if (minion == 'V') {
-    ac_log(AC_LOG_DEBUG, "placed vampire");
+    ac_log(AC_LOG_DEBUG, "placed vampire as %s(%s)",
+           location_get_abbrev(real_loc), location_get_name(real_loc));
     if (gv->track_minions) gv->vampire = real_loc;
   }
 }
@@ -47,8 +51,13 @@ void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
 void parse_dracula_minion_left_trail(_game_view *gv, char left) {
   if (left == 'M') {
     ac_log(AC_LOG_DEBUG, "trap invalidates");
-    if (gv->track_minions && gv->round >= TRAIL_SIZE)
+    if (gv->track_minions && gv->round >= TRAIL_SIZE) {
       gv->traps[gv->trail_last_loc]--;
+      ac_log(AC_LOG_DEBUG, "at %s(%s), there are %d left",
+             location_get_abbrev(gv->trail_last_loc),
+             location_get_name(gv->trail_last_loc),
+             gv->traps[gv->trail_last_loc]);
+    }
   } else if (left == 'V') {
     ac_log(AC_LOG_DEBUG, "vampire matures");
     if (gv->track_minions) gv->vampire = NOWHERE;
@@ -248,7 +257,10 @@ static void _gv_get_connections_rec(_game_view *gv, size_t *n_locations,
                                     enum player player, round_t round,
                                     bool road, bool rail, bool sea,
                                     int max_rail_dist) {
-  ac_log(AC_LOG_DEBUG, "invoking _gv_get_connections_rec with settings: road %d rail %d sea %d max_rail_dist %d", road, rail, sea, max_rail_dist);
+  ac_log(AC_LOG_DEBUG,
+         "invoking _gv_get_connections_rec with settings: road %d rail %d sea "
+         "%d max_rail_dist %d",
+         road, rail, sea, max_rail_dist);
   if ((!road) && ((!rail) || max_rail_dist <= 0) && (!sea)) return;
 
   struct adj_connection *conns = getConnections(from);
@@ -281,7 +293,10 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
                                    location_t from, enum player player,
                                    round_t round, bool road, bool rail,
                                    bool sea, bool trail, bool stay, bool hide) {
-  ac_log(AC_LOG_DEBUG, "invoking _gv_do_get_connections with settings: road %d rail %d sea %d trail %d stay %d hide %d", road, rail, sea, trail, stay, hide);
+  ac_log(AC_LOG_DEBUG,
+         "invoking _gv_do_get_connections with settings: road %d rail %d sea "
+         "%d trail %d stay %d hide %d",
+         road, rail, sea, trail, stay, hide);
   if (from < MIN_MAP_LOCATION ||
       from > MAX_MAP_LOCATION)  // don't know exact loc
     return 0;
