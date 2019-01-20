@@ -106,16 +106,16 @@ TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
 
 TEST(castleDracTest, drac_heals_in_castle) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.. "   // 0
-      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "   // 1
-      "GLO.... SMR.... HCF.... MMA.... DTOT... "   // 2
-      "GPL.... SMS.... HMR.... MGR.... DBAT... "   // 3
-      "GEC.... SBATD.. HGO.... MAL.... DMS.... "   // 4  -2
-      "GLE.... SZA.... HTS.... MMS.... DTS.... "   // 5  -2
-      "GLE.... SZA.... HTS.... MMS.... DIO.... "   // 6  -2
-      "GLE.... SZA.... HTS.... MMS.... DBS..M. "   // 7  -2
-      "GLE.... SZA.... HTS.... MMS.... DCNT.M. "   // 8
-      "GLE.... SZA.... HTS.... MMS.... DGAT.M. "   // 8
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "  // 0
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DTOT... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "  // 3
+      "GEC.... SBATD.. HGO.... MAL.... DMS.... "  // 4  -2
+      "GLE.... SZA.... HTS.... MMS.... DTS.... "  // 5  -2
+      "GLE.... SZA.... HTS.... MMS.... DIO.... "  // 6  -2
+      "GLE.... SZA.... HTS.... MMS.... DBS..M. "  // 7  -2
+      "GLE.... SZA.... HTS.... MMS.... DCNT.M. "  // 8
+      "GLE.... SZA.... HTS.... MMS.... DGAT.M. "  // 8
       "GLE.... SZA.... HTS.... MMS.... DCDT...";  // 10
 
   player_message messages[] = {};
@@ -137,7 +137,7 @@ TEST(castleDracTest, drac_heals_check_traps_check_locs) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
       "GED.... SGE.... HZU.... MCA.... DHIT... "  // 1
-      "GED.... SGE.... HZU.... MCA....";         // 2
+      "GED.... SGE.... HZU.... MCA....";          // 2
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
@@ -186,21 +186,21 @@ TEST(castleDracTest, drac_heals_check_traps_check_locs) {
 
 TEST(teleTest, drac_teleports) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DHA.V.. "   // 0
-      "GMN.... SMR.... HMI.... MLS.... DLIT... "   // 1
-      "GED.... SGE.... HZU.... MCA.... DBRT... "   // 2
-      "GMN.... SGE.... HMI.... MLS.... DPRT... "   // 3
-      "GED.... SMR.... HZU.... MCA.... DHIT... "   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD3T... "   // 5
-      "GED.... SMR.... HZU.... MCA.... DTPTV.. "   // 6
-      "GMN.... SGE.... HMI.... MLS....";           // 7
-
+      "GED.... SGE.... HZU.... MCA.... DHA.V.. "  // 0
+      "GMN.... SMR.... HMI.... MLS.... DLIT... "  // 1
+      "GED.... SGE.... HZU.... MCA.... DBRT... "  // 2
+      "GMN.... SGE.... HMI.... MLS.... DPRT... "  // 3
+      "GED.... SMR.... HZU.... MCA.... DHIT... "  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD3T... "  // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV.. "  // 6
+      "GMN.... SGE.... HMI.... MLS....";          // 7
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -227,20 +227,20 @@ TEST(teleTest, drac_teleports) {
 
 TEST(teleTest, drac_double_back_to_hide_in_castle) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.. "   // 0
-      "GMN.... SMR.... HMI.... MLS.... DHIT... "   // 1
-      "GED.... SGE.... HZU.... MCA.... DKLT... "   // 2
-      "GMN.... SGE.... HMI.... MLS.... DGAT... "   // 3
-      "GED.... SMR.... HZU.... MCA.... DCNT... "   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD4T... "   // 5
+      "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT... "  // 1
+      "GED.... SGE.... HZU.... MCA.... DKLT... "  // 2
+      "GMN.... SGE.... HMI.... MLS.... DGAT... "  // 3
+      "GED.... SMR.... HZU.... MCA.... DCNT... "  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
       "GED.... SMR.... HZU.... MCA....";          // 6
-
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -263,20 +263,20 @@ TEST(teleTest, drac_double_back_to_hide_in_castle) {
 
 TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.. "   // 0
-      "GMN.... SMR.... HMI.... MLS.... DHIT... "   // 1
-      "GED.... SGE.... HZU.... MCA.... DKLT... "   // 2
-      "GMN.... SGE.... HMI.... MLS.... DGAT... "   // 3
-      "GED.... SMR.... HZU.... MCA.... DCNT... "   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD4T... "   // 5
+      "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT... "  // 1
+      "GED.... SGE.... HZU.... MCA.... DKLT... "  // 2
+      "GMN.... SGE.... HMI.... MLS.... DGAT... "  // 3
+      "GED.... SMR.... HZU.... MCA.... DCNT... "  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
       "GED.... SMR.... HZU.... MCA.... DTPTV..";  // 6
-
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -297,12 +297,11 @@ TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
   dv_drop(dv);
 }
 
-TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail){
+TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DZA.V.. "
       "GED.... SGE.... HZU.... MCA.... DSJT... "
       "GED.... SGE.... HZU.... MCA....";
-
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
@@ -314,34 +313,31 @@ TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail){
   move_key[SOFIA] = true;
   move_key[BELGRADE] = true;
 
-
   bool move_ret[NUM_MAP_LOCATIONS];
   memset(move_ret, false, NUM_MAP_LOCATIONS);
   size_t n_locations = 0;
   location_t *dests = dv_get_dests(dv, &n_locations, true, true);
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[dests[i]] = true;
   }
-  for(size_t i = 0; i < NUM_MAP_LOCATIONS; i++){
+  for (size_t i = 0; i < NUM_MAP_LOCATIONS; i++) {
     ac_compare_int(move_ret[i], move_key[i], "location match");
   }
   free(dests);
   dv_drop(dv);
 }
 
-
 TEST(vamp_mat_test, test_vamp_maturity_consequences) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DGA.V.. "   // 0
-      "GMN.... SCF.... HGE.... MLS.... DKLT... "   // 1
-      "GLO.... SMR.... HCF.... MMA.... DBDT... "   // 2
-      "GPL.... SMS.... HMR.... MGR.... DVIT... "   // 3
-      "GEC.... SBA.... HGO.... MAL.... DPRT... "   // 4
-      "GLE.... SZA.... HTS.... MMS.... DBRT... "   // 5
-      "GPA.... SVI.... HIO.... MCG.... DHAT.V. "   // 6
-      "GPA.... SVI.... HIO.... MCG.... DCOT.M. "   // 7
-      "GPA.... SVI.... HIO.... MCG....";           // 8
-
+      "GED.... SGE.... HZU.... MCA.... DGA.V.. "  // 0
+      "GMN.... SCF.... HGE.... MLS.... DKLT... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DBDT... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DVIT... "  // 3
+      "GEC.... SBA.... HGO.... MAL.... DPRT... "  // 4
+      "GLE.... SZA.... HTS.... MMS.... DBRT... "  // 5
+      "GPA.... SVI.... HIO.... MCG.... DHAT.V. "  // 6
+      "GPA.... SVI.... HIO.... MCG.... DCOT.M. "  // 7
+      "GPA.... SVI.... HIO.... MCG....";          // 8
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
@@ -350,26 +346,25 @@ TEST(vamp_mat_test, test_vamp_maturity_consequences) {
   ac_compare_int(dv_get_health(dv, PLAYER_DR_SEWARD),
                  GAME_START_HUNTER_LIFE_POINTS,
                  "Dr Steward has correct life (9)");
-  ac_compare_int(dv_get_health(dv, PLAYER_DRACULA),
-                 GAME_START_BLOOD_POINTS, "dv_get_health(dv, Dracula) == 40");
+  ac_compare_int(dv_get_health(dv, PLAYER_DRACULA), GAME_START_BLOOD_POINTS,
+                 "dv_get_health(dv, Dracula) == 40");
   ac_compare_int(dv_get_score(dv), GAME_START_SCORE - 8 - 13,
                  "dv_get_score(dv) == 366 - 21");
 
- int n_traps = 0;
- int n_vamps = 0;
- dv_get_locale_info(dv, GALATZ, &n_traps, &n_vamps);
- ac_compare_int(n_traps, 0, "n_traps == 0");
- ac_compare_int(n_vamps, 0, "n_vamps == 0");
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, GALATZ, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 0, "n_traps == 0");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
 
- n_traps = 0;
- n_vamps = 0;
- dv_get_locale_info(dv, KLAUSENBURG, &n_traps, &n_vamps);
- ac_compare_int(n_traps, 0, "n_traps == 0");
- ac_compare_int(n_vamps, 0, "n_vamps == 0");
+  n_traps = 0;
+  n_vamps = 0;
+  dv_get_locale_info(dv, KLAUSENBURG, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 0, "n_traps == 0");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
 
   dv_drop(dv);
 }
-
 
 TEST(conn_test, test_connections_from_start_locs) {
   char *trail = "GED.... SGE.... HZU.... MCA....";  // 0
@@ -382,10 +377,9 @@ TEST(conn_test, test_connections_from_start_locs) {
 
   size_t n_locations = 0;
 
-  location_t *destsVHall = dv_get_dests_player(dv, &n_locations,
-                                  PLAYER_VAN_HELSING, true, true,
-                                  true);
-  for(size_t i = 0; i < n_locations; i++){
+  location_t *destsVHall = dv_get_dests_player(
+      dv, &n_locations, PLAYER_VAN_HELSING, true, true, true);
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsVHall[i]] = true;
   }
   ac_compare_int(n_locations, 9, "9 == n_locations");
@@ -402,19 +396,17 @@ TEST(conn_test, test_connections_from_start_locs) {
   dv_drop(dv);
 }
 
-TEST(hunterTrail, get_hunters_trail){
-
+TEST(hunterTrail, get_hunters_trail) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DGA.V.. "   // 0
-      "GMN.... SCF.... HGE.... MLS.... DKLT... "   // 1
-      "GLO.... SMR.... HCF.... MMA.... DBDT... "   // 2
-      "GPL.... SMS.... HMR.... MGR.... DVIT... "   // 3
-      "GEC.... SBA.... HGO.... MAL.... DPRT... "   // 4
-      "GLE.... SZA.... HTS.... MMS.... DBRT... "   // 5
-      "GPA.... SVI.... HIO.... MCG.... DHAT.V. "   // 6
-      "GPA.... SVI.... HIO.... MCG.... DCOT.M. "   // 7
-      "GPA.... SVI.... HIO.... MCG....";           // 8
-
+      "GED.... SGE.... HZU.... MCA.... DGA.V.. "  // 0
+      "GMN.... SCF.... HGE.... MLS.... DKLT... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DBDT... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DVIT... "  // 3
+      "GEC.... SBA.... HGO.... MAL.... DPRT... "  // 4
+      "GLE.... SZA.... HTS.... MMS.... DBRT... "  // 5
+      "GPA.... SVI.... HIO.... MCG.... DHAT.V. "  // 6
+      "GPA.... SVI.... HIO.... MCG.... DCOT.M. "  // 7
+      "GPA.... SVI.... HIO.... MCG....";          // 8
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
@@ -422,23 +414,22 @@ TEST(hunterTrail, get_hunters_trail){
   location_t trailLG[TRAIL_SIZE];
 
   dv_get_trail(dv, PLAYER_LORD_GODALMING, trailLG);
-  ac_compare_int(trailLG[0], 	PARIS, "PA");
-  ac_compare_int(trailLG[1], 	PARIS, "PA");
-  ac_compare_int(trailLG[2], 	PARIS, "PA");
-  ac_compare_int(trailLG[3], 	LE_HAVRE, "LE");
-  ac_compare_int(trailLG[4], 	ENGLISH_CHANNEL, "EC");
+  ac_compare_int(trailLG[0], PARIS, "PA");
+  ac_compare_int(trailLG[1], PARIS, "PA");
+  ac_compare_int(trailLG[2], PARIS, "PA");
+  ac_compare_int(trailLG[3], LE_HAVRE, "LE");
+  ac_compare_int(trailLG[4], ENGLISH_CHANNEL, "EC");
   ac_compare_int(trailLG[5], PLYMOUTH, "PL");
 
   dv_drop(dv);
 }
 
-TEST(dracMoveTest, test_drac_sea_move_after_D2){
+TEST(dracMoveTest, test_drac_sea_move_after_D2) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DCN.V.. "
       "GED.... SGE.... HZU.... MCA.... DGAT... "
       "GED.... SGE.... HZU.... MCA.... DD2T... "
       "GED.... SGE.... HZU.... MCA....";
-
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
@@ -449,7 +440,7 @@ TEST(dracMoveTest, test_drac_sea_move_after_D2){
   size_t n_locations = 0;
 
   location_t *dests = dv_get_dests(dv, &n_locations, true, true);
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[dests[i]] = true;
   }
   ac_compare_int(n_locations, 4, "4 == n_locations");
@@ -457,7 +448,6 @@ TEST(dracMoveTest, test_drac_sea_move_after_D2){
   ac_compare_int(move_ret[BUCHAREST], true, "BUCHAREST");
   ac_compare_int(move_ret[BLACK_SEA], true, "BLACK_SEA");
   ac_compare_int(move_ret[VARNA], true, "VARNA");
-
 
   dv_drop(dv);
 }
