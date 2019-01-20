@@ -44,6 +44,19 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
                  "dv_get_score(dv) == 366 - 3");
   ac_compare_int(dv_get_location(dv, PLAYER_DR_SEWARD), MEDITERRANEAN_SEA,
                  "Dr S is in Med Sea");
+
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, BORDEAUX, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 1, "n_traps == 1");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
+
+  n_traps = 0;
+  n_vamps = 0;
+  dv_get_locale_info(dv, CLERMONT_FERRAND, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 0, "n_traps == 0");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
+
   dv_drop(dv);
 }
 
@@ -66,6 +79,12 @@ TEST(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap) {
                  "dv_get_health(dv, Dracula) == 20 (start - 2*encounter)");
   ac_compare_int(dv_get_score(dv), GAME_START_SCORE - 4 - 6,
                  "dv_get_score(dv) == 366 - 10");
+
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, BARCELONA, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 0, "n_traps == 0");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
   dv_drop(dv);
 }
 
@@ -102,9 +121,9 @@ TEST(castleDracTest, drac_heals_in_castle) {
       "GEC.... SBATD.. HGO.... MAL.... DMS...."   // 4  -2
       "GLE.... SZA.... HTS.... MMS.... DTS...."   // 5  -2
       "GLE.... SZA.... HTS.... MMS.... DIO...."   // 6  -2
-      "GLE.... SZA.... HTS.... MMS.... DBS...."   // 7  -2
-      "GLE.... SZA.... HTS.... MMS.... DCNT..."   // 8
-      "GLE.... SZA.... HTS.... MMS.... DGAT..."   // 8
+      "GLE.... SZA.... HTS.... MMS.... DBS..M."   // 7  -2
+      "GLE.... SZA.... HTS.... MMS.... DCNT.M."   // 8
+      "GLE.... SZA.... HTS.... MMS.... DGAT.M."   // 8
       "GLE.... SZA.... HTS.... MMS.... DCDT...";  // 10
 
   player_message messages[] = {};
@@ -173,6 +192,151 @@ TEST(castleDracTest, drac_heals_check_traps_check_locs) {
   dv_drop(dv);
 }
 
+TEST(teleTest, drac_teleports) {
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DHA.V.."   // 0
+      "GMN.... SMR.... HMI.... MLS.... DLIT..."   // 1
+      "GED.... SGE.... HZU.... MCA.... DBRT..."   // 2
+      "GMN.... SGE.... HMI.... MLS.... DPRT..."   // 3
+      "GED.... SMR.... HZU.... MCA.... DHIT..."   // 4
+      "GMN.... SGE.... HMI.... MLS.... DD3T..."   // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV.."   // 6
+      "GMN.... SGE.... HMI.... MLS....";          // 7
+
+
+  player_message messages[] = {};
+  DraculaView dv = dv_new(trail, messages);
+
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
+                " CASTLE_DRACULA");
+
+  location_t trail_drac[TRAIL_SIZE];
+  dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
+  ac_compare_int(trail_drac[0], CASTLE_DRACULA, "trail[0] == TELEPORT");
+  ac_compare_int(trail_drac[1], BERLIN, "trail[1] == DOUBLE_BACK_3");
+  ac_compare_int(trail_drac[2], PRAGUE, "trail[2] == HIDE");
+  ac_compare_int(trail_drac[3], PRAGUE, "trail[3] == PRAUGE");
+  ac_compare_int(trail_drac[4], BERLIN, "trail[4] == Berlin");
+  ac_compare_int(trail_drac[5], LEIPZIG, "trail[5] == LEIPZIG");
+
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, BERLIN, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 2, "n_traps == 2");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
+  n_traps = 74;
+  n_vamps = 63;
+  dv_get_locale_info(dv, PRAGUE, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 2, "n_traps == 2");
+  ac_compare_int(n_vamps, 0, "n_vamps == 0");
+
+  dv_drop(dv);
+}
+
+TEST(teleTest, drac_double_back_to_hide_in_castle) {
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DCD.V.."   // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT..."   // 1
+      "GED.... SGE.... HZU.... MCA.... DKLT..."   // 2
+      "GMN.... SGE.... HMI.... MLS.... DGAT..."   // 3
+      "GED.... SMR.... HZU.... MCA.... DCNT..."   // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T..."   // 5
+      "GED.... SMR.... HZU.... MCA....";          // 6
+
+
+  player_message messages[] = {};
+  DraculaView dv = dv_new(trail, messages);
+
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
+                " CASTLE_DRACULA");
+
+  location_t trail_drac[TRAIL_SIZE];
+  dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
+  ac_compare_int(trail_drac[0], CASTLE_DRACULA, "trail[0] correct");
+  ac_compare_int(trail_drac[1], CONSTANTA, "trail[1] correct");
+  ac_compare_int(trail_drac[2], GALATZ, "trail[2] correct");
+  ac_compare_int(trail_drac[3], KLAUSENBURG, "trail[3] correct");
+  ac_compare_int(trail_drac[4], CASTLE_DRACULA, "trail[4] correct");
+  ac_compare_int(trail_drac[5], CASTLE_DRACULA, "trail[5] correct");
+
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, CASTLE_DRACULA, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 2, "n_traps == 2");
+  ac_compare_int(n_vamps, 1, "n_vamps == 1");
+  ac_compare_int(dv_get_health(dv, PLAYER_DRACULA), 70, "Drac HP == 70");
+
+  dv_drop(dv);
+}
+
+TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DCD.V.."   // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT..."   // 1
+      "GED.... SGE.... HZU.... MCA.... DKLT..."   // 2
+      "GMN.... SGE.... HMI.... MLS.... DGAT..."   // 3
+      "GED.... SMR.... HZU.... MCA.... DCNT..."   // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T..."   // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV..";  // 6
+
+
+  player_message messages[] = {};
+  DraculaView dv = dv_new(trail, messages);
+
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
+                " CASTLE_DRACULA");
+
+  location_t trail_drac[TRAIL_SIZE];
+  dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
+  ac_compare_int(trail_drac[0], CASTLE_DRACULA, "trail[0] correct");
+  ac_compare_int(trail_drac[2], CONSTANTA, "trail[1] correct");
+  ac_compare_int(trail_drac[3], GALATZ, "trail[2] correct");
+  ac_compare_int(trail_drac[4], KLAUSENBURG, "trail[3] correct");
+  ac_compare_int(trail_drac[5], CASTLE_DRACULA, "trail[4] correct");
+  ac_compare_int(trail_drac[1], CASTLE_DRACULA, "trail[5] correct");
+
+  int n_traps = 0;
+  int n_vamps = 0;
+  dv_get_locale_info(dv, CASTLE_DRACULA, &n_traps, &n_vamps);
+  ac_compare_int(n_traps, 3, "n_traps == 3");
+  ac_compare_int(n_vamps, 1, "n_vamps == 0");
+  ac_compare_int(dv_get_health(dv, PLAYER_DRACULA), 80, "Drac HP == 80");
+
+  dv_drop(dv);
+}
+
+TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail){
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DZA.V.."
+      "GED.... SGE.... HZU.... MCA.... DSJT..."
+      "GED.... SGE.... HZU.... MCA....";
+
+
+  player_message messages[] = {};
+  DraculaView dv = dv_new(trail, messages);
+
+  bool move_key[NUM_MAP_LOCATIONS];
+  memset(move_key, false, NUM_MAP_LOCATIONS);
+  move_key[SARAJEVO] = true;
+  move_key[VALONA] = true;
+  move_key[SOFIA] = true;
+  move_key[BELGRADE] = true;
+
+
+  bool move_ret[NUM_MAP_LOCATIONS];
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
+  size_t n_locations = 0;
+  location_t *dests = dv_get_dests(dv, &n_locations, true, true);
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[dests[i]] = true;
+  }
+  for(size_t i = 0; i < NUM_MAP_LOCATIONS; i++){
+    ac_compare_int(move_ret[i], move_key[i], "location match");
+  }
+  free(dests);
+  dv_drop(dv);
+}
+
 TEST(sampleTest, intTest) {
   ac_compare_int(1, 1, "value a");
   ac_compare_int(2, 2, "value b");
@@ -222,6 +386,10 @@ static void regAllTests() {
   ac_regTest(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg);
   ac_regTest(castleDracTest, drac_heals_in_castle);
   ac_regTest(castleDracTest, drac_heals_check_traps_check_locs);
+  ac_regTest(teleTest, drac_teleports);
+  ac_regTest(teleTest, drac_double_back_to_hide_in_castle);
+  ac_regTest(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail);
+  ac_regTest(teleTest, drac_double_back_to_hide_in_castle_then_TP);
 }
 
 int main() {

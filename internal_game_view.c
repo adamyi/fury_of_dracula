@@ -36,12 +36,8 @@ void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
                                     char minion) {
   if (minion == 'T') {
     ac_log(AC_LOG_DEBUG, "placed trap");
-    if (gv->track_minions) {
-      // NOTES: shouldn't place when vampire and 2 traps are there as well
-      if (gv->traps[real_loc] >= 3)
-        ac_log(AC_LOG_FATAL, "shouldn't place a trap because already 3!");
+    if (gv->track_minions)
       gv->traps[real_loc]++;
-    }
   } else if (minion == 'V') {
     ac_log(AC_LOG_DEBUG, "placed vampire");
     if (gv->track_minions) gv->vampire = real_loc;

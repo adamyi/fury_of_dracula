@@ -15,14 +15,6 @@
 
 #include "game_view.h"
 
-TEST_SET_FIXTURE(sampleFixtureTest) {
-  int *x = malloc(3 * sizeof(int));
-  x[0] = 0;
-  x[1] = 1;
-  x[2] = 2;
-  return x;
-}
-
 TEST(basicTest, replicate_dryrun1) {
   char *trail = "";
   player_message messages[] = {};
@@ -223,120 +215,107 @@ TEST(conn_test, test_connections_from_start_locs) {
   location_t *destsLGrail = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, true, false);
-  /*puts("LG RAIL LOCS");
-  printf("0%4: %d\n", 0%4);
-  for(size_t i = 0; i < n_locations; i++){
-    printf("loc: %d\n", destsLGrail[i]);
-  }*/
+
   ac_compare_int(destsLGrail[0], EDINBURGH, "current loc Ed");
   free(destsLGrail);
   n_locations = 0;
   location_t *destsLGsea = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, false, true);
-  ac_compare_int(destsLGsea[0], EDINBURGH, "current loc Ed");
-  ac_compare_int(destsLGsea[1], NORTH_SEA, "North Sea should be accessable");
+
+
+  bool move_ret[NUM_MAP_LOCATIONS];
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
+
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsLGsea[i]] = true;
+  }
+  ac_compare_int(n_locations, 2, "n_locations == 2");
+
+  ac_compare_int(move_ret[EDINBURGH], true, "current loc Ed");
+  ac_compare_int(move_ret[NORTH_SEA], true, "North Sea should be accessable");
+  free(destsLGsea);
 
   n_locations = 0;
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsLGall = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), true, true, true);
-  ac_compare_int(destsLGall[0], EDINBURGH, "current loc Ed");
-  ac_compare_int(destsLGall[1], MANCHESTER, "man is adjacent");
-  ac_compare_int(destsLGall[2], NORTH_SEA, "NS is adjacent");
+
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsLGall[i]] = true;
+  }
   ac_compare_int(n_locations, 3, "n_locations == 3");
   free(destsLGall);
 
+  ac_compare_int(move_ret[EDINBURGH], true, "current loc Ed");
+  ac_compare_int(move_ret[MANCHESTER], true, "man is adjacent");
+  ac_compare_int(move_ret[NORTH_SEA], true, "NS is adjacent");
+
+
   n_locations = 0;
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsVHroad = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), true, false, true);
-  ac_compare_int(destsVHroad[0], GENEVA, "Geneva");
-  ac_compare_int(destsVHroad[1], MARSEILLES, "MARSEILLES");
-  ac_compare_int(destsVHroad[2], MILAN, "MILAN");
-  ac_compare_int(destsVHroad[3], MUNICH, "MUNICH");
-  ac_compare_int(destsVHroad[4], STRASBOURG, "STRASBOURG");
-  ac_compare_int(destsVHroad[5], ZURICH, "ZURICH");
+
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsVHroad[i]] = true;
+  }
   ac_compare_int(n_locations, 6, "6 == n_locations");
+  ac_compare_int(move_ret[GENEVA], true, "Geneva");
+  ac_compare_int(move_ret[MARSEILLES], true, "MARSEILLES");
+  ac_compare_int(move_ret[MILAN], true, "MILAN");
+  ac_compare_int(move_ret[MUNICH], true, "MUNICH");
+  ac_compare_int(move_ret[STRASBOURG], true, "STRASBOURG");
+  ac_compare_int(move_ret[ZURICH], true, "ZURICH");
   free(destsVHroad);
 
   n_locations = 0;
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsVHrail = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), false, true, true);
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsVHrail[i]] = true;
+  }
 
   ac_compare_int(n_locations, 7, "7 == n_locations");
-  ac_compare_int(destsVHrail[0], 24, "Florence");
-  ac_compare_int(destsVHrail[1], 25, "Frankfurt");
-  ac_compare_int(destsVHrail[2], 28, "Geneva");
-  ac_compare_int(destsVHrail[3], 29, "Genoa");
-  ac_compare_int(destsVHrail[4], 44, "Milan");
-  ac_compare_int(destsVHrail[5], 60, "Strasbourg");
-  ac_compare_int(destsVHrail[6], 70, "Zurich");
+  ac_compare_int(move_ret[24], true, "Florence");
+  ac_compare_int(move_ret[25], true, "Frankfurt");
+  ac_compare_int(move_ret[28], true, "Geneva");
+  ac_compare_int(move_ret[29], true, "Genoa");
+  ac_compare_int(move_ret[44], true, "Milan");
+  ac_compare_int(move_ret[60], true, "Strasbourg");
+  ac_compare_int(move_ret[70], true, "Zurich");
   free(destsVHrail);
 
   n_locations = 0;
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsVHall = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), true, true, true);
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsVHall[i]] = true;
+  }
   ac_compare_int(n_locations, 9, "9 == n_locations");
-  ac_compare_int(destsVHall[0], 24, "Florence");
-  ac_compare_int(destsVHall[1], 25, "Frankfurt");
-  ac_compare_int(destsVHall[2], 28, "Geneva");
-  ac_compare_int(destsVHall[3], 29, "Genoa");
-  ac_compare_int(destsVHall[4], 42, "Marseilles");
-  ac_compare_int(destsVHall[5], 44, "Milan");
-  ac_compare_int(destsVHall[6], 45, "Munich");
-  ac_compare_int(destsVHall[7], 60, "Strasbourg");
-  ac_compare_int(destsVHall[8], 70, "Zurich");
+  ac_compare_int(move_ret[24], true, "Florence");
+  ac_compare_int(move_ret[25], true, "Frankfurt");
+  ac_compare_int(move_ret[28], true, "Geneva");
+  ac_compare_int(move_ret[29], true, "Genoa");
+  ac_compare_int(move_ret[42], true, "Marseilles");
+  ac_compare_int(move_ret[44], true, "Milan");
+  ac_compare_int(move_ret[45], true, "Munich");
+  ac_compare_int(move_ret[60], true, "Strasbourg");
+  ac_compare_int(move_ret[70], true, "Zurich");
+  free(destsVHall);
   gv_drop(gv);
-}
-
-TEST(sampleTest, intTest) {
-  ac_compare_int(1, 1, "value a");
-  ac_compare_int(2, 2, "value b");
-  ac_compare_int(3, 3, "value c");
-}
-
-TEST(sampleTest, strTest) {
-  ac_compare_string("a", "a", "test string");
-  ac_compare_string("hello", "hello", "anotther test string");
-}
-
-TEST_F(sampleFixtureTest, zeroTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[0], 0, "x[0]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, oneTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[1], 1, "x[1]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, twoTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[2], 2, "x[2]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, exampleFailTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[2], x[1], "x should be identical");
-  free(x);
 }
 
 // register all tests
 // tests will run in the same order they are registered.
 static void regAllTests() {
   ac_regTest(basicTest, replicate_dryrun1);
-  ac_regTest(sampleTest, intTest);
-  ac_regTest(sampleTest, strTest);
-  ac_regTest(sampleFixtureTest, zeroTest);
-  ac_regTest(sampleFixtureTest, oneTest);
-  ac_regTest(sampleFixtureTest, twoTest);
-  ac_regTest(sampleFixtureTest, exampleFailTest);
   ac_regTest(encounterTest, drS_encounters_drac_and_vamp);
   ac_regTest(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap);
   ac_regTest(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg);
