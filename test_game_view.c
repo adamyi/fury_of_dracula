@@ -412,5 +412,5 @@ int main() {
 
   ac_setLoggingTag("BYE");
   ac_log(AC_LOG_INFO, "Have a nice day!");
-  return EXIT_SUCCESS;
+  return AC_TEST_RESULT;
 }

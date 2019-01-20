@@ -179,3 +179,8 @@ void _ac_compare_string(const char *file, int line, char *a, char *b,
   } else
     _ac_log(file, line, AC_LOG_ERROR, "[DIFF MISMATCH] %s=%s,%s", msg, a, b);
 }
+
+int _ac_test_retval() {
+  if (totalCompares == successCompares) return 0;
+  return 1;
+}

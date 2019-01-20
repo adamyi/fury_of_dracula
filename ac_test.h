@@ -21,6 +21,8 @@
 #ifndef AC_HELPER_ACTEST_H_
 #define AC_HELPER_ACTEST_H_
 
+#define AC_TEST_RESULT _ac_test_retval()
+
 #define ac_compare_int(values...) _ac_compare_int(__FILE__, __LINE__, values)
 #define ac_compare_string(values...) \
   _ac_compare_string(__FILE__, __LINE__, values)
@@ -78,5 +80,7 @@ void ac_printTestsSummary(int maxL);
 void _ac_compare_int(const char *file, int line, int a, int b, const char *msg);
 void _ac_compare_string(const char *file, int line, char *a, char *b,
                         const char *msg);
+
+int _ac_test_retval();
 
 #endif  // AC_HELPER_ACTEST_H_
