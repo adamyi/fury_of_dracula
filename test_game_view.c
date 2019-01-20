@@ -273,13 +273,22 @@ TEST(conn_test, test_connections_from_start_locs) {
   ac_compare_int(destsVHrail[4], 44, "Milan");
   ac_compare_int(destsVHrail[5], 60, "Strasbourg");
   ac_compare_int(destsVHrail[6], 70, "Zurich");
-
-  puts("VH RAIL LOCS");
-  for (size_t i = 0; i < n_locations; i++) {
-    printf("loc: %d\n", destsVHrail[i]);
-  }
   free(destsVHrail);
 
+  n_locations = 0;
+  location_t *destsVHall = gv_get_connections(
+      gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
+      PLAYER_VAN_HELSING, gv_get_round(gv), true, true, true);
+  ac_compare_int(n_locations, 9, "9 == n_locations");
+  ac_compare_int(destsVHall[0], 24, "Florence");
+  ac_compare_int(destsVHall[1], 25, "Frankfurt");
+  ac_compare_int(destsVHall[2], 28, "Geneva");
+  ac_compare_int(destsVHall[3], 29, "Genoa");
+  ac_compare_int(destsVHall[4], 42, "Marseilles");
+  ac_compare_int(destsVHall[5], 44, "Milan");
+  ac_compare_int(destsVHall[6], 45, "Munich");
+  ac_compare_int(destsVHall[7], 60, "Strasbourg");
+  ac_compare_int(destsVHall[8], 70, "Zurich");
   gv_drop(gv);
 }
 

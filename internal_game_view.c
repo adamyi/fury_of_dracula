@@ -252,6 +252,7 @@ static void _gv_get_connections_rec(_game_view *gv, size_t *n_locations,
                                     enum player player, round_t round,
                                     bool road, bool rail, bool sea,
                                     int max_rail_dist) {
+  ac_log(AC_LOG_DEBUG, "invoking _gv_get_connections_rec with settings: road %d rail %d sea %d max_rail_dist %d", road, rail, sea, max_rail_dist);
   if ((!road) && ((!rail) || max_rail_dist <= 0) && (!sea)) return;
 
   struct adj_connection *conns = getConnections(from);
@@ -284,6 +285,7 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
                                    location_t from, enum player player,
                                    round_t round, bool road, bool rail,
                                    bool sea, bool trail, bool stay, bool hide) {
+  ac_log(AC_LOG_DEBUG, "invoking _gv_do_get_connections with settings: road %d rail %d sea %d trail %d stay %d hide %d", road, rail, sea, trail, stay, hide);
   if (from < MIN_MAP_LOCATION ||
       from > MAX_MAP_LOCATION)  // don't know exact loc
     return 0;
