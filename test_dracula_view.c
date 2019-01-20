@@ -15,14 +15,6 @@
 
 #include "dracula_view.h"
 
-TEST_SET_FIXTURE(sampleFixtureTest) {
-  int *x = malloc(3 * sizeof(int));
-  x[0] = 0;
-  x[1] = 1;
-  x[2] = 2;
-  return x;
-}
-
 TEST(encounterTest, drS_encounters_drac_and_vamp) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DCF.V.."
@@ -194,21 +186,21 @@ TEST(castleDracTest, drac_heals_check_traps_check_locs) {
 
 TEST(teleTest, drac_teleports) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DHA.V.."   // 0
-      "GMN.... SMR.... HMI.... MLS.... DLIT..."   // 1
-      "GED.... SGE.... HZU.... MCA.... DBRT..."   // 2
-      "GMN.... SGE.... HMI.... MLS.... DPRT..."   // 3
-      "GED.... SMR.... HZU.... MCA.... DHIT..."   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD3T..."   // 5
-      "GED.... SMR.... HZU.... MCA.... DTPTV.."   // 6
-      "GMN.... SGE.... HMI.... MLS....";          // 7
-
+      "GED.... SGE.... HZU.... MCA.... DHA.V.."  // 0
+      "GMN.... SMR.... HMI.... MLS.... DLIT..."  // 1
+      "GED.... SGE.... HZU.... MCA.... DBRT..."  // 2
+      "GMN.... SGE.... HMI.... MLS.... DPRT..."  // 3
+      "GED.... SMR.... HZU.... MCA.... DHIT..."  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD3T..."  // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV.."  // 6
+      "GMN.... SGE.... HMI.... MLS....";         // 7
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -235,20 +227,20 @@ TEST(teleTest, drac_teleports) {
 
 TEST(teleTest, drac_double_back_to_hide_in_castle) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.."   // 0
-      "GMN.... SMR.... HMI.... MLS.... DHIT..."   // 1
-      "GED.... SGE.... HZU.... MCA.... DKLT..."   // 2
-      "GMN.... SGE.... HMI.... MLS.... DGAT..."   // 3
-      "GED.... SMR.... HZU.... MCA.... DCNT..."   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD4T..."   // 5
-      "GED.... SMR.... HZU.... MCA....";          // 6
-
+      "GED.... SGE.... HZU.... MCA.... DCD.V.."  // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT..."  // 1
+      "GED.... SGE.... HZU.... MCA.... DKLT..."  // 2
+      "GMN.... SGE.... HMI.... MLS.... DGAT..."  // 3
+      "GED.... SMR.... HZU.... MCA.... DCNT..."  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T..."  // 5
+      "GED.... SMR.... HZU.... MCA....";         // 6
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -279,12 +271,12 @@ TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
       "GMN.... SGE.... HMI.... MLS.... DD4T..."   // 5
       "GED.... SMR.... HZU.... MCA.... DTPTV..";  // 6
 
-
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
 
-  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA, "location"
-                " CASTLE_DRACULA");
+  ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
+                 "location"
+                 " CASTLE_DRACULA");
 
   location_t trail_drac[TRAIL_SIZE];
   dv_get_trail(dv, PLAYER_DRACULA, trail_drac);
@@ -305,12 +297,11 @@ TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
   dv_drop(dv);
 }
 
-TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail){
+TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DZA.V.."
       "GED.... SGE.... HZU.... MCA.... DSJT..."
       "GED.... SGE.... HZU.... MCA....";
-
 
   player_message messages[] = {};
   DraculaView dv = dv_new(trail, messages);
@@ -322,65 +313,23 @@ TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail){
   move_key[SOFIA] = true;
   move_key[BELGRADE] = true;
 
-
   bool move_ret[NUM_MAP_LOCATIONS];
   memset(move_ret, false, NUM_MAP_LOCATIONS);
   size_t n_locations = 0;
   location_t *dests = dv_get_dests(dv, &n_locations, true, true);
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[dests[i]] = true;
   }
-  for(size_t i = 0; i < NUM_MAP_LOCATIONS; i++){
+  for (size_t i = 0; i < NUM_MAP_LOCATIONS; i++) {
     ac_compare_int(move_ret[i], move_key[i], "location match");
   }
   free(dests);
   dv_drop(dv);
 }
 
-TEST(sampleTest, intTest) {
-  ac_compare_int(1, 1, "value a");
-  ac_compare_int(2, 2, "value b");
-  ac_compare_int(3, 3, "value c");
-}
-
-TEST(sampleTest, strTest) {
-  ac_compare_string("a", "a", "test string");
-  ac_compare_string("hello", "hello", "anotther test string");
-}
-
-TEST_F(sampleFixtureTest, zeroTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[0], 0, "x[0]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, oneTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[1], 1, "x[1]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, twoTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[2], 2, "x[2]");
-  free(x);
-}
-
-TEST_F(sampleFixtureTest, exampleFailTest) {
-  int *x = (int *)fixture;
-  ac_compare_int(x[2], x[1], "x should be identical");
-  free(x);
-}
-
 // register all tests
 // tests will run in the same order they are registered.
 static void regAllTests() {
-  ac_regTest(sampleTest, intTest);
-  ac_regTest(sampleTest, strTest);
-  ac_regTest(sampleFixtureTest, zeroTest);
-  ac_regTest(sampleFixtureTest, oneTest);
-  ac_regTest(sampleFixtureTest, twoTest);
-  ac_regTest(sampleFixtureTest, exampleFailTest);
   ac_regTest(encounterTest, drS_encounters_drac_and_vamp);
   ac_regTest(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap);
   ac_regTest(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg);

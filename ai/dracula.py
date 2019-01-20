@@ -18,13 +18,12 @@ ENV_NAME = 'FuryOfDracula-v0'
 WEIGHTS_PATH = 'models/dqn_{}_dracula_weights.h5f'.format(ENV_NAME)
 MEMORY = 50000
 GAMMA = 0.95
-EPSILON = 1.0
-MIN_EPSILON = 0.1
-EPSILON_DECREASE = 1.0/10000
 SAMPLE_SIZE = 32
 prioritized_replay_alpha=0.6
 prioritized_replay_beta0=0.4
 prioritized_replay_beta_iters=100000
+eps0 = 1.0
+eps_iters=200000
 prioritized_replay_eps=1e-6
 total_timesteps = 2500000
 
@@ -63,9 +62,12 @@ replay_buffer = PrioritizedReplayBuffer(MEMORY, alpha=prioritized_replay_alpha)
 beta_schedule = LinearSchedule(prioritized_replay_beta_iters,
                                 initial_p=prioritized_replay_beta0,
                                 final_p=1.0)
+eps_schedule = LinearSchedule(eps_iters,
+                                initial_p=eps0,
+                                final_p=0.1)
 
 
-def get_action(ob, training=True):
+def get_action(ob, epsilon):
     moves = env.action_space
     q_values = []
 
@@ -86,9 +88,9 @@ def get_action(ob, training=True):
     if len(q_values) == 0:
         return None
 
-    return moves[epsgreedy_select_action(np.array(q_values))]
+    return moves[epsgreedy_select_action(np.array(q_values), epsilon)]
 
-def epsgreedy_select_action(q_values):
+def epsgreedy_select_action(q_values, epsilon):
     """Return the selected action
     # Arguments
         q_values (np.ndarray): List of the estimations of Q for each action
@@ -98,7 +100,7 @@ def epsgreedy_select_action(q_values):
     assert q_values.ndim == 1
     nb_actions = q_values.shape[0]
 
-    if np.random.uniform() < EPSILON:
+    if np.random.uniform() < epsilon:
         action = np.random.randint(0, nb_actions)
     else:
         action = np.argmax(q_values)
@@ -174,6 +176,7 @@ mode = sys.argv[1] if len(sys.argv) > 1 else ''
 
 if mode == 'train_past_data':
     t = 0
+    episodes = 0
     f = open('past_data_list.txt')
     for line in f:
         print(line)
@@ -194,6 +197,29 @@ if mode == 'train_past_data':
             print("NOT DONE!")
         train()
         model.save_weights(WEIGHTS_PATH)
+        episodes += 1
+        print("Past data Episode %d done" % episodes)
+        if episodes % 200 == 0:
+            while True:
+                ob = env.reset()
+                while True:
+                    a = get_action(ob, eps_schedule.value(t))
+                    if a is None:
+                        print("no actions!")
+                        print(env.past_plays_dracula)
+                        break  # no more action
+                    t += 1
+                    next_ob, reward, done, info = env.step(a)
+                    remember(ob, a, next_ob, reward, done, env.action_space)
+                    ob = next_ob
+                    if done:
+                        break
+                train()
+                print("Self-learn Episode %d done" % episodes)
+                episodes += 1
+                model.save_weights(WEIGHTS_PATH)
+                if episodes % 100 == 0:
+                    break
 
 elif mode == 'train':
 
@@ -202,7 +228,7 @@ elif mode == 'train':
 
         ob = env.reset()
         while True:
-            a = get_action(ob)
+            a = get_action(ob, eps_schedule.value(t))
 
             if a is None:
                 print("no actions!")
@@ -220,9 +246,6 @@ elif mode == 'train':
             # if mode != 'silent':
             #     env.render()
 
-            if EPSILON > MIN_EPSILON:
-                EPSILON -= EPSILON_DECREASE
-
             if done:
                 break
 
@@ -238,11 +261,9 @@ elif mode == 'eval':
     t = 0
     while True:
 
-        EPSILON = 0.0
-
         ob = env.reset()
         while True:
-            a = get_action(ob)
+            a = get_action(ob, 0.0)
 
             if a is None:
                 print("no actions!")

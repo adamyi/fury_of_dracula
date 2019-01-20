@@ -223,11 +223,10 @@ TEST(conn_test, test_connections_from_start_locs) {
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, false, true);
 
-
   bool move_ret[NUM_MAP_LOCATIONS];
   memset(move_ret, false, NUM_MAP_LOCATIONS);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsLGsea[i]] = true;
   }
   ac_compare_int(n_locations, 2, "n_locations == 2");
@@ -242,7 +241,7 @@ TEST(conn_test, test_connections_from_start_locs) {
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), true, true, true);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsLGall[i]] = true;
   }
   ac_compare_int(n_locations, 3, "n_locations == 3");
@@ -252,14 +251,13 @@ TEST(conn_test, test_connections_from_start_locs) {
   ac_compare_int(move_ret[MANCHESTER], true, "man is adjacent");
   ac_compare_int(move_ret[NORTH_SEA], true, "NS is adjacent");
 
-
   n_locations = 0;
   memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsVHroad = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), true, false, true);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsVHroad[i]] = true;
   }
   ac_compare_int(n_locations, 6, "6 == n_locations");
@@ -276,7 +274,7 @@ TEST(conn_test, test_connections_from_start_locs) {
   location_t *destsVHrail = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), false, true, true);
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsVHrail[i]] = true;
   }
 
@@ -295,7 +293,7 @@ TEST(conn_test, test_connections_from_start_locs) {
   location_t *destsVHall = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_VAN_HELSING),
       PLAYER_VAN_HELSING, gv_get_round(gv), true, true, true);
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsVHall[i]] = true;
   }
   ac_compare_int(n_locations, 9, "9 == n_locations");
