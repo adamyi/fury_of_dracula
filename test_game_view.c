@@ -203,27 +203,40 @@ TEST(conn_test, test_connections_from_start_locs) {
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
+  bool move_ret[NUM_MAP_LOCATIONS];
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
+
   size_t n_locations = 0;
   location_t *destsLG = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), true, false, false);
 
-  ac_compare_int(destsLG[0], EDINBURGH, "current loc Ed");
-  ac_compare_int(destsLG[1], MANCHESTER, "Man avaialbe by road");
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsLG[i]] = true;
+  }
+  ac_compare_int(n_locations, 2, "n_locations == 2");
+  ac_compare_int(move_ret[EDINBURGH], true, "current loc Ed");
+  ac_compare_int(move_ret[MANCHESTER], true, "Man avaialbe by road");
   free(destsLG);
+
   n_locations = 0;
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
   location_t *destsLGrail = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, true, false);
 
-  ac_compare_int(destsLGrail[0], EDINBURGH, "current loc Ed");
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[destsLGrail[i]] = true;
+  }
+  ac_compare_int(n_locations, 1, "n_locations == 1");
+  ac_compare_int(move_ret[EDINBURGH], true, "current loc Ed");
   free(destsLGrail);
+
   n_locations = 0;
   location_t *destsLGsea = gv_get_connections(
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, false, true);
 
-  bool move_ret[NUM_MAP_LOCATIONS];
   memset(move_ret, false, NUM_MAP_LOCATIONS);
 
   for (size_t i = 0; i < n_locations; i++) {
@@ -310,6 +323,72 @@ TEST(conn_test, test_connections_from_start_locs) {
   gv_drop(gv);
 }
 
+TEST(teleTest, drac_teleports) {
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DHA.V.. "   // 0
+      "GMN.... SMR.... HMI.... MLS.... DLIT... "   // 1
+      "GED.... SGE.... HZU.... MCA.... DBRT... "   // 2
+      "GMN.... SGE.... HMI.... MLS.... DPRT... "   // 3
+      "GED.... SMR.... HZU.... MCA.... DHIT... "   // 4
+      "GMN.... SGE.... HMI.... MLS.... DD3T... "   // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV.. "   // 6
+      "GMN.... SGE.... HMI.... MLS....";          // 7
+
+
+  player_message messages[] = {};
+  GameView gv = gv_new(trail, messages);
+
+  ac_compare_int(gv_get_location(gv, PLAYER_DRACULA), TELEPORT,
+                "location TELEPORT");
+
+  location_t trail_drac[TRAIL_SIZE];
+  gv_get_history(gv, PLAYER_DRACULA, trail_drac);
+  ac_compare_int(trail_drac[0], TELEPORT, "trail[0] == TELEPORT");
+  ac_compare_int(trail_drac[1], 105, "trail[1] == DOUBLE_BACK_3");
+  ac_compare_int(trail_drac[2], 102, "trail[2] == HIDE");
+  ac_compare_int(trail_drac[3], PRAGUE, "trail[3] == PRAUGE");
+  ac_compare_int(trail_drac[4], BERLIN, "trail[4] == Berlin");
+  ac_compare_int(trail_drac[5], LEIPZIG, "trail[5] == LEIPZIG");
+
+  ac_compare_int(gv_get_location(gv, PLAYER_DRACULA), TELEPORT, "current loc is"
+                " TELEPORT");
+
+  gv_drop(gv);
+}
+TEST(dracConnTest, test_get_conns){
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DVA.V.. "
+      "GED.... SGE.... HZU.... MCA.... DSJT... "
+      "GED.... SGE.... HZU.... MCA.... DD2T... "
+      "GED.... SGE.... HZU.... MCA....";
+
+
+  player_message messages[] = {};
+  GameView gv = gv_new(trail, messages);
+
+  bool move_ret[NUM_MAP_LOCATIONS];
+  memset(move_ret, false, NUM_MAP_LOCATIONS);
+  size_t n_locations = 0;
+  location_t *dests = gv_get_connections(gv, &n_locations,
+                                 VALONA, PLAYER_DRACULA,
+                                 gv_get_round(gv), true, true, true);
+
+  for(size_t i = 0; i < n_locations; i++){
+    move_ret[dests[i]] = true;
+  }
+  ac_compare_int(n_locations, 6, "n_locations == 6");
+  ac_compare_int(move_ret[IONIAN_SEA], true, "IO included");
+  ac_compare_int(move_ret[VALONA], true, "VA included");
+  ac_compare_int(move_ret[SALONICA], true, "SA included");
+  ac_compare_int(move_ret[SOFIA], true, "SO included");
+  ac_compare_int(move_ret[ATHENS], true, "AT included");
+  ac_compare_int(move_ret[SARAJEVO], true, "SJ included");
+
+  free(dests);
+  gv_drop(gv);
+}
+
+
 // register all tests
 // tests will run in the same order they are registered.
 static void regAllTests() {
@@ -321,6 +400,8 @@ static void regAllTests() {
   ac_regTest(castleDracTest, drac_heals_in_castle_to_max);
   ac_regTest(vamp_mat_test, test_vamp_maturity_consequences);
   ac_regTest(conn_test, test_connections_from_start_locs);
+  ac_regTest(teleTest, drac_teleports);
+  ac_regTest(dracConnTest, test_get_conns);
 }
 
 int main() {
