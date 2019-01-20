@@ -224,6 +224,8 @@ TEST(hospitalTest, drS_teleports_to_hospital) {
 
   ac_compare_int(hv_get_location(hv, PLAYER_DR_SEWARD), ST_JOSEPH_AND_ST_MARYS,
                  "DrS is in hospital");
+  ac_compare_int(hv_get_health(hv, PLAYER_DR_SEWARD), 0,
+                 "Dr Steward has correct life (0)");
 
   hv_drop(hv);
 }
@@ -254,6 +256,36 @@ TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
   hv_drop(hv);
 }
 
+TEST(minionMatTest, test_minion_invalidates) {
+  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DC?.V.. "  // 0
+      "GMN.... SCF.... HGE.... MLS.... DC?T... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DC?T... "  // 3
+      "GEC.... SBA.... HGO.... MAL.... DC?T... "  // 4
+      "GLE.... SZA.... HTS.... MMS.... DC?T... "  // 5
+      "GPA.... SVI.... HIO.... MCG.... DC?T.V. "  // 6
+      "GPA.... SVI.... HIO.... MCG.... DTPT.M.";  // 7
+                                                  // 8
+
+  player_message messages[] = {};
+  HunterView hv = hv_new(trail, messages);
+
+  ac_compare_int((int)hv_get_player(hv), PLAYER_LORD_GODALMING,
+                 "hv_get_player(hv) == Dracula");
+  ac_compare_int((int)hv_get_round(hv), 8, "round is 8");
+
+  ac_compare_int((int)hv_get_health(hv, PLAYER_DR_SEWARD),
+                 GAME_START_HUNTER_LIFE_POINTS,
+                 "Dr Steward has correct life (9)");
+  ac_compare_int((int)hv_get_health(hv, PLAYER_DRACULA),
+                 GAME_START_BLOOD_POINTS + LIFE_GAIN_CASTLE_DRACULA,
+                 "hv_get_health(hv, Dracula) == 50");
+  ac_compare_int((int)hv_get_score(hv), GAME_START_SCORE - 8 - 13,
+                 "hv_get_score(hv) == 366 - 21");
+  hv_drop(hv);
+}
+
 // register all tests
 // tests will run in the same order they are registered.
 static void regAllTests() {
@@ -264,6 +296,7 @@ static void regAllTests() {
   ac_regTest(dracMoveTest, test_get_dests_player_on_drac);
   ac_regTest(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg);
   ac_regTest(hospitalTest, drS_teleports_to_hospital);
+  ac_regTest(minionMatTest, test_minion_invalidates);
 }
 
 int main() {

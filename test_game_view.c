@@ -211,7 +211,7 @@ TEST(conn_test, test_connections_from_start_locs) {
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), true, false, false);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsLG[i]] = true;
   }
   ac_compare_int(n_locations, 2, "n_locations == 2");
@@ -225,7 +225,7 @@ TEST(conn_test, test_connections_from_start_locs) {
       gv, &n_locations, gv_get_location(gv, PLAYER_LORD_GODALMING),
       PLAYER_LORD_GODALMING, gv_get_round(gv), false, true, false);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[destsLGrail[i]] = true;
   }
   ac_compare_int(n_locations, 1, "n_locations == 1");
@@ -325,21 +325,20 @@ TEST(conn_test, test_connections_from_start_locs) {
 
 TEST(teleTest, drac_teleports) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DHA.V.. "   // 0
-      "GMN.... SMR.... HMI.... MLS.... DLIT... "   // 1
-      "GED.... SGE.... HZU.... MCA.... DBRT... "   // 2
-      "GMN.... SGE.... HMI.... MLS.... DPRT... "   // 3
-      "GED.... SMR.... HZU.... MCA.... DHIT... "   // 4
-      "GMN.... SGE.... HMI.... MLS.... DD3T... "   // 5
-      "GED.... SMR.... HZU.... MCA.... DTPTV.. "   // 6
+      "GED.... SGE.... HZU.... MCA.... DHA.V.. "  // 0
+      "GMN.... SMR.... HMI.... MLS.... DLIT... "  // 1
+      "GED.... SGE.... HZU.... MCA.... DBRT... "  // 2
+      "GMN.... SGE.... HMI.... MLS.... DPRT... "  // 3
+      "GED.... SMR.... HZU.... MCA.... DHIT... "  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD3T... "  // 5
+      "GED.... SMR.... HZU.... MCA.... DTPTV.. "  // 6
       "GMN.... SGE.... HMI.... MLS....";          // 7
-
 
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
 
   ac_compare_int(gv_get_location(gv, PLAYER_DRACULA), TELEPORT,
-                "location TELEPORT");
+                 "location TELEPORT");
 
   location_t trail_drac[TRAIL_SIZE];
   gv_get_history(gv, PLAYER_DRACULA, trail_drac);
@@ -350,18 +349,18 @@ TEST(teleTest, drac_teleports) {
   ac_compare_int(trail_drac[4], BERLIN, "trail[4] == Berlin");
   ac_compare_int(trail_drac[5], LEIPZIG, "trail[5] == LEIPZIG");
 
-  ac_compare_int(gv_get_location(gv, PLAYER_DRACULA), TELEPORT, "current loc is"
-                " TELEPORT");
+  ac_compare_int(gv_get_location(gv, PLAYER_DRACULA), TELEPORT,
+                 "current loc is"
+                 " TELEPORT");
 
   gv_drop(gv);
 }
-TEST(dracConnTest, test_get_conns){
+TEST(dracConnTest, test_get_conns) {
   char *trail =
       "GED.... SGE.... HZU.... MCA.... DVA.V.. "
       "GED.... SGE.... HZU.... MCA.... DSJT... "
       "GED.... SGE.... HZU.... MCA.... DD2T... "
       "GED.... SGE.... HZU.... MCA....";
-
 
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
@@ -369,11 +368,11 @@ TEST(dracConnTest, test_get_conns){
   bool move_ret[NUM_MAP_LOCATIONS];
   memset(move_ret, false, NUM_MAP_LOCATIONS);
   size_t n_locations = 0;
-  location_t *dests = gv_get_connections(gv, &n_locations,
-                                 VALONA, PLAYER_DRACULA,
-                                 gv_get_round(gv), true, true, true);
+  location_t *dests =
+      gv_get_connections(gv, &n_locations, VALONA, PLAYER_DRACULA,
+                         gv_get_round(gv), true, true, true);
 
-  for(size_t i = 0; i < n_locations; i++){
+  for (size_t i = 0; i < n_locations; i++) {
     move_ret[dests[i]] = true;
   }
   ac_compare_int(n_locations, 6, "n_locations == 6");
@@ -387,7 +386,6 @@ TEST(dracConnTest, test_get_conns){
   free(dests);
   gv_drop(gv);
 }
-
 
 // register all tests
 // tests will run in the same order they are registered.
