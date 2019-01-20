@@ -37,9 +37,9 @@ TEST(basicTest, replicate_dryrun1) {
 
 TEST(encounterTest, drS_encounters_drac_and_vamp) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DBOT..."
-      "GLO.... SMR.... HCF.... MMA.... DTOT..."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "
+      "GLO.... SMR.... HCF.... MMA.... DTOT... "
       "GPL.... SMS.... HMR.... MGR....";
 
   player_message messages[] = {};
@@ -63,10 +63,10 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
 
 TEST(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DBOT..."
-      "GLO.... SMR.... HCF.... MMA.... DTOT..."
-      "GPL.... SMS.... HMR.... MGR.... DBAT..."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "
+      "GLO.... SMR.... HCF.... MMA.... DTOT... "
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "
       "GEC.... SBATD.. HGO.... MMA....";
 
   player_message messages[] = {};
@@ -87,11 +87,11 @@ TEST(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap) {
 
 TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DBOT..."
-      "GLO.... SMR.... HCF.... MMA.... DTOT..."
-      "GPL.... SMS.... HMR.... MGR.... DBAT..."
-      "GEC.... SBATD.. HGO.... MAL.... DMS...."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "
+      "GLO.... SMR.... HCF.... MMA.... DTOT... "
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "
+      "GEC.... SBATD.. HGO.... MAL.... DMS.... "
       "GLE.... SZA.... HTS.... MMS....";
 
   player_message messages[] = {};
@@ -113,16 +113,16 @@ TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
 
 TEST(castleDracTest, drac_heals_in_castle) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."   // 0
-      "GMN.... SCFVD.. HGE.... MLS.... DBOT..."   // 1
-      "GLO.... SMR.... HCF.... MMA.... DTOT..."   // 2
-      "GPL.... SMS.... HMR.... MGR.... DBAT..."   // 3
-      "GEC.... SBATD.. HGO.... MAL.... DMS...."   // 4  -2
-      "GLE.... SZA.... HTS.... MMS.... DTS...."   // 5  -2
-      "GLE.... SZA.... HTS.... MMS.... DIO...."   // 6  -2
-      "GLE.... SZA.... HTS.... MMS.... DBS..M."   // 7  -2
-      "GLE.... SZA.... HTS.... MMS.... DCNT.M."   // 8
-      "GLE.... SZA.... HTS.... MMS.... DGAT..."   // 8
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "  // 0
+      "GMN.... SCFVD.. HGE.... MLS.... DBOT... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DTOT... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "  // 3
+      "GEC.... SBATD.. HGO.... MAL.... DMS.... "  // 4  -2
+      "GLE.... SZA.... HTS.... MMS.... DTS.... "  // 5  -2
+      "GLE.... SZA.... HTS.... MMS.... DIO.... "  // 6  -2
+      "GLE.... SZA.... HTS.... MMS.... DBS..M. "  // 7  -2
+      "GLE.... SZA.... HTS.... MMS.... DCNT.M. "  // 8
+      "GLE.... SZA.... HTS.... MMS.... DGAT... "  // 8
       "GLE.... SZA.... HTS.... MMS.... DCDT...";  // 10
 
   player_message messages[] = {};
@@ -144,7 +144,7 @@ TEST(castleDracTest, drac_heals_in_castle) {
 
 TEST(castleDracTest, drac_heals_in_castle_to_max) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.."  // 0
+      "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
       "GED.... SGE.... HZU.... MCA.... DHIT...";
   player_message messages[] = {};
   GameView gv = gv_new(trail, messages);
@@ -171,12 +171,12 @@ TEST(castleDracTest, drac_heals_in_castle_to_max) {
 
 TEST(vamp_mat_test, test_vamp_maturity_consequences) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DC?.V.."   // 0
-      "GMN.... SCF.... HGE.... MLS.... DC?T..."   // 1
-      "GLO.... SMR.... HCF.... MMA.... DC?T..."   // 2
-      "GPL.... SMS.... HMR.... MGR.... DC?T..."   // 3
-      "GEC.... SBA.... HGO.... MAL.... DC?T..."   // 4
-      "GLE.... SZA.... HTS.... MMS.... DC?T..."   // 5
+      "GED.... SGE.... HZU.... MCA.... DC?.V.. "  // 0
+      "GMN.... SCF.... HGE.... MLS.... DC?T... "  // 1
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "  // 2
+      "GPL.... SMS.... HMR.... MGR.... DC?T... "  // 3
+      "GEC.... SBA.... HGO.... MAL.... DC?T... "  // 4
+      "GLE.... SZA.... HTS.... MMS.... DC?T... "  // 5
       "GPA.... SVI.... HIO.... MCG.... DC?T.V.";  // 6
                                                   // 7
 

@@ -37,7 +37,7 @@ TEST(basicTest, replicate_dryrun1) {
 
 TEST(connsTest, test_score_start_HP_and_sea_cons) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DC?.V.."   // 0
+      "GED.... SGE.... HZU.... MCA.... DC?.V.. "  // 0
       "GNS.... SPA.... HST.... MLS.... DC?T...";  // 1
                                                   // 2
   player_message messages[] = {};
@@ -122,13 +122,13 @@ TEST(connsTest, test_score_start_HP_and_sea_cons) {
 TEST(dracTrailTest, drac_teleports_from_castle_double_back_to_hide) {
   // use for hunter testcase
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCD.V.."  // 0
-      "GMN.... SMR.... HMI.... MLS.... DHIT..."  // 1
-      "GED.... SGE.... HZU.... MCA.... DC?T..."  // 2
-      "GMN.... SGE.... HMI.... MLS.... DC?T..."  // 3
-      "GED.... SMR.... HZU.... MCA.... DC?T..."  // 4
-      "GMN.... SGE.... HMI.... MLS.... DD4T..."  // 5
-      "GED.... SMR.... HZU....";                 // 6
+      "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
+      "GMN.... SMR.... HMI.... MLS.... DHIT... "  // 1
+      "GED.... SGE.... HZU.... MCA.... DC?T... "  // 2
+      "GMN.... SGE.... HMI.... MLS.... DC?T... "  // 3
+      "GED.... SMR.... HZU.... MCA.... DC?T... "  // 4
+      "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
+      "GED.... SMR.... HZU....";                  // 6
 
   player_message messages[] = {};
   HunterView hv = hv_new(trail, messages);
@@ -157,9 +157,9 @@ TEST(dracTrailTest, drac_teleports_from_castle_double_back_to_hide) {
 
 TEST(encounterTest, drS_encounters_drac_and_vamp) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DC?T..."
-      "GLO.... SMR.... HCF.... MMA.... DC?T..."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DC?T... "
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "
       "GPL.... SMS.... HMR.... MGR.... DC?T...";
 
   player_message messages[] = {};
@@ -184,9 +184,9 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
 
 TEST(dracMoveTest, test_get_dests_player_on_drac) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DC?T..."
-      "GLO.... SMR.... HCF.... MMA.... DC?T..."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DC?T... "
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "
       "GPL.... SMS.... HMR.... MGR.... DC?T...";
 
   player_message messages[] = {};
@@ -202,10 +202,10 @@ TEST(dracMoveTest, test_get_dests_player_on_drac) {
 
 TEST(hospitalTest, drS_teleports_to_hospital) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DC?T..."
-      "GLO.... SMR.... HCF.... MMA.... DC?T..."
-      "GPL.... SMS.... HMR.... MGR.... DBAT..."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DC?T... "
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "
       "GEC.... SBATD.. HGO....";
 
   player_message messages[] = {};
@@ -230,11 +230,11 @@ TEST(hospitalTest, drS_teleports_to_hospital) {
 
 TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
   char *trail =
-      "GED.... SGE.... HZU.... MCA.... DCF.V.."
-      "GMN.... SCFVD.. HGE.... MLS.... DC?T..."
-      "GLO.... SMR.... HCF.... MMA.... DC?T..."
-      "GPL.... SMS.... HMR.... MGR.... DBAT..."
-      "GEC.... SBATD.. HGO.... MAL.... DS?...."
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS.... DC?T... "
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "
+      "GEC.... SBATD.. HGO.... MAL.... DS?.... "
       "GLE.... SZA.... HTS.... MMS.... DC?T...";
 
   player_message messages[] = {};
