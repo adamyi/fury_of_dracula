@@ -58,6 +58,46 @@ TEST_F(sampleFixtureTest, exampleFailTest) {
   free(x);
 }
 
+TEST(basic_test, test_score_start_HP_and_sea_cons) {
+  char *trail = "GED.... SGE.... HZU.... MCA.... DC?.V.."
+                "GNS.... SPA.... HST.... MLS.... DC?T...";  // 0
+
+  player_message messages[] = {};
+  HunterView hv = hv_new(trail, messages);
+
+  size_t n_locations = 0;
+
+  location_t *lordGSeaDests = hv_get_dests(hv, &n_locations, false, false, true);
+
+  bool sea_destsLG_key[NUM_MAP_LOCATIONS];
+  memset(sea_destsLG_key, false, NUM_MAP_LOCATIONS);
+  sea_destsLG_key[4] = true;
+  sea_destsLG_key[2] = true;
+  sea_destsLG_key[31] = true;
+  sea_destsLG_key[22] = true;
+  sea_destsLG_key[23] = true;
+  sea_destsLG_key[48] = true;
+
+  bool sea_destsLG_ret[NUM_MAP_LOCATIONS];
+  memset(sea_destsLG_ret, false, NUM_MAP_LOCATIONS);
+
+  puts("LG SEA LOCS");
+  for(size_t i = 0; i < n_locations; i++){
+    printf("loc: %d\n", lordGSeaDests[i]);
+  }
+  for(size_t i = 0; i < n_locations; i++){
+    sea_destsLG_ret[lordGSeaDests[i]] = true;
+  }
+
+  for(size_t i = 0; i < NUM_MAP_LOCATIONS; i++){
+    ac_compare_int(sea_destsLG_key[i], sea_destsLG_ret[i], "location match");
+  }
+  free(lordGSeaDests);
+  hv_drop(hv);
+
+
+
+}
 // register all tests
 // tests will run in the same order they are registered.
 static void regAllTests() {
@@ -67,6 +107,7 @@ static void regAllTests() {
   ac_regTest(sampleFixtureTest, oneTest);
   ac_regTest(sampleFixtureTest, twoTest);
   ac_regTest(sampleFixtureTest, exampleFailTest);
+  ac_regTest(basic_test, test_score_start_HP_and_sea_cons);
 }
 
 int main() {
