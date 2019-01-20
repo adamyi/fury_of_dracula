@@ -32,16 +32,16 @@ total_timesteps = 2500000
 
 def create_model():
     state_input = Input(shape=(2807,))
-    action_input = Input(shape=(1,))
+    action_input = Input(shape=(80,))
 
     merged_layer = concatenate([state_input, action_input])
-    dense_1 = Dense(1404)(merged_layer)
+    dense_1 = Dense(1444)(merged_layer)
     dense_1_a = LeakyReLU()(dense_1)
-    dense_2 = Dense(702)(dense_1_a)
+    dense_2 = Dense(722)(dense_1_a)
     dense_2_a = LeakyReLU()(dense_2)
-    dense_3 = Dense(352)(dense_2_a)
+    dense_3 = Dense(361)(dense_2_a)
     dense_3_a = LeakyReLU()(dense_3)
-    dense_4 = Dense(176)(dense_3_a)
+    dense_4 = Dense(181)(dense_3_a)
     dense_4_a = LeakyReLU()(dense_4)
     output = Dense(1)(dense_4_a)
 
@@ -72,7 +72,12 @@ def get_action(ob, training=True):
     observations = np.expand_dims(ob, 0)
 
     for move in moves:
-        action =  np.expand_dims(move, 0)
+        action = np.zeros((80,))
+        if move > 99:
+            action[move - 29] = 1
+        else:
+            action[move] = 1
+        action =  np.expand_dims(action, 0)
         inp = [observations, action]
         prediction = model.predict(inp)[0][0]
         # TODO add manual scoring to q value
@@ -106,7 +111,12 @@ def get_next_max_q(observations, moves):
     observations = np.expand_dims(observations, 0)
 
     for move in moves:
-        action =  np.expand_dims(move, 0)
+        action = np.zeros((80,))
+        if move > 99:
+            action[move - 29] = 1
+        else:
+            action[move] = 1
+        action =  np.expand_dims(action, 0)
         inp = [observations, action]
         prediction = model.predict(inp)[0][0]
         q_values.append(prediction)
@@ -143,8 +153,13 @@ def train():
         td_error = abs(old_val - q_value)
 
         ob = np.expand_dims(ob, 0)
-        action =  np.expand_dims(action, 0)
-        inp = [ob, action]
+        actionn = np.zeros((80,))
+        if action > 99:
+            actionn[action - 29] = 1
+        else:
+            actionn[action] = 1
+        actionn =  np.expand_dims(actionn, 0)
+        inp = [ob, actionn]
 
         result = model.fit(inp, [q_value], verbose=0)
         new_priority = td_error + prioritized_replay_eps
@@ -217,5 +232,36 @@ elif mode == 'train':
         if t > 1000:
             train()
         model.save_weights(WEIGHTS_PATH)
+        if t > total_timesteps:
+            break
+elif mode == 'eval':
+    t = 0
+    while True:
+
+        EPSILON = 0.0
+
+        ob = env.reset()
+        while True:
+            a = get_action(ob)
+
+            if a is None:
+                print("no actions!")
+                print(env.past_plays_dracula)
+                break  # no more action
+
+            t += 1
+
+            next_ob, reward, done, info = env.step(a)
+
+            ob = next_ob
+
+            if done:
+                break
+
+        # think
+        print('%d steps passed' % t)
+        print('reward %d win %d' % (env.rewards, env.win))
+        print(env.past_plays_dracula)
+        # model.save_weights(WEIGHTS_PATH)
         if t > total_timesteps:
             break

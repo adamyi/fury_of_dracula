@@ -1,6 +1,10 @@
 *.o
 *.swp
 *.pyc
+*.gcda
+*.gcno
+*.info
+*_coverage
 bazel-*
 core
 test_dracula_view

@@ -93,19 +93,28 @@ static inline void printMove(_game_view *gv, enum player p, int round,
     printf("%s", move);
   } else if (p == PLAYER_DRACULA) {
     char placement = '.', left = '.';
-    if ((gv->vampire != *rl && gv->traps[*rl] < 3) ||
-        (gv->vampire == *rl && gv->traps[*rl] < 2)) {
-      if (round % 13 == 0) {
-        placement = 'V';
-        printf(".V");
-      } else {
-        placement = 'T';
-        printf("T.");
+    if (location_get_type(*rl) != SEA) {
+      int enc_count = gv->traps[*rl];
+      if (gv->vampire == *rl) enc_count++;
+      if (gv->trail_last_loc == *rl) enc_count--;
+      if (enc_count < 3) {
+        if (round % 13 == 0) {
+          placement = 'V';
+          printf(".V");
+        } else {
+          placement = 'T';
+          printf("T.");
+        }
       }
-    } else {
-      printf("..");
     }
-    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc)
+    if (placement == '.') printf("..");
+    // FIXME: bug for invalidating trap - when a trap is put in a location, then
+    // encountered by a hunter, and then another trap is put in the same
+    // location, the new trap would be invalidated in the turn in which the old
+    // one (no longer exists) was to be invalidated instead of the turn for the
+    // new one.
+    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc &&
+        round % 13 == 6)
       left = 'V';
     else if (gv->trail_last_loc != NOWHERE && gv->traps[gv->trail_last_loc] > 0)
       left = 'M';
@@ -116,7 +125,6 @@ static inline void printMove(_game_view *gv, enum player p, int round,
   } else {
     int c = 0;
     while (gv->traps[*rl] > 0) {
-      gv->traps[*rl]--;
       c++;
       putchar('T');
       parse_hunter_encounter(gv, p, *rl, 'T');

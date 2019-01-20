@@ -43,9 +43,9 @@ class FuryOfDraculaEnv(Env):
             self.past_plays_hunter = self.past_plays_hunter[:35 * revealed + 28] + self.past_plays_dracula[35 * revealed + 28:35 * (revealed + 1)] + self.past_plays_hunter[35 * (revealed + 1):]
         self.action_space = np.asarray(result['actions'])
 
-        # print("past plays (dracula_view): " + self.past_plays_dracula)
-        # print("past plays (hunter view): " + self.past_plays_hunter)
-        # print(stdoutdata)
+        print("past plays (dracula_view): " + self.past_plays_dracula)
+        print("past plays (hunter view): " + self.past_plays_hunter)
+        print(stdoutdata)
         # print(self.player)
 
         process = subprocess.Popen([os.path.join(ROOT_DIR, "nn_features"), '0'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -58,7 +58,7 @@ class FuryOfDraculaEnv(Env):
             stdoutdata,_ = process.communicate(input = self.past_plays_hunter)
             self.player += 1
 
-        # print(stdoutdata)
+        print(stdoutdata)
         result = json.loads(stdoutdata)
 
         # print("features: " + json.dumps(self.features))
@@ -112,6 +112,10 @@ class FuryOfDraculaEnv(Env):
             logdata = f.read()
             if "disqualified? true" in logdata:
                 print("disqualified player. Skip data")
+                self.datasource = None
+                return False
+            if "This usually means your program crashed before making a move" in logdata:
+                print("crashed player. Skip data")
                 self.datasource = None
                 return False
             self.datasource = LOG_REGEX.findall(logdata)

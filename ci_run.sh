@@ -16,7 +16,7 @@ fi
 
 echo "Using clang-tidy: $CLANG_TIDY"
 
-SRCS="$(find . -name \*.c -o -name \*.h |grep -v -F -f .lint-ignore | tr '\n' ' ')"
+SRCS="$(find . -maxdepth 1 -name \*.c -o -name \*.h |grep -v -F -f .lint-ignore | tr '\n' ' ')"
 echo "Linting files: $SRCS"
 
 set -e
