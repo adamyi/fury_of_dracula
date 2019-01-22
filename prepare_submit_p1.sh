@@ -9,7 +9,7 @@ cp player.c player.h submit_p1/
 cp generate_mapdata.c submit_p1/
 cp map.c map.h submit_p1/
 cp places.c places.h submit_p1/
-cp player.c player.h submit_p1/
+cp myplayer.c myplayer.h submit_p1/
 cp internal_game_view.c internal_game_view.h submit_p1/
 cp game_view.c game_view.h submit_p1/
 cp dracula_view.c dracula_view.h submit_p1/

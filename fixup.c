@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <sysexits.h>
 #include <unistd.h>
-int main(int argc, const char *argv[]) {
+int main() {
   char *past_plays = NULL;
   // fgets(past_plays, MAXL, stdin);
   size_t len;
@@ -19,8 +19,7 @@ int main(int argc, const char *argv[]) {
     past_plays[--len] = '\0';
 
   for (int i = 0; i < len;) {
-    for (int j = 0; j < 7; i++, j++)
-      putchar(past_plays[i]);
+    for (int j = 0; j < 7; i++, j++) putchar(past_plays[i]);
     putchar(' ');
   }
 

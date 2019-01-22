@@ -10,8 +10,8 @@
 #include <stdbool.h>
 
 #include "game.h"
+#include "myplayer.h"
 #include "places.h"
-#include "player.h"
 
 typedef struct _game_view *_GameView;
 

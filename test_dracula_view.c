@@ -448,6 +448,7 @@ TEST(dracMoveTest, test_drac_sea_move_after_D2) {
   ac_compare_int(move_ret[BUCHAREST], true, "BUCHAREST");
   ac_compare_int(move_ret[BLACK_SEA], true, "BLACK_SEA");
   ac_compare_int(move_ret[VARNA], true, "VARNA");
+  free(dests);
 
   dv_drop(dv);
 }

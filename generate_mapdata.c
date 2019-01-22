@@ -76,7 +76,8 @@ struct adj_connection {
 
 static inline void print_mapdata_c(FILE *fp, int mcount,
                                    int mat[][NUM_MAP_LOCATIONS], int *count,
-                                   struct adj_connection adjc[][mcount], int dist[][NUM_MAP_LOCATIONS]) {
+                                   struct adj_connection adjc[][mcount],
+                                   int dist[][NUM_MAP_LOCATIONS]) {
   fprintf(fp,
           "#include \"map.h\"\n"
           "#include \"places.h\"\n"
@@ -189,7 +190,8 @@ int main() {
   for (int k = 0; k < NUM_MAP_LOCATIONS; k++) {
     for (int i = 0; i < NUM_MAP_LOCATIONS; i++) {
       for (int j = 0; j < NUM_MAP_LOCATIONS; j++) {
-        if (dist[i][k] > -1 && dist[k][j] > -1 && (dist[i][j] == -1 || dist[i][j] > dist[i][k] + dist[k][j]))
+        if (dist[i][k] > -1 && dist[k][j] > -1 &&
+            (dist[i][j] == -1 || dist[i][j] > dist[i][k] + dist[k][j]))
           dist[i][j] = dist[i][k] + dist[k][j];
       }
     }

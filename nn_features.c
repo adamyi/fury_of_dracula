@@ -40,14 +40,10 @@ static inline void oneHotEncoding(location_t t) {
 }
 
 static inline int weight_dist(int dist) {
-  if (dist == 0)
-    return -64;
-  if (dist == 1)
-    return -12;
-  if (dist == 2)
-    return -2;
-  if (dist < 5)
-    return -1;
+  if (dist == 0) return -64;
+  if (dist == 1) return -12;
+  if (dist == 2) return -2;
+  if (dist < 5) return -1;
   return 1;
 }
 
@@ -124,7 +120,10 @@ static inline void printMove(_game_view *gv, enum player p, int round,
     if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc &&
         round % 13 == 6)
       left = 'V';
-    else if (gv->trail_last_loc != NOWHERE && rollingarray_size(gv->traps[gv->trail_last_loc]) > 0 && rollingarray_get_item(gv->traps[gv->trail_last_loc], 0) == round - 6)
+    else if (gv->trail_last_loc != NOWHERE &&
+             rollingarray_size(gv->traps[gv->trail_last_loc]) > 0 &&
+             rollingarray_get_item(gv->traps[gv->trail_last_loc], 0) ==
+                 round - 6)
       left = 'M';
     putchar(left);
     putchar('.');

@@ -20,7 +20,7 @@ inline char get_connection_type_mask(transport_t t) {
 }
 
 bool isConnectedVia(location_t v, location_t w, char tspt) {
-  return ((ADJMATRIX[v][w] & tspt) == tspt);
+  return ((ADJMATRIX[v][w] & tspt) > 0);
 }
 
 bool isConnected(location_t v, location_t w) {

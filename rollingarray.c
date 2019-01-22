@@ -63,8 +63,7 @@ void rollingarray_add_item(rollingarray_t *ra, ra_item_t val) {
 }
 
 void rollingarray_remove_first_item(rollingarray_t *ra) {
-  if (ra->size == 0)
-    return;
+  if (ra->size == 0) return;
   ra->start++;
   ra->size--;
   if (ra->start == ra->capacity) ra->start = 0;

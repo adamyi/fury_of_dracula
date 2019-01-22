@@ -151,4 +151,6 @@ location_t *dv_get_dests_player(DraculaView dv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea);
 
+location_t *dv_get_possible_moves(DraculaView dv, size_t *n_locations);
+
 #endif  // !defined(FOD__DRACULA_VIEW_H_)
