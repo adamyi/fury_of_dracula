@@ -20,7 +20,7 @@
 #include "internal_game_view.h"
 #include "map.h"
 #include "mapdata.h"
-#include "player.h"
+#include "myplayer.h"
 
 static inline int get_rail_travel_dist(round_t round, enum player player);
 
@@ -115,15 +115,19 @@ void parse_hunter_encounter(_game_view *gv, enum player pid,
 static inline char *parse_hunter_move(char *move, _game_view *gv,
                                       enum player pid, location_t old_loc,
                                       location_t real_loc) {
+  ac_log(AC_LOG_ERROR, "oldloc %d newloc %d", old_loc, real_loc);
   if (old_loc == real_loc) {
     gv->players[pid]->health += LIFE_GAIN_REST;
-    if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
-      gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
+    ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST, gv->players[pid]->health);
+
     gv->rests++;
   }
   // parse encounter
   for (int i = 0; i < 4; i++)
     parse_hunter_encounter(gv, pid, real_loc, *(move++));
+
+  if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
+    gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
 
   gv->current_player++;
 
@@ -304,9 +308,12 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   if (player == PLAYER_DRACULA) rail = false;
 
   bool can_go[NUM_MAP_LOCATIONS];
+  bool doublebacks[5];
   memset(can_go, 0, NUM_MAP_LOCATIONS);
+  memset(doublebacks, 0, 5);
 
   *n_locations = 0;
+  int dbs = 0;
 
   int max_rail_dist = 0;
   if (rail) {
@@ -327,26 +334,36 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
           can_go[hist[i]] = false;
           (*n_locations)--;
         }
+        ac_log(AC_LOG_DEBUG, "candb consider: %d %d %d", hist[i], candb, from);
+        ac_log(AC_LOG_DEBUG, "candb consider: %s %d %s", location_get_name(hist[i]), candb, location_get_name(from));
+        if (candb && (from == hist[i] || isConnected(hist[i], from))) {
+          ac_log(AC_LOG_DEBUG, "candb: %d", i);
+          doublebacks[i] = true;
+          dbs++;
+        }
       } else if (hist[i] == HIDE) {
         canhide = false;
       } else if (hist[i] >= DOUBLE_BACK_1 && hist[i] <= DOUBLE_BACK_5) {
         candb = false;
       }
     }
-    if (hist[0] >= MIN_MAP_LOCATION && hist[0] <= MAX_MAP_LOCATION &&
+    /* if (hist[0] >= MIN_MAP_LOCATION && hist[0] <= MAX_MAP_LOCATION &&
         location_get_type(hist[0]) == SEA)
-      canhide = false;
+      canhide = false; */
   }
 
   if (canhide) (*n_locations)++;
-  if (candb) (*n_locations) += (size_t)fmin(gv->round, 5);
 
   if (stay && (!can_go[from])) {
     can_go[from] = true;
     (*n_locations)++;
   }
 
-  if (hide && (*n_locations) == 0) (*n_locations) = 1;
+  if (candb)
+    *n_locations += dbs;
+
+  if (hide && (*n_locations) == 0)
+    *n_locations = 1;
 
   location_t *valid_conns = ac_malloc(sizeof(location_t) * (*n_locations),
                                       "connections array for gv");
@@ -356,11 +373,21 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   }
   if (canhide) valid_conns[j++] = HIDE;
   if (candb) {
-    for (int i = (int)fmin(gv->round, 5), k = DOUBLE_BACK_1; i >= 0;
-         i--, j++, k++)
-      valid_conns[j] = k;
+    for (int i = 0, k = DOUBLE_BACK_1; i < 5; i++, k++) {
+      if (doublebacks[i]) {
+        valid_conns[j++] = k;
+      }
+    }
   }
-  if (hide && j == 0) valid_conns[0] = TELEPORT;
+  if (hide && j == 0) {
+    valid_conns[0] = TELEPORT;
+  }
+
+  for (int i = 0; i < *n_locations; i++) {
+    ac_log(AC_LOG_ERROR, "! %d", valid_conns[i]);
+    ac_log(AC_LOG_ERROR, "! %s", location_get_name(valid_conns[i]));
+     //printf("%s ", location_get_name(valid_conns[i]));
+  }
 
   return valid_conns;
 }

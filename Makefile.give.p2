@@ -5,16 +5,17 @@
 
 CC	 = 2521 3c
 # CFLAGS	= -std=c99 -g -fprofile-arcs -ftest-coverage
-LDFLAGS = -lm -ldl -ljansson
-# BINS	= test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view dracula hunter
+# CFLAGS  = -std=c++11 -x c++
+# LDFLAGS = -lstdc++ -ljansson
 BINS	= dracula hunter generate_mapdata
+OBJS    = internal_game_view.o map.o rollingarray.o ac_log.o ac_memory.o myplayer.o places.o mapdata.o 
 LIBS = -ljansson
 
 all: ${BINS}
 mapdata: mapdata.c mapdata.h
 
-dracula:	player_dracula.o dracula.o dracula_view.o internal_game_view.o map.o rollingarray.o ac_log.o ac_memory.o myplayer.o places.o mapdata.o ${LIBS}
-hunter:		player_hunter.o hunter.o hunter_view.o internal_game_view.o map.o rollingarray.o ac_log.o ac_memory.o myplayer.o places.o mapdata.o ${LIBS}
+dracula:	player_dracula.o dracula.o dracula_view.o ${OBJS} ${LIBS}
+hunter:		player_hunter.o hunter.o hunter_view.o ${OBJS} ${LIBS}
 
 player_dracula.o: player.c dracula.h game.h dracula_view.h game_view.h places.h
 	${CC} ${CFLAGS} -DI_AM_DRACULA -c $< -o $@
@@ -50,7 +51,3 @@ mapdata.h: generate_mapdata
 .PHONY: clean
 clean:
 	-rm -f ${BINS} *.o core mapdata.*
-
-.PHONY: prove
-prove: tap_game_view tap_hunter_view tap_dracula_view
-	prove -f ./tap_game_view ./tap_hunter_view ./tap_dracula_view

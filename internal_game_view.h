@@ -11,7 +11,7 @@
 
 #include "game.h"
 #include "places.h"
-#include "player.h"
+#include "myplayer.h"
 
 typedef struct _game_view *_GameView;
 
