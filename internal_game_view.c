@@ -121,7 +121,7 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
   for (int i = 0; i < 4; i++)
     parse_hunter_encounter(gv, pid, real_loc, *(move++));
 
-  if (old_loc == real_loc) {
+  if (old_loc == gv->players[pid]->location) {
     gv->players[pid]->health += LIFE_GAIN_REST;
     ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
            gv->players[pid]->health);
@@ -330,26 +330,26 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   bool canhide = candb && location_get_type(from) != SEA;
   if (trail) {
     location_t hist[TRAIL_SIZE];
+    location_t trail[TRAIL_SIZE];
     player_get_location_history(gv->players[player], hist);
+    player_get_trail(gv->players[player], trail);
     for (int i = TRAIL_SIZE - 2; i >= 0; i--) {
       if (hist[i] >= MIN_MAP_LOCATION && hist[i] <= MAX_MAP_LOCATION) {
-        if (can_go[hist[i]]) {
-          can_go[hist[i]] = false;
-          (*n_locations)--;
-        }
-        /* ac_log(AC_LOG_DEBUG, "candb consider: %d %d %d %d", i, hist[i],
-        candb, from); ac_log(AC_LOG_DEBUG, "candb consider: %d %s %d %s", i,
-               location_get_name(hist[i]), candb, location_get_name(from)); */
         if (candb &&
             (from == hist[i] ||
              isConnectedVia(hist[i], from, 5))) {  // 101: boat and road
-          // ac_log(AC_LOG_DEBUG, "candb: %d", i);
           doublebacks[i] = true;
           dbs++;
         }
-      } else if (hist[i] == HIDE) {
+      }
+      if (trail[i] >= MIN_MAP_LOCATION && trail[i] <= MAX_MAP_LOCATION) {
+        if (can_go[trail[i]]) {
+          can_go[trail[i]] = false;
+          (*n_locations)--;
+        }
+      } else if (trail[i] == HIDE) {
         canhide = false;
-      } else if (hist[i] >= DOUBLE_BACK_1 && hist[i] <= DOUBLE_BACK_5) {
+      } else if (trail[i] >= DOUBLE_BACK_1 && trail[i] <= DOUBLE_BACK_5) {
         candb = false;
       }
     }
