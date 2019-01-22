@@ -131,7 +131,7 @@ static inline void printMove(_game_view *gv, enum player p, int round,
     parse_dracula_minion_left_trail(gv, left);
   } else {
     int c = 0;
-    while (gv->traps[*rl] > 0) {
+    while (rollingarray_size(gv->traps[*rl]) > 0) {
       c++;
       putchar('T');
       parse_hunter_encounter(gv, p, *rl, 'T');
@@ -191,7 +191,10 @@ static inline void printActionSpace(_game_view *gv, enum player p,
                                      true, true, true, false);
     for (int i = 0; i < n_locations; i++) {
       if (i != 0) printf(", ");
-      printf("%d", cango[i]);
+      if (cango[i] > MAX_MAP_LOCATION)
+        printf("%d", cango[i] + MAX_MAP_LOCATION - HIDE + 1);
+      else
+        printf("%d", cango[i]);
     }
     free(cango);
   }

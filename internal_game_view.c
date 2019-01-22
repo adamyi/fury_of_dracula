@@ -330,18 +330,20 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
   bool canhide = candb && location_get_type(from) != SEA;
   if (trail) {
     location_t hist[TRAIL_SIZE];
-    player_get_trail(gv->players[player], hist);
+    player_get_location_history(gv->players[player], hist);
     for (int i = TRAIL_SIZE - 2; i >= 0; i--) {
       if (hist[i] >= MIN_MAP_LOCATION && hist[i] <= MAX_MAP_LOCATION) {
         if (can_go[hist[i]]) {
           can_go[hist[i]] = false;
           (*n_locations)--;
         }
-        ac_log(AC_LOG_DEBUG, "candb consider: %d %d %d", hist[i], candb, from);
-        ac_log(AC_LOG_DEBUG, "candb consider: %s %d %s",
-               location_get_name(hist[i]), candb, location_get_name(from));
-        if (candb && (from == hist[i] || isConnected(hist[i], from))) {
-          ac_log(AC_LOG_DEBUG, "candb: %d", i);
+        /* ac_log(AC_LOG_DEBUG, "candb consider: %d %d %d %d", i, hist[i],
+        candb, from); ac_log(AC_LOG_DEBUG, "candb consider: %d %s %d %s", i,
+               location_get_name(hist[i]), candb, location_get_name(from)); */
+        if (candb &&
+            (from == hist[i] ||
+             isConnectedVia(hist[i], from, 5))) {  // 101: boat and road
+          // ac_log(AC_LOG_DEBUG, "candb: %d", i);
           doublebacks[i] = true;
           dbs++;
         }
@@ -385,11 +387,11 @@ location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
     valid_conns[0] = TELEPORT;
   }
 
-  for (int i = 0; i < *n_locations; i++) {
+  /* for (int i = 0; i < *n_locations; i++) {
     ac_log(AC_LOG_ERROR, "! %d", valid_conns[i]);
     ac_log(AC_LOG_ERROR, "! %s", location_get_name(valid_conns[i]));
     // printf("%s ", location_get_name(valid_conns[i]));
-  }
+  } */
 
   return valid_conns;
 }

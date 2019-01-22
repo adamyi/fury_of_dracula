@@ -49,7 +49,7 @@ def create_model():
     output = Dense(1)(dense_6_a)
 
     model = Model([state_input, action_input], output)
-    model.compile(optimizer=Adam(lr=0.001), loss='mse')
+    model.compile(optimizer=Adam(lr=0.001), loss='mae')
     model.summary()
     return model
 

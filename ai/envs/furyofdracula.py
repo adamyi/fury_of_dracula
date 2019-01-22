@@ -78,8 +78,8 @@ class FuryOfDraculaEnv(Env):
             done = True
         else:
             reward = self.features[-1] - result['features'][-1] + 9 * (result['features'][-2] - self.features[-2]) 
-        if is_dracula:
-            reward += result['weighted_distance'] - self.dist
+        # if is_dracula:
+        reward += result['weighted_distance'] - self.dist
 
         # print('score: %d (%d-%d)' % (self.features[-1] - result['features'][-1], result['features'][-1], self.features[-1]))
         # print('health: %d (%d-%d)' % (9 * (result['features'][-2] - self.features[-2]), result['features'][-2], self.features[-2]))
