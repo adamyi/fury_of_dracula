@@ -27,9 +27,7 @@ static inline int get_rail_travel_dist(round_t round, enum player player);
 static inline void hunter_lose_health(_game_view *gv, enum player player,
                                       int lose) {
   if (player_lose_health(gv->players[player], lose)) {
-    ac_log(AC_LOG_DEBUG, "sending player %d to hospital", player);
     gv->players[player]->location = HOSPITAL_LOCATION;
-    gv->players[player]->health = GAME_START_HUNTER_LIFE_POINTS;
     gv->score -= SCORE_LOSS_HUNTER_HOSPITAL;
   }
 }
@@ -156,6 +154,8 @@ char *parse_move(char *move, _game_view *gv) {
   if (pid == PLAYER_DRACULA) {
     loc = special_location_find_by_abbrev(move);
     if (loc == SEA_UNKNOWN) is_sea = true;
+  } else if (gv->players[pid]->health <= 0) {
+    gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
   }
 
   if (loc == NOWHERE) {
