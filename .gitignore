@@ -1,5 +1,7 @@
 *.o
 *.swp
+*.swn
+*.swo
 *.pyc
 *.gcda
 *.gcno
@@ -24,3 +26,4 @@ in
 do_not_upload
 submit_p1
 submit_p2
+d.log

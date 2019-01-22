@@ -13,6 +13,7 @@
 #include "map.h"
 #include "mapdata.h"
 #include "places.h"
+#include "rollingarray.h"
 
 static inline void oneHotEncoding(location_t t) {
   /*
@@ -36,6 +37,18 @@ static inline void oneHotEncoding(location_t t) {
     printf("1, ");
     for (int i = loc + 1; i <= MAX; i++) printf("0, ");
   }
+}
+
+static inline int weight_dist(int dist) {
+  if (dist == 0)
+    return -64;
+  if (dist == 1)
+    return -12;
+  if (dist == 2)
+    return -2;
+  if (dist < 5)
+    return -1;
+  return 1;
 }
 
 static inline void printRevealed(_game_view *gv, enum player p, int round,
@@ -94,7 +107,7 @@ static inline void printMove(_game_view *gv, enum player p, int round,
   } else if (p == PLAYER_DRACULA) {
     char placement = '.', left = '.';
     if (location_get_type(*rl) != SEA) {
-      int enc_count = gv->traps[*rl];
+      int enc_count = rollingarray_size(gv->traps[*rl]);
       if (gv->vampire == *rl) enc_count++;
       if (gv->trail_last_loc == *rl) enc_count--;
       if (enc_count < 3) {
@@ -108,15 +121,10 @@ static inline void printMove(_game_view *gv, enum player p, int round,
       }
     }
     if (placement == '.') printf("..");
-    // FIXME: bug for invalidating trap - when a trap is put in a location, then
-    // encountered by a hunter, and then another trap is put in the same
-    // location, the new trap would be invalidated in the turn in which the old
-    // one (no longer exists) was to be invalidated instead of the turn for the
-    // new one.
     if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc &&
         round % 13 == 6)
       left = 'V';
-    else if (gv->trail_last_loc != NOWHERE && gv->traps[gv->trail_last_loc] > 0)
+    else if (gv->trail_last_loc != NOWHERE && rollingarray_size(gv->traps[gv->trail_last_loc]) > 0 && rollingarray_get_item(gv->traps[gv->trail_last_loc], 0) == round - 6)
       left = 'M';
     putchar(left);
     putchar('.');
@@ -231,6 +239,16 @@ int main(int argc, const char *argv[]) {
   printf(", ");
   printFeatures(gv);
   printf(", \"player\": %d, ", p);
+
+  int dist = 0;
+  if (rl >= MIN_MAP_LOCATION && rl <= MAX_MAP_LOCATION) {
+    for (int i = 0; i < PLAYER_DRACULA; i++) {
+      location_t l = _gv_get_real_location(gv, i);
+      if (l >= MIN_MAP_LOCATION && l <= MAX_MAP_LOCATION)
+        dist += weight_dist(SPDIST[_gv_get_real_location(gv, i)][rl]);
+    }
+  }
+  printf("\"weighted_distance\": %d, ", dist);
   if (p == PLAYER_DRACULA) {
     p = 0;
     round++;

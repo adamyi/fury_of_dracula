@@ -38,8 +38,8 @@ void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
     ac_log(AC_LOG_DEBUG, "placed trap at %s(%s)", location_get_abbrev(real_loc),
            location_get_name(real_loc));
     if (gv->track_minions) {
-      gv->traps[real_loc]++;
-      ac_log(AC_LOG_DEBUG, "there are %d traps there", gv->traps[real_loc]);
+      rollingarray_add_item(gv->traps[real_loc], _gv_get_round(gv));
+      ac_log(AC_LOG_DEBUG, "there are %d traps there", rollingarray_size(gv->traps[real_loc]));
     }
   } else if (minion == 'V') {
     ac_log(AC_LOG_DEBUG, "placed vampire as %s(%s)",
@@ -52,11 +52,11 @@ void parse_dracula_minion_left_trail(_game_view *gv, char left) {
   if (left == 'M') {
     ac_log(AC_LOG_DEBUG, "trap invalidates");
     if (gv->track_minions && gv->round >= TRAIL_SIZE) {
-      gv->traps[gv->trail_last_loc]--;
+      rollingarray_remove_first_item(gv->traps[gv->trail_last_loc]);
       ac_log(AC_LOG_DEBUG, "at %s(%s), there are %d left",
              location_get_abbrev(gv->trail_last_loc),
              location_get_name(gv->trail_last_loc),
-             gv->traps[gv->trail_last_loc]);
+             rollingarray_size(gv->traps[gv->trail_last_loc]));
     }
   } else if (left == 'V') {
     ac_log(AC_LOG_DEBUG, "vampire matures");
@@ -93,7 +93,7 @@ void parse_hunter_encounter(_game_view *gv, enum player pid,
   switch (encounter) {
     case 'T':
       ac_log(AC_LOG_DEBUG, "encounter trap");
-      if (gv->track_minions) gv->traps[real_loc]--;
+      if (gv->track_minions) rollingarray_remove_first_item(gv->traps[real_loc]);
       hunter_lose_health(gv, pid, LIFE_LOSS_TRAP_ENCOUNTER);
       break;
     case 'V':
@@ -203,7 +203,8 @@ _game_view *_gv_new(char *past_plays,
   new->rests = 0;
   new->track_minions = track_minions;
   new->trail_last_loc = NOWHERE;
-  memset(new->traps, 0, NUM_MAP_LOCATIONS * sizeof(int));
+  for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++)
+    new->traps[i] = new_rollingarray(4);
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i);
   while (*past_plays != '\0') past_plays = parse_move(past_plays, new);
 
@@ -384,5 +385,5 @@ void _gv_get_locale_info(_game_view *gv, location_t where, int *n_traps,
                          int *n_vamps) {
   assert(gv->track_minions);
   *n_vamps = (gv->vampire == where);
-  *n_traps = gv->traps[where];
+  *n_traps = rollingarray_size(gv->traps[where]);
 }

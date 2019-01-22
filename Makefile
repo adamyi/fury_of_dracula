@@ -4,8 +4,8 @@
 # Adam Yi <i@adamyi.com>
 
 CC	 = ./3c
-# CFLAGS	= -std=c99 -g -fprofile-arcs -ftest-coverage
-# LDFLAGS = -lm -ldl -fprofile-arcs -ftest-coverage
+CFLAGS	= -std=c99 -g -fprofile-arcs -ftest-coverage
+LDFLAGS = -lm -ldl -fprofile-arcs -ftest-coverage
 BINS	= test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view
 
 all: ${BINS}

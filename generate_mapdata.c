@@ -56,6 +56,7 @@ static inline void print_mapdata_h(FILE *fp, int mcount) {
           "#define MAX_CONNECTION_PER_PLACE %d"
           "\n"
           "extern char ADJMATRIX[][NUM_MAP_LOCATIONS];\n"
+          "extern int SPDIST[][NUM_MAP_LOCATIONS];\n"
           "\n"
           "extern size_t ADJLIST_COUNT[];\n"
           "\n"
@@ -75,7 +76,7 @@ struct adj_connection {
 
 static inline void print_mapdata_c(FILE *fp, int mcount,
                                    int mat[][NUM_MAP_LOCATIONS], int *count,
-                                   struct adj_connection adjc[][mcount]) {
+                                   struct adj_connection adjc[][mcount], int dist[][NUM_MAP_LOCATIONS]) {
   fprintf(fp,
           "#include \"map.h\"\n"
           "#include \"places.h\"\n"
@@ -130,6 +131,24 @@ static inline void print_mapdata_c(FILE *fp, int mcount,
     }
     fprintf(fp, "\n  }");
   }
+  fprintf(fp, "\n};\n\nint SPDIST[][NUM_MAP_LOCATIONS] = {");
+  for (size_t i = 0; i < NUM_MAP_LOCATIONS; i++) {
+    if (i == 0)
+      fprintf(fp, "\n");
+    else
+      fprintf(fp, ",\n");
+    fprintf(fp, "  {");
+    for (int j = 0; j < NUM_MAP_LOCATIONS; j++) {
+      if (j == 0)
+        fprintf(fp, "\n    ");
+      else if (j & 15)
+        fprintf(fp, ", ");
+      else
+        fprintf(fp, ",\n    ");
+      fprintf(fp, "%d", dist[i][j]);
+    }
+    fprintf(fp, "\n  }");
+  }
   fprintf(fp, "\n};\n// clang-format on\n");
 }
 
@@ -137,10 +156,12 @@ int main() {
   ac_setLoggingTag("generate_mapdata");
   ac_log(AC_LOG_INFO, "Reading places.c");
   int count[NUM_MAP_LOCATIONS], mat[NUM_MAP_LOCATIONS][NUM_MAP_LOCATIONS];
+  int dist[NUM_MAP_LOCATIONS][NUM_MAP_LOCATIONS];
   int tmpc[NUM_MAP_LOCATIONS];
   int mcount = 0;
   memset(count, 0, sizeof(count));
   memset(mat, 0, sizeof(mat));
+  memset(dist, -1, sizeof(dist));
   for (size_t i = 0; !is_sentinel_edge(CONNECTIONS[i]); i++) {
     count[CONNECTIONS[i].v]++;
     count[CONNECTIONS[i].w]++;
@@ -148,9 +169,12 @@ int main() {
         get_connection_type_mask(CONNECTIONS[i].t);
     mat[CONNECTIONS[i].w][CONNECTIONS[i].v] |=
         get_connection_type_mask(CONNECTIONS[i].t);
+    dist[CONNECTIONS[i].w][CONNECTIONS[i].v] = 1;
+    dist[CONNECTIONS[i].v][CONNECTIONS[i].w] = 1;
   }
   for (int i = 0; i < NUM_MAP_LOCATIONS; i++) {
     if (count[i] > mcount) mcount = count[i];
+    dist[i][i] = 0;
   }
   struct adj_connection adjc[NUM_MAP_LOCATIONS][mcount];
   memset(tmpc, 0, sizeof(tmpc));
@@ -161,6 +185,15 @@ int main() {
     adjc[CONNECTIONS[i].w][tmpc[CONNECTIONS[i].w]++] = (struct adj_connection){
         .v = CONNECTIONS[i].v, .type = CONNECTIONS[i].t};
   }
+  // Floyd Algorithm for shortest path distance
+  for (int k = 0; k < NUM_MAP_LOCATIONS; k++) {
+    for (int i = 0; i < NUM_MAP_LOCATIONS; i++) {
+      for (int j = 0; j < NUM_MAP_LOCATIONS; j++) {
+        if (dist[i][k] > -1 && dist[k][j] > -1 && (dist[i][j] == -1 || dist[i][j] > dist[i][k] + dist[k][j]))
+          dist[i][j] = dist[i][k] + dist[k][j];
+      }
+    }
+  }
   ac_log(AC_LOG_INFO, "Writing mapdata.h");
   FILE *fp = fopen("mapdata.h", "w");
   print_header_comments(fp);
@@ -169,7 +202,7 @@ int main() {
   ac_log(AC_LOG_INFO, "Writing mapdata.c");
   fp = fopen("mapdata.c", "w");
   print_header_comments(fp);
-  print_mapdata_c(fp, mcount, mat, count, adjc);
+  print_mapdata_c(fp, mcount, mat, count, adjc, dist);
   fclose(fp);
   return 0;
 }

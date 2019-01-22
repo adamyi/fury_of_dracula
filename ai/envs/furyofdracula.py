@@ -25,7 +25,9 @@ class FuryOfDraculaEnv(Env):
         if isinstance(action, (int, long)):
             action = LOCATIONS[action]
         # print("Playing %s" % action)
-        self.past_plays_dracula += PLAYER_CHAR[self.player] + action + "...."
+        self.past_plays_dracula += " " + PLAYER_CHAR[self.player] + action + "...."
+        if self.past_plays_dracula[0] == ' ':
+            self.past_plays_dracula = self.past_plays_dracula[1:]
         process = subprocess.Popen([os.path.join(ROOT_DIR, "nn_features"), '1'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         # print(self.past_plays_dracula)
         stdoutdata,_ = process.communicate(input = self.past_plays_dracula)
@@ -34,13 +36,15 @@ class FuryOfDraculaEnv(Env):
         self.past_plays_dracula = self.past_plays_dracula[:-4] + result['move']
         if self.player == 4:
             if action in SEA_ABBRS:
-                self.past_plays_hunter += PLAYER_CHAR[self.player] + 'S?' + result['move']
+                self.past_plays_hunter += " " + PLAYER_CHAR[self.player] + 'S?' + result['move']
             else:
-                self.past_plays_hunter += PLAYER_CHAR[self.player] + 'C?' + result['move']
+                self.past_plays_hunter += " " + PLAYER_CHAR[self.player] + 'C?' + result['move']
         else:
-            self.past_plays_hunter += PLAYER_CHAR[self.player] + action + result['move']
+            self.past_plays_hunter += " " + PLAYER_CHAR[self.player] + action + result['move']
+        if self.past_plays_hunter[0] == ' ':
+            self.past_plays_hunter = self.past_plays_hunter[1:]
         for revealed in result['revealed']:
-            self.past_plays_hunter = self.past_plays_hunter[:35 * revealed + 28] + self.past_plays_dracula[35 * revealed + 28:35 * (revealed + 1)] + self.past_plays_hunter[35 * (revealed + 1):]
+            self.past_plays_hunter = self.past_plays_hunter[:40 * revealed + 32] + self.past_plays_dracula[40 * revealed + 32:40 * (revealed + 1)] + self.past_plays_hunter[40 * (revealed + 1):]
         self.action_space = np.asarray(result['actions'])
 
         # print("past plays (dracula_view): " + self.past_plays_dracula)
@@ -73,11 +77,14 @@ class FuryOfDraculaEnv(Env):
             reward = 200
             done = True
         else:
-            reward = self.features[-1] - result['features'][-1] + 9 * (result['features'][-2] - self.features[-2])
+            reward = self.features[-1] - result['features'][-1] + 9 * (result['features'][-2] - self.features[-2]) 
+        if is_dracula:
+            reward += result['weighted_distance'] - self.dist
 
         # print('score: %d (%d-%d)' % (self.features[-1] - result['features'][-1], result['features'][-1], self.features[-1]))
         # print('health: %d (%d-%d)' % (9 * (result['features'][-2] - self.features[-2]), result['features'][-2], self.features[-2]))
         self.features = np.asarray(result['features'])
+        self.dist = result['weighted_distance']
         self.steps += 1
         if done:
             print("done")
@@ -92,7 +99,7 @@ class FuryOfDraculaEnv(Env):
         if self.autoHunter:
             if self.player == 4:
                 return self.features, reward, done, {}
-            _, nxtrwd, done, _ = self.step(self.getRandomMove())
+            _, nxtrwd, done, _ = self.step(self.getHunterAIMove())
             reward += nxtrwd
             if is_dracula:
                 self.rewards += reward
@@ -139,6 +146,7 @@ class FuryOfDraculaEnv(Env):
         self.rewards = 0
         self.win = 0
         self.steps = 0
+        self.dist = 0
         self.datasource = None
         self.autoHunter = True
         self.past_plays_dracula = ""
@@ -147,15 +155,17 @@ class FuryOfDraculaEnv(Env):
         if datasource is not None:
             self.setDataSource(datasource)
         if self.autoHunter:
-            ob,_,_,_ = self.step(self.getRandomMove())
+            ob,_,_,_ = self.step(self.getHunterAIMove())
         else:
             ob = self.features
         return ob
     def getRandomMove(self):
         return self.action_space[random.randint(0, len(self.action_space) - 1)]
     def getHunterAIMove(self):
+        # return self.getRandomMove()
         process = subprocess.Popen(os.path.join(ROOT_DIR, "hunter_ai"), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        instr =  "{\"past_plays\": \"%s\", \"messages\": []}" % self.past_plays_hunter
+        # instr =  "{\"past_plays\": \"%s\", \"messages\": []}" % self.past_plays_hunter
+        instr =  "{\"pastPlays\": \"%s\", \"messages\": []}" % self.past_plays_hunter
         stdoutdata,_ = process.communicate(input = instr)
         result = json.loads(stdoutdata)
         return result['move']

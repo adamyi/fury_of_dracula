@@ -7,9 +7,9 @@
 #ifndef ROLLINGARRAY_H_
 #define ROLLINGARRAY_H_
 
-#define RA_UNKNOWN_ITEM (UNKNOWN_LOCATION)
+#define RA_UNKNOWN_ITEM (-1)
 
-typedef location_t ra_item_t;
+typedef int ra_item_t;
 
 typedef struct rollingarray {
   size_t capacity;
@@ -23,6 +23,7 @@ ra_item_t rollingarray_get_item(rollingarray_t *ra, size_t ind);
 ra_item_t rollingarray_last_item(rollingarray_t *ra);
 ra_item_t rollingarray_get_item_backwards(rollingarray_t *ra, size_t ind);
 void rollingarray_add_item(rollingarray_t *ra, ra_item_t val);
+void rollingarray_remove_first_item(rollingarray_t *ra);
 size_t rollingarray_size(rollingarray_t *ra);
 size_t rollingarray_to_array(rollingarray_t *ra, ra_item_t arr[],
                              bool reversed);

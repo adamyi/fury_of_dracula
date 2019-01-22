@@ -22,8 +22,8 @@ SAMPLE_SIZE = 32
 prioritized_replay_alpha=0.6
 prioritized_replay_beta0=0.4
 prioritized_replay_beta_iters=100000
-eps0 = 1.0
-eps_iters=200000
+eps0 = 0.3
+eps_iters=20000
 prioritized_replay_eps=1e-6
 total_timesteps = 2500000
 
@@ -36,13 +36,17 @@ def create_model():
     merged_layer = concatenate([state_input, action_input])
     dense_1 = Dense(1444)(merged_layer)
     dense_1_a = LeakyReLU()(dense_1)
-    dense_2 = Dense(722)(dense_1_a)
+    dense_2 = Dense(1444)(dense_1_a)
     dense_2_a = LeakyReLU()(dense_2)
-    dense_3 = Dense(361)(dense_2_a)
+    dense_3 = Dense(722)(dense_2_a)
     dense_3_a = LeakyReLU()(dense_3)
-    dense_4 = Dense(181)(dense_3_a)
+    dense_4 = Dense(722)(dense_3_a)
     dense_4_a = LeakyReLU()(dense_4)
-    output = Dense(1)(dense_4_a)
+    dense_5 = Dense(361)(dense_4_a)
+    dense_5_a = LeakyReLU()(dense_5)
+    dense_6 = Dense(361)(dense_5_a)
+    dense_6_a = LeakyReLU()(dense_5)
+    output = Dense(1)(dense_6_a)
 
     model = Model([state_input, action_input], output)
     model.compile(optimizer=Adam(lr=0.001), loss='mse')
@@ -252,7 +256,7 @@ elif mode == 'train':
         # think
         print('%d steps passed' % t)
         # print(env.past_plays_dracula)
-        if t > 1000:
+        if t > 150:
             train()
         model.save_weights(WEIGHTS_PATH)
         if t > total_timesteps:

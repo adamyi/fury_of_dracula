@@ -20,7 +20,8 @@ typedef struct _game_view {
   enum player current_player;
   int score;
   player_t *players[NUM_PLAYERS];
-  int traps[NUM_MAP_LOCATIONS];
+  // int traps[NUM_MAP_LOCATIONS];
+  rollingarray_t *traps[NUM_MAP_LOCATIONS];
   location_t vampire;
   bool track_minions;
   int rests;  // for neural network feature generator
