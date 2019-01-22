@@ -220,6 +220,8 @@ _game_view *_gv_new(char *past_plays,
 
 void _gv_drop(_game_view *gv) {
   for (int i = 0; i < NUM_PLAYERS; i++) destroy_player(gv->players[i]);
+  for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++)
+    destroy_rollingarray(gv->traps[i]);
   free(gv);
 }
 
