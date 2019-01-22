@@ -117,20 +117,19 @@ void parse_hunter_encounter(_game_view *gv, enum player pid,
 static inline char *parse_hunter_move(char *move, _game_view *gv,
                                       enum player pid, location_t old_loc,
                                       location_t real_loc) {
-  ac_log(AC_LOG_ERROR, "oldloc %d newloc %d", old_loc, real_loc);
-  if (old_loc == real_loc) {
-    gv->players[pid]->health += LIFE_GAIN_REST;
-    ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
-           gv->players[pid]->health);
-
-    gv->rests++;
-  }
   // parse encounter
   for (int i = 0; i < 4; i++)
     parse_hunter_encounter(gv, pid, real_loc, *(move++));
 
-  if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
-    gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
+  if (old_loc == real_loc) {
+    gv->players[pid]->health += LIFE_GAIN_REST;
+    ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
+           gv->players[pid]->health);
+    if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
+      gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
+
+    gv->rests++;
+  }
 
   gv->current_player++;
 
