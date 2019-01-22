@@ -11,6 +11,7 @@ addons:
       - clang-tidy-7
       - clang-format-7
       - zsh
+      - libjansson-dev
 
 script:
   - ./ci_run.sh

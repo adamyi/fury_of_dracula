@@ -4,9 +4,10 @@
 //
 // Adam Yi <i@adamyi.com>, Simon Hanly-Jones <simon.hanly.jones@gmail.com>
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "ac_log.h"
 
 #include "places.h"
 
@@ -336,7 +337,8 @@ location_t location_find_by_abbrev(const char *abbrev) {
 //////////////////////////////////////////////////////////////////////////////////
 
 place_type_t location_get_type(location_t p) {
-  assert(valid_location_p(p));
+  if (!valid_location_p(p))
+    ac_log(AC_LOG_FATAL, "location_get_type: %d is not valid", p);
   return PLACES[p].type;
 }
 

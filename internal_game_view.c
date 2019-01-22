@@ -121,7 +121,7 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
   for (int i = 0; i < 4; i++)
     parse_hunter_encounter(gv, pid, real_loc, *(move++));
 
-  if (old_loc == gv->players[pid]->location) {
+  if (old_loc == gv->players[pid]->location && gv->players[pid]->health > 0) {
     gv->players[pid]->health += LIFE_GAIN_REST;
     ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
            gv->players[pid]->health);
