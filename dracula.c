@@ -34,7 +34,7 @@ void decide_dracula_move(DraculaView dv) {
   location_t *possible;
   possible = dv_get_possible_moves(dv, &num);
   int dist[NUM_MAP_LOCATIONS];
-  memset(dist, -1, sizeof(dist));
+  memset(dist, 0, sizeof(dist));
   for (int i = 0; i < PLAYER_DRACULA; i++) {
     location_t loc = dv_get_location(dv, i);
     if (round == 0) {
