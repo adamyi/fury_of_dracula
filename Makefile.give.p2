@@ -7,6 +7,10 @@ CC	 = 2521 3c
 # CFLAGS	= -std=c99 -g -fprofile-arcs -ftest-coverage
 # CFLAGS  = -std=c++11 -x c++
 # LDFLAGS = -lstdc++ -ljansson
+
+CFLAGS	= -std=c99 -O2 -I/usr/include/python2.7
+LDFLAGS = -lm -ldl -lpython2.7
+
 BINS	= dracula hunter generate_mapdata
 OBJS    = internal_game_view.o map.o rollingarray.o ac_log.o ac_memory.o myplayer.o places.o mapdata.o 
 LIBS = -ljansson
@@ -22,8 +26,8 @@ player_dracula.o: player.c dracula.h game.h dracula_view.h game_view.h places.h
 player_hunter.o: player.c hunter.h game.h hunter_view.h game_view.h places.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-dracula.o:	dracula.c dracula.h dracula_view.h game_view.h places.h game.h
-hunter.o:	hunter.c hunter.h hunter_view.h game_view.h places.h game.h
+dracula.o:	dracula.c dracula.h dracula_view.h game_view.h places.h game.h mapdata.h
+hunter.o:	hunter.c hunter.h hunter_view.h game_view.h places.h game.h mapdata.h
 
 generate_mapdata:	generate_mapdata.o places.o ac_log.o
 
