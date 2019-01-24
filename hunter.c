@@ -25,8 +25,6 @@
 
 #define MAX_SCENARIOS 1000000
 
-#define LONGEST_PATH 10
-
 typedef struct scenario {
   player_t *player;
   struct scenario *next;
@@ -158,12 +156,15 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
 static location_t sp_go_to(player_t *p, location_t dest, int round) {
   size_t n_locations = 0;
   size_t count = 1;
-  location_t moves[LONGEST_PATH];
-  location_t loc[LONGEST_PATH];
-  round_t rounds[LONGEST_PATH];
+  location_t moves[NUM_MAP_LOCATIONS];
+  location_t loc[NUM_MAP_LOCATIONS];
+  round_t rounds[NUM_MAP_LOCATIONS];
+  bool seen[NUM_MAP_LOCATIONS];
+  memset(seen, 0, sizeof(seen));
   moves[0] = NOWHERE;
   loc[0] = p->location;
   rounds[0] = round;
+  seen[p->location] = true;
 
   int i;
   for (i = 0; loc[i] != dest; i++) {
@@ -171,6 +172,9 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
         _gv_do_get_connections(p, &n_locations, loc[i], p->id, rounds[i], true,
                                true, true, false, false, false);
     for (int j = 0; j < n_locations; j++) {
+      if (seen[ds[j]])
+        continue;
+      seen[ds[j]] = true;
       if (moves[i] == NOWHERE)
         moves[count] = ds[j];
       else
@@ -200,13 +204,13 @@ void decide_hunter_move(HunterView hv) {
     // size_t num = 0;
     // location_t *possible = hv_get_dests(hv, &num, true, true, true);
     bool guessDracula = getPossibleDraculaLocations(players, round);
-    ac_log(AC_LOG_DEBUG, "getprob: %d", guessDracula);
+    ac_log(AC_LOG_ERROR, "getprob: %d", guessDracula);
     int maxprob = 0, actionSpaceSize = 0;
     location_t maxprobl = NOWHERE;
     for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
       if (probabilities[i] > 0) {
         actionSpaceSize += probabilities[i];
-        ac_log(AC_LOG_DEBUG, "%s: %d", location_get_abbrev(i),
+        ac_log(AC_LOG_ERROR, "%s: %d", location_get_abbrev(i),
                probabilities[i]);
         if (probabilities[i] > maxprob) {
           maxprob = probabilities[i];
