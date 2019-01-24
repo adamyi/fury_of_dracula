@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 
 // #include <Python.h>
 
@@ -19,10 +19,8 @@
 #include "myplayer.h"
 
 static inline int weighted_spdist(int spdist) {
-  if (spdist == 0)
-    return -100;
-  else if (spdist == 1)
-    return -1;
+  if (spdist == 0) return -100;
+  if (spdist == 1) return -1;
   return spdist;
 }
 
@@ -32,7 +30,7 @@ void decide_dracula_move(DraculaView dv) {
   gettimeofday(&t1, NULL);
   unsigned int ts = (t1.tv_usec % 5000) * (t1.tv_sec % 5000);
   srand(ts);
-  size_t round = dv_get_round(dv);
+  round_t round = dv_get_round(dv);
   location_t ret = NOWHERE;
   size_t num = 0;
   location_t *possible;
@@ -43,7 +41,7 @@ void decide_dracula_move(DraculaView dv) {
   memset(cango, 0, sizeof(cango));
   location_t rev[110];
   player_t *dracp = dv_get_player_class(dv, PLAYER_DRACULA);
-  for (int i = 0; i < num; i++) {
+  for (size_t i = 0; i < num; i++) {
     if (possible[i] >= HIDE) {
       location_t res = player_resolve_move_location(dracp, possible[i]);
       rev[res] = possible[i];
@@ -65,7 +63,7 @@ void decide_dracula_move(DraculaView dv) {
             possible[j] <= MAX_MAP_LOCATION) {
           if (rev[possible[j]] != possible[j])
             dist[possible[j]] +=
-                0.75 * weighted_spdist(SPDIST[loc][possible[j]]);
+                (int)(0.75 * weighted_spdist(SPDIST[loc][possible[j]]));
           else
             dist[possible[j]] += weighted_spdist(SPDIST[loc][possible[j]]);
         }
@@ -78,7 +76,7 @@ void decide_dracula_move(DraculaView dv) {
       if (dist[i] < 0)
         dist[i] = 1;
       else
-        dist[i] *= 0.65;
+        dist[i] = (int)(dist[i] * 0.65);
     }
     if (cango[i] && dist[i] > maxdist) {
       maxdist = dist[i];

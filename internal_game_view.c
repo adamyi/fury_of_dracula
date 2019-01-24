@@ -306,8 +306,10 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
          "%d trail %d stay %d hide %d",
          road, rail, sea, trail, stay, hide);
   if (from < MIN_MAP_LOCATION ||
-      from > MAX_MAP_LOCATION)  // don't know exact loc
-    return 0;
+      from > MAX_MAP_LOCATION) {  // don't know exact loc
+    *n_locations = 0;
+    return NULL;
+  }
 
   if (player == PLAYER_DRACULA) rail = false;
 
@@ -388,7 +390,9 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
     valid_conns[0] = TELEPORT;
   }
 
-  /* for (int i = 0; i < *n_locations; i++) {
+  /* ac_log(AC_LOG_ERROR, "n_locations: %d", *n_locations);
+
+  for (int i = 0; i < *n_locations; i++) {
     ac_log(AC_LOG_ERROR, "! %d", valid_conns[i]);
     ac_log(AC_LOG_ERROR, "! %s", location_get_name(valid_conns[i]));
     // printf("%s ", location_get_name(valid_conns[i]));

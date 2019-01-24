@@ -16,6 +16,7 @@
 #include "hunter.h"
 #include "hunter_view.h"
 #include "internal_game_view.h"
+#include "map.h"
 #include "mapdata.h"
 #include "myplayer.h"
 #include "places.h"
@@ -38,8 +39,9 @@ static inline bool isValidLoc(location_t loc) {
 
 int probabilities[NUM_MAP_LOCATIONS];
 
-static location_t resolve_loc_backwards(player_t *player, location_t *hist,
-                                        round_t round, location_t move) {
+static location_t resolve_loc_backwards(player_t *player,
+                                        const location_t *hist, round_t round,
+                                        location_t move) {
   location_t ret = player_resolve_move_location(player, move);
   if (ret != NOWHERE) return ret;
   while (move == HIDE || (move >= DOUBLE_BACK_1 && move <= DOUBLE_BACK_5)) {
@@ -236,6 +238,9 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
   seen[p->location] = true;
 
   int i;
+  // NOTES(adamyi): disabled linting due to false positive
+  // loc[i] is never used before initializing
+  // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
   for (i = 0; loc[i] != dest; i++) {
     location_t *ds =
         _gv_do_get_connections(p, &n_locations, loc[i], p->id, rounds[i], true,
@@ -256,12 +261,9 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
 }
 
 static inline double weighted_spdist(int spdist) {
-  if (spdist == 1)
-    return 1.8;
-  else if (spdist == 2)
-    return 1.5;
-  else if (spdist == 3)
-    return 1.2;
+  if (spdist == 1) return 1.8;
+  if (spdist == 2) return 1.5;
+  if (spdist == 3) return 1.2;
   return 1;
 }
 

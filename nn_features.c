@@ -187,11 +187,11 @@ static inline void printActionSpace(_game_view *gv, enum player p,
     size_t n_locations = 0;
     location_t *cango;
     if (p == PLAYER_DRACULA)
-      cango = _gv_do_get_connections(gv, &n_locations, rl, p, round, true, true,
-                                     true, true, false, true);
+      cango = _gv_do_get_connections(gv->players[p], &n_locations, rl, p, round,
+                                     true, true, true, true, false, true);
     else
-      cango = _gv_do_get_connections(gv, &n_locations, rl, p, round, true, true,
-                                     true, true, true, false);
+      cango = _gv_do_get_connections(gv->players[p], &n_locations, rl, p, round,
+                                     true, true, true, true, true, false);
     for (int i = 0; i < n_locations; i++) {
       if (i != 0) printf(", ");
       if (cango[i] > MAX_MAP_LOCATION)

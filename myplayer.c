@@ -1,4 +1,6 @@
+#include <memory.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "ac_log.h"
 #include "ac_memory.h"
