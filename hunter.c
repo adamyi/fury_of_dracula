@@ -27,6 +27,7 @@
 
 typedef struct scenario {
   player_t *player;
+  struct scenario *prev;
   struct scenario *next;
 } scenario_t;
 
@@ -53,18 +54,19 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
   scenario_t *start = ac_malloc(sizeof(scenario_t), "scenario");
   start->player = new_player(PLAYER_DRACULA, false);
   player_move_to(start->player, last_known_location, last_known_location);
-  start->next = NULL;
+  start->prev = start->next = NULL;
   scenario_t *end = start;
   int scount = 1;
   for (last_known_round += 2; last_known_round < round; last_known_round++) {
     location_t loc =
         players[PLAYER_DRACULA]->all_location_history[last_known_round];
-    scenario_t **l = &start;
+    // scenario_t **l = &start;
     bool cont = true;
     if (scount == 0) {
       ac_log(AC_LOG_ERROR, "scount = 0");
       return false;
     }
+    ac_log(AC_LOG_DEBUG, "oend %p", end);
     for (scenario_t *oend = end, *i = start; cont && i != oend->next;) {
       if (loc == HIDE || (loc >= DOUBLE_BACK_1 && loc <= DOUBLE_BACK_5))
         player_move_to(i->player, loc,
@@ -111,6 +113,7 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
             s->player = clone_player(i->player);
             player_move_to(s->player, moves[j], moves[j]);
             s->next = NULL;
+            s->prev = end;
             end->next = s;
             end = s;
             scount++;
@@ -123,21 +126,27 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
           ac_log(AC_LOG_DEBUG, "destroy scenario %p", i);
           ac_log(AC_LOG_DEBUG, "scenario count: %d", scount);
           scenario_t *nxt = i->next;
+          if (i->prev != NULL)
+            i->prev->next = i->next;
+          else
+            start = i->next;
+          if (i->next != NULL)
+            i->next->prev = i->prev;
+          else
+            end = i->prev;
           if (i == oend) {
-            printf("nocont!");
+            ac_log(AC_LOG_INFO, "nocont!");
             cont = false;
           }
           destroy_player(i->player);
           free(i);
           i = nxt;
-          *l = i;
           scount--;
         } else {
-          l = &(i->next);
-          i = *l;
+          i = i->next;
         }
         free(moves);
-        ac_log(AC_LOG_DEBUG, "l %p\n", l);
+        // ac_log(AC_LOG_DEBUG, "l %p\n", l);
       }
     }
   }
