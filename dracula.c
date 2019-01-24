@@ -26,7 +26,10 @@ static inline int weighted_spdist(int spdist) {
 
 void decide_dracula_move(DraculaView dv) {
   // TODO(unassigned): Replace this with something better!
-  srand(time(0));
+  struct timeval t1;
+  gettimeofday(&t1, NULL);
+  unsigned int ts = (t1.tv_usec % 5000) * (t1.tv_sec % 5000);
+  srand(ts);
   size_t round = dv_get_round(dv);
   location_t ret = NOWHERE;
   size_t num = 0;

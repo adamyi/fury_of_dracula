@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 
 // #include <Python.h>
 
@@ -23,7 +23,7 @@
 #include "ac_log.h"
 #include "ac_memory.h"
 
-#define MAX_SCENARIOS 1000000
+#define MAX_SCENARIOS 360000
 
 typedef struct scenario {
   player_t *player;
@@ -97,12 +97,13 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
         int plays = 0;
         for (int j = 0; j < n_locations; j++) {
           ac_log(AC_LOG_DEBUG, "Consider %s", location_get_abbrev(moves[j]));
-          if ((loc == players[0]->all_location_history[last_known_round]) ||
+          if ((location_get_type(moves[j]) == LAND &&
+              (loc == SEA_UNKNOWN ||
+              (loc == players[0]->all_location_history[last_known_round]) ||
               (loc == players[1]->all_location_history[last_known_round]) ||
               (loc == players[2]->all_location_history[last_known_round]) ||
-              (loc == players[3]->all_location_history[last_known_round]) ||
-              (loc == CITY_UNKNOWN && location_get_type(moves[j]) == SEA) ||
-              (loc == SEA_UNKNOWN && location_get_type(moves[j]) == LAND))
+              (loc == players[3]->all_location_history[last_known_round]))) ||
+              (loc == CITY_UNKNOWN && location_get_type(moves[j]) == SEA))
             continue;
           if (plays == 0) {
             ac_log(AC_LOG_DEBUG, "play scenario %p to %s", i,
@@ -121,6 +122,13 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
                    location_get_abbrev(moves[j]));
           }
           plays++;
+          if (scount > MAX_SCENARIOS) {
+            for (scenario_t *td = start; td != NULL; td = td->next)
+                free(td->prev);
+            free(end);
+            ac_log(AC_LOG_ERROR, "reached MAX_SCENARIOS");
+            return false;
+          }
         }
         if (plays == 0) {
           ac_log(AC_LOG_DEBUG, "destroy scenario %p", i);
@@ -163,6 +171,8 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
 }
 
 static location_t sp_go_to(player_t *p, location_t dest, int round) {
+  if (p->location == dest)
+    return dest;
   size_t n_locations = 0;
   size_t count = 1;
   location_t moves[NUM_MAP_LOCATIONS];
@@ -198,7 +208,11 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
 
 void decide_hunter_move(HunterView hv) {
   // TODO(unassigned): Replace this with something better!
-  srand(time(0));
+  // srand(time(0));
+  struct timeval t1;
+  gettimeofday(&t1, NULL);
+  unsigned int ts = (t1.tv_usec % 5000) * (t1.tv_sec % 5000);
+  srand(ts);
   round_t round = hv_get_round(hv);
   location_t ret;
   enum player cp = hv_get_player(hv);
@@ -213,13 +227,13 @@ void decide_hunter_move(HunterView hv) {
     // size_t num = 0;
     // location_t *possible = hv_get_dests(hv, &num, true, true, true);
     bool guessDracula = getPossibleDraculaLocations(players, round);
-    ac_log(AC_LOG_ERROR, "getprob: %d", guessDracula);
+    ac_log(AC_LOG_DEBUG, "getprob: %d", guessDracula);
     int maxprob = 0, actionSpaceSize = 0;
     location_t maxprobl = NOWHERE;
     for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
       if (probabilities[i] > 0) {
         actionSpaceSize += probabilities[i];
-        ac_log(AC_LOG_ERROR, "%s: %d", location_get_abbrev(i),
+        ac_log(AC_LOG_DEBUG, "%s: %d", location_get_abbrev(i),
                probabilities[i]);
         if (probabilities[i] > maxprob) {
           maxprob = probabilities[i];
@@ -227,8 +241,12 @@ void decide_hunter_move(HunterView hv) {
         }
       }
     }
-    if (maxprob * 2 < actionSpaceSize)  // if we are not 50% sure where Drac is
-      guessDracula = false;
+    printf("maxprob %d actionSpace %d\n", maxprob, actionSpaceSize);
+    // if (maxprob * 10 < actionSpaceSize)  // if we are not 10% sure where Drac is
+    //  guessDracula = false;
+    // if (actionSpaceSize > MAX_SCENARIOS && maxprob * 11 < actionSpaceSize)
+    //    guessDracula = false;
+    ac_log(AC_LOG_INFO, "%s %s", location_get_abbrev(hv_get_location(hv, PLAYER_DRACULA)), location_get_abbrev(hv_get_location(hv, cp)));
     if (hv_get_location(hv, PLAYER_DRACULA) == hv_get_location(hv, cp) ||
         hv_get_health(hv, cp) <= 4 || (!guessDracula)) {
       ret = hv_get_location(hv, cp);

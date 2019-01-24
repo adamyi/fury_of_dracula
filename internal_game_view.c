@@ -123,7 +123,7 @@ static inline char *parse_hunter_move(char *move, _game_view *gv,
 
   if (old_loc == gv->players[pid]->location && gv->players[pid]->health > 0) {
     gv->players[pid]->health += LIFE_GAIN_REST;
-    ac_log(AC_LOG_ERROR, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
+    ac_log(AC_LOG_INFO, "player %d gain health %d to %d", pid, LIFE_GAIN_REST,
            gv->players[pid]->health);
     if (gv->players[pid]->health > GAME_START_HUNTER_LIFE_POINTS)
       gv->players[pid]->health = GAME_START_HUNTER_LIFE_POINTS;
