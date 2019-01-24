@@ -74,3 +74,7 @@ location_t *hv_get_dests_player(hunter_view *hv, size_t *n_locations,
   return _gv_get_connections(hv->gv, n_locations, hv_get_location(hv, player),
                              player, hv_get_round(hv), road, rail, sea);
 }
+
+player_t *hv_get_player_class(HunterView hv, enum player player) {
+  return _gv_get_player_class(hv->gv, player);
+}

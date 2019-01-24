@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 
-#include <Python.h>
+// #include <Python.h>
 
 #include "dracula.h"
 #include "dracula_view.h"
@@ -17,12 +17,11 @@
 #include "mapdata.h"
 
 static inline int weighted_spdist(int spdist) {
-  int ret = spdist;
   if (spdist == 0)
-    ret = -100;
+    return -100;
   else if (spdist == 1)
-    ret = -1;
-  return ret;
+    return -1;
+  return spdist;
 }
 
 void decide_dracula_move(DraculaView dv) {

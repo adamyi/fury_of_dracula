@@ -143,7 +143,7 @@ location_t *_gv_get_connections_with_trail(_GameView gv, size_t *n_locations,
                                            round_t round, bool road, bool rail,
                                            bool sea);
 
-location_t *_gv_do_get_connections(_game_view *gv, size_t *n_locations,
+location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
                                    location_t from, enum player player,
                                    round_t round, bool road, bool rail,
                                    bool sea, bool trail, bool stay, bool hide);
@@ -156,5 +156,7 @@ void parse_dracula_minion_placement(_game_view *gv, location_t real_loc,
 void parse_dracula_minion_left_trail(_game_view *gv, char left);
 void parse_hunter_encounter(_game_view *gv, enum player pid,
                             location_t real_loc, char encounter);
+
+player_t *_gv_get_player_class(_GameView gv, enum player player);
 
 #endif  // !defined (FOD__INTERNAL_GAME_VIEW_H_)

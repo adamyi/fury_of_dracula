@@ -11,6 +11,7 @@
 
 #include "game.h"
 #include "game_view.h"
+#include "myplayer.h"
 #include "places.h"
 
 typedef struct hunter_view *HunterView;
@@ -134,5 +135,7 @@ location_t *hv_get_dests(HunterView hv, size_t *n_locations, bool road,
 location_t *hv_get_dests_player(HunterView hv, size_t *n_locations,
                                 enum player player, bool road, bool rail,
                                 bool sea);
+
+player_t *hv_get_player_class(HunterView hv, enum player player);
 
 #endif  // !defined (FOD__HUNTER_VIEW_H_)

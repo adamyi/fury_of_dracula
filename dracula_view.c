@@ -71,8 +71,9 @@ void dv_get_trail(dracula_view *dv, enum player player,
 
 location_t *dv_get_possible_moves(dracula_view *dv, size_t *n_locations) {
   return _gv_do_get_connections(
-      dv->gv, n_locations, dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA,
-      dv_get_round(dv), true, false, true, true, false, true);
+      _gv_get_player_class(dv->gv, PLAYER_DRACULA), n_locations,
+      dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA, dv_get_round(dv),
+      true, false, true, true, false, true);
 }
 
 location_t *dv_get_dests(dracula_view *dv, size_t *n_locations, bool road,

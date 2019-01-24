@@ -18,6 +18,7 @@ typedef struct rollingarray {
 } rollingarray_t;
 
 rollingarray_t *new_rollingarray(size_t capacity);
+rollingarray_t *clone_rollingarray(rollingarray_t *old);
 void destroy_rollingarray(rollingarray_t *ra);
 ra_item_t rollingarray_get_item(rollingarray_t *ra, size_t ind);
 ra_item_t rollingarray_last_item(rollingarray_t *ra);

@@ -34,6 +34,17 @@ rollingarray_t *new_rollingarray(size_t capacity) {
   return new;
 }
 
+rollingarray_t *clone_rollingarray(rollingarray_t *old) {
+  rollingarray_t *new = ac_malloc(sizeof(rollingarray_t), "clone rollingarray");
+  new->capacity = old->capacity;
+  new->size = old->size;
+  new->start = old->start;
+  new->value = ac_malloc(new->capacity * sizeof(ra_item_t),
+                         "value array for new rollingarray");
+  memcpy(new->value, old->value, new->capacity * sizeof(ra_item_t));
+  return new;
+}
+
 void destroy_rollingarray(rollingarray_t *ra) {
   free(ra->value);
   free(ra);

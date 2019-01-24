@@ -102,10 +102,20 @@ static inline void printMove(_game_view *gv, enum player p, int round,
     printf("%s", move);
   } else if (p == PLAYER_DRACULA) {
     char placement = '.', left = '.';
+
+    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc &&
+        round % 13 == 6)
+      left = 'V';
+    else if (gv->trail_last_loc != NOWHERE &&
+             rollingarray_size(gv->traps[gv->trail_last_loc]) > 0 &&
+             rollingarray_get_item(gv->traps[gv->trail_last_loc], 0) ==
+                 round - 6)
+      left = 'M';
+
     if (location_get_type(*rl) != SEA) {
       int enc_count = rollingarray_size(gv->traps[*rl]);
-      if (gv->vampire == *rl) enc_count++;
-      if (gv->trail_last_loc == *rl) enc_count--;
+      if (gv->vampire == *rl && left != 'V') enc_count++;
+      if (left == 'M' && gv->trail_last_loc == *rl) enc_count--;
       if (enc_count < 3) {
         if (round % 13 == 0) {
           placement = 'V';
@@ -116,15 +126,8 @@ static inline void printMove(_game_view *gv, enum player p, int round,
         }
       }
     }
+
     if (placement == '.') printf("..");
-    if (gv->trail_last_loc != NOWHERE && gv->vampire == gv->trail_last_loc &&
-        round % 13 == 6)
-      left = 'V';
-    else if (gv->trail_last_loc != NOWHERE &&
-             rollingarray_size(gv->traps[gv->trail_last_loc]) > 0 &&
-             rollingarray_get_item(gv->traps[gv->trail_last_loc], 0) ==
-                 round - 6)
-      left = 'M';
     putchar(left);
     putchar('.');
     parse_dracula_minion_placement(gv, *rl, placement);
