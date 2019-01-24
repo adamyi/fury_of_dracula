@@ -70,6 +70,18 @@ void dv_get_trail(dracula_view *dv, enum player player,
 }
 
 location_t *dv_get_possible_moves(dracula_view *dv, size_t *n_locations) {
+  if (dv_get_round(dv) == 0) {
+    *n_locations = 70;
+    location_t *ret = ac_malloc(70 * sizeof(location_t), "dv_get_possible_moves for round 0");
+    for (int i = MIN_MAP_LOCATION, j = 0; i <= MAX_MAP_LOCATION; i++, j++) {
+        if (i == HOSPITAL_LOCATION) {
+            j--;
+            continue;
+        }
+        ret[j] = i;
+    }
+    return ret;
+  }
   return _gv_do_get_connections(
       _gv_get_player_class(dv->gv, PLAYER_DRACULA), n_locations,
       dv_get_location(dv, PLAYER_DRACULA), PLAYER_DRACULA, dv_get_round(dv),
@@ -89,4 +101,8 @@ location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
   if (player == PLAYER_DRACULA) return dv_get_dests(dv, n_locations, road, sea);
   return _gv_get_connections(dv->gv, n_locations, dv_get_location(dv, player),
                              player, dv_get_round(dv), road, rail, sea);
+}
+
+player_t *dv_get_player_class(DraculaView dv, enum player player) {
+  return _gv_get_player_class(dv->gv, player);
 }

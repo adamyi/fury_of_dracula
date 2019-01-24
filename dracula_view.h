@@ -11,6 +11,7 @@
 
 #include "game.h"
 #include "game_view.h"
+#include "myplayer.h"
 #include "places.h"
 
 typedef struct dracula_view *DraculaView;
@@ -152,5 +153,7 @@ location_t *dv_get_dests_player(DraculaView dv, size_t *n_locations,
                                 bool sea);
 
 location_t *dv_get_possible_moves(DraculaView dv, size_t *n_locations);
+
+player_t *dv_get_player_class(DraculaView dv, enum player player);
 
 #endif  // !defined(FOD__DRACULA_VIEW_H_)
