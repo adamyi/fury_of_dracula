@@ -21,6 +21,7 @@ player_t *new_player(enum player id, bool track_all_history) {
   if (track_all_history) {
     player->all_location_history = ac_malloc(MAX_ROUNDS * sizeof(location_t),
                                              "player->all_location_history");
+    memset(player->all_location_history, NOWHERE, MAX_ROUNDS * sizeof(location_t)); // -1
     player->all_history_size = 0;
   } else {
     player->all_history_size = -1;
@@ -80,8 +81,10 @@ void player_move_to(player_t *player, location_t location, location_t move) {
   player->location = location;
   rollingarray_add_item(player->trail, move);
   rollingarray_add_item(player->location_history, location);
-  if (player->all_history_size >= 0)
-    player->all_location_history[player->all_history_size++] = location;
+  if (player->all_history_size >= 0) {
+    // player->all_location_history[player->all_history_size++] = location;
+     player->all_location_history[player->all_history_size++] = move;
+  }
 }
 
 location_t player_resolve_move_location(player_t *player, location_t move) {
