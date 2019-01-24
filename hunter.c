@@ -38,17 +38,16 @@ static inline bool isValidLoc(location_t loc) {
 
 int probabilities[NUM_MAP_LOCATIONS];
 
-static location_t resolve_loc_backwards(player_t *player, location_t *hist, round_t round, location_t move) {
-    location_t ret = player_resolve_move_location(player, move);
-    if (ret != NOWHERE)
-        return ret;
-    while(move == HIDE || (move >= DOUBLE_BACK_1 && move <= DOUBLE_BACK_5)) {
-        round -= (move == HIDE) ? 1 : (move - DOUBLE_BACK_1 + 1);
-        move = hist[round];
-    }
-    if (move == TELEPORT)
-        return CASTLE_DRACULA;
-    return move;
+static location_t resolve_loc_backwards(player_t *player, location_t *hist,
+                                        round_t round, location_t move) {
+  location_t ret = player_resolve_move_location(player, move);
+  if (ret != NOWHERE) return ret;
+  while (move == HIDE || (move >= DOUBLE_BACK_1 && move <= DOUBLE_BACK_5)) {
+    round -= (move == HIDE) ? 1 : (move - DOUBLE_BACK_1 + 1);
+    move = hist[round];
+  }
+  if (move == TELEPORT) return CASTLE_DRACULA;
+  return move;
 }
 
 bool getPossibleDraculaLocations(player_t *players[], round_t round) {
@@ -80,17 +79,23 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
       ac_log(AC_LOG_ERROR, "scount = 0");
       return false;
     }
-    ac_log(AC_LOG_DEBUG, "lkround : %d loc: %s", last_known_round, location_get_abbrev(loc));
+    ac_log(AC_LOG_DEBUG, "lkround : %d loc: %s", last_known_round,
+           location_get_abbrev(loc));
     ac_log(AC_LOG_DEBUG, "oend %p", end);
     for (scenario_t *oend = end, *i = start; cont && i != oend->next;) {
       int plays = 0;
       location_t firstPlay;
       if (loc == HIDE || (loc >= DOUBLE_BACK_1 && loc <= DOUBLE_BACK_5)) {
-        location_t rl = resolve_loc_backwards(i->player, players[PLAYER_DRACULA]->all_location_history, last_known_round, loc);
+        location_t rl = resolve_loc_backwards(
+            i->player, players[PLAYER_DRACULA]->all_location_history,
+            last_known_round, loc);
         // printf("%s %s\n", location_get_abbrev(loc), location_get_abbrev(rl));
         if (rl >= MIN_MAP_LOCATION && rl <= MAX_MAP_LOCATION) {
-          if ((loc == HIDE && location_get_type(rl) == LAND) || (loc > HIDE && isConnectedVia(loc, rl, 5))) { // 101: boat and road
-            ac_log(AC_LOG_DEBUG, "record firstPlay=%s", location_get_abbrev(loc));
+          if ((loc == HIDE && location_get_type(rl) == LAND) ||
+              (loc > HIDE &&
+               isConnectedVia(loc, rl, 5))) {  // 101: boat and road
+            ac_log(AC_LOG_DEBUG, "record firstPlay=%s",
+                   location_get_abbrev(loc));
             firstPlay = loc;
             plays++;
           }
@@ -121,19 +126,28 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
         for (int j = 0; j < n_locations; j++) {
           ac_log(AC_LOG_DEBUG, "Consider %s", location_get_abbrev(moves[j]));
           if ((location_get_type(moves[j]) == LAND &&
-              (loc == SEA_UNKNOWN ||
-              (moves[j] == players[0]->all_location_history[last_known_round]) ||
-              (moves[j] == players[1]->all_location_history[last_known_round]) ||
-              (moves[j] == players[2]->all_location_history[last_known_round]) ||
-              (moves[j] == players[3]->all_location_history[last_known_round]) ||
-              (moves[j] == players[0]->all_location_history[last_known_round + 1]) ||
-              (moves[j] == players[1]->all_location_history[last_known_round + 1]) ||
-              (moves[j] == players[2]->all_location_history[last_known_round + 1]) ||
-              (moves[j] == players[3]->all_location_history[last_known_round + 1]))) ||
+               (loc == SEA_UNKNOWN ||
+                (moves[j] ==
+                 players[0]->all_location_history[last_known_round]) ||
+                (moves[j] ==
+                 players[1]->all_location_history[last_known_round]) ||
+                (moves[j] ==
+                 players[2]->all_location_history[last_known_round]) ||
+                (moves[j] ==
+                 players[3]->all_location_history[last_known_round]) ||
+                (moves[j] ==
+                 players[0]->all_location_history[last_known_round + 1]) ||
+                (moves[j] ==
+                 players[1]->all_location_history[last_known_round + 1]) ||
+                (moves[j] ==
+                 players[2]->all_location_history[last_known_round + 1]) ||
+                (moves[j] ==
+                 players[3]->all_location_history[last_known_round + 1]))) ||
               (loc == CITY_UNKNOWN && location_get_type(moves[j]) == SEA))
             continue;
           if (plays == 0) {
-            ac_log(AC_LOG_DEBUG, "record firstPlay=%s", location_get_abbrev(moves[j]));
+            ac_log(AC_LOG_DEBUG, "record firstPlay=%s",
+                   location_get_abbrev(moves[j]));
             firstPlay = moves[j];
           } else {
             scenario_t *s = ac_malloc(sizeof(scenario_t), "scenario");
@@ -150,7 +164,7 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
           plays++;
           if (scount > MAX_SCENARIOS) {
             for (scenario_t *td = start; td != NULL; td = td->next)
-                free(td->prev);
+              free(td->prev);
             free(end);
             ac_log(AC_LOG_ERROR, "reached MAX_SCENARIOS");
             return false;
@@ -180,8 +194,13 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
         scount--;
       } else {
         ac_log(AC_LOG_DEBUG, "play scenario %p to %s", i,
-                location_get_abbrev(firstPlay));
-        player_move_to(i->player, resolve_loc_backwards(i->player, players[PLAYER_DRACULA]->all_location_history, last_known_round, firstPlay), firstPlay);
+               location_get_abbrev(firstPlay));
+        player_move_to(
+            i->player,
+            resolve_loc_backwards(i->player,
+                                  players[PLAYER_DRACULA]->all_location_history,
+                                  last_known_round, firstPlay),
+            firstPlay);
         ac_log(AC_LOG_DEBUG, "i bef %p", i);
         i = i->next;
         ac_log(AC_LOG_DEBUG, "i aft %p", i);
@@ -203,8 +222,7 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
 
 static location_t sp_go_to(player_t *p, location_t dest, int round) {
   ac_log(AC_LOG_INFO, "sp_go_to %s", location_get_abbrev(dest));
-  if (p->location == dest)
-    return dest;
+  if (p->location == dest) return dest;
   size_t n_locations = 0;
   size_t count = 1;
   location_t moves[NUM_MAP_LOCATIONS];
@@ -223,8 +241,7 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
         _gv_do_get_connections(p, &n_locations, loc[i], p->id, rounds[i], true,
                                true, true, false, false, false);
     for (int j = 0; j < n_locations; j++) {
-      if (seen[ds[j]])
-        continue;
+      if (seen[ds[j]]) continue;
       seen[ds[j]] = true;
       if (moves[i] == NOWHERE)
         moves[count] = ds[j];
@@ -268,16 +285,18 @@ void decide_hunter_move(HunterView hv) {
     // size_t num = 0;
     // location_t *possible = hv_get_dests(hv, &num, true, true, true);
     bool guessDracula = getPossibleDraculaLocations(players, round);
-    ac_log(AC_LOG_ERROR, "getprob: %d", guessDracula);
+    ac_log(AC_LOG_INFO, "getprob: %d", guessDracula);
     double maxprob = 0;
     int actionSpaceSize = 0;
     location_t maxprobl = NOWHERE;
     for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
       if (probabilities[i] > 0) {
         actionSpaceSize += probabilities[i];
-        // printf("%s %s\n", location_get_abbrev(i), location_get_abbrev(players[cp]->location));
-        double prob = weighted_spdist(SPDIST[i][players[cp]->location]) * probabilities[i];
-        ac_log(AC_LOG_ERROR, "%s: %d -> %lf", location_get_abbrev(i),
+        // printf("%s %s\n", location_get_abbrev(i),
+        // location_get_abbrev(players[cp]->location));
+        double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
+                      probabilities[i];
+        ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
         if (prob > maxprob) {
           maxprob = prob;
@@ -285,12 +304,16 @@ void decide_hunter_move(HunterView hv) {
         }
       }
     }
-    ac_log(AC_LOG_ERROR, "maxprob %lf actionSpace %d\n", maxprob, actionSpaceSize);
-    // if (maxprob * 10 < actionSpaceSize)  // if we are not 10% sure where Drac is
+    ac_log(AC_LOG_INFO, "maxprob %lf actionSpace %d\n", maxprob,
+           actionSpaceSize);
+    // if (maxprob * 10 < actionSpaceSize)  // if we are not 10% sure where Drac
+    // is
     //  guessDracula = false;
     // if (actionSpaceSize > MAX_SCENARIOS && maxprob * 11 < actionSpaceSize)
     //    guessDracula = false;
-    ac_log(AC_LOG_INFO, "%s %s", location_get_abbrev(hv_get_location(hv, PLAYER_DRACULA)), location_get_abbrev(hv_get_location(hv, cp)));
+    ac_log(AC_LOG_INFO, "%s %s",
+           location_get_abbrev(hv_get_location(hv, PLAYER_DRACULA)),
+           location_get_abbrev(hv_get_location(hv, cp)));
     ac_log(AC_LOG_INFO, "health %d", hv_get_health(hv, cp));
     if (hv_get_location(hv, PLAYER_DRACULA) == hv_get_location(hv, cp) ||
         hv_get_health(hv, cp) <= 4 || (!guessDracula)) {

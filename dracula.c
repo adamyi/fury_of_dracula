@@ -13,8 +13,8 @@
 
 #include "dracula.h"
 #include "dracula_view.h"
-#include "internal_game_view.h"
 #include "game.h"
+#include "internal_game_view.h"
 #include "mapdata.h"
 #include "myplayer.h"
 
@@ -64,7 +64,8 @@ void decide_dracula_move(DraculaView dv) {
         if (possible[j] >= MIN_MAP_LOCATION &&
             possible[j] <= MAX_MAP_LOCATION) {
           if (rev[possible[j]] != possible[j])
-            dist[possible[j]] += 0.75 * weighted_spdist(SPDIST[loc][possible[j]]);
+            dist[possible[j]] +=
+                0.75 * weighted_spdist(SPDIST[loc][possible[j]]);
           else
             dist[possible[j]] += weighted_spdist(SPDIST[loc][possible[j]]);
         }

@@ -72,13 +72,14 @@ void dv_get_trail(dracula_view *dv, enum player player,
 location_t *dv_get_possible_moves(dracula_view *dv, size_t *n_locations) {
   if (dv_get_round(dv) == 0) {
     *n_locations = 70;
-    location_t *ret = ac_malloc(70 * sizeof(location_t), "dv_get_possible_moves for round 0");
+    location_t *ret =
+        ac_malloc(70 * sizeof(location_t), "dv_get_possible_moves for round 0");
     for (int i = MIN_MAP_LOCATION, j = 0; i <= MAX_MAP_LOCATION; i++, j++) {
-        if (i == HOSPITAL_LOCATION) {
-            j--;
-            continue;
-        }
-        ret[j] = i;
+      if (i == HOSPITAL_LOCATION) {
+        j--;
+        continue;
+      }
+      ret[j] = i;
     }
     return ret;
   }
