@@ -11,6 +11,8 @@
 
 // #include <Python.h>
 
+#include "ac_log.h"
+
 #include "dracula.h"
 #include "dracula_view.h"
 #include "game.h"
@@ -20,8 +22,16 @@
 
 static inline int weighted_spdist(int spdist) {
   if (spdist == 0) return -100;
-  if (spdist == 1) return -1;
+  if (spdist == 1) return -10;
+  if (spdist == 2) return -3;
+  if (spdist == 3) return -1;
+  if (spdist > 6) return 6;
   return spdist;
+}
+
+static inline int apply_weight(int x, double weight) {
+  if (x > 0) return (int)(x * weight);
+  return (int)(x / weight);
 }
 
 void decide_dracula_move(DraculaView dv) {
@@ -41,6 +51,7 @@ void decide_dracula_move(DraculaView dv) {
   memset(cango, 0, sizeof(cango));
   location_t rev[110];
   player_t *dracp = dv_get_player_class(dv, PLAYER_DRACULA);
+  int health = dv_get_health(dv, PLAYER_DRACULA);
   for (size_t i = 0; i < num; i++) {
     if (possible[i] >= HIDE) {
       location_t res = player_resolve_move_location(dracp, possible[i]);
@@ -63,27 +74,34 @@ void decide_dracula_move(DraculaView dv) {
             possible[j] <= MAX_MAP_LOCATION) {
           if (rev[possible[j]] != possible[j])
             dist[possible[j]] +=
-                (int)(0.75 * weighted_spdist(SPDIST[loc][possible[j]]));
+                apply_weight(weighted_spdist(SPDIST[loc][possible[j]]), 0.75);
           else
             dist[possible[j]] += weighted_spdist(SPDIST[loc][possible[j]]);
         }
       }
     }
   }
-  int maxdist = 0;
+  int maxdist = -10000;
   for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
     if (location_get_type(i) == SEA) {
       if (dist[i] < 0)
         dist[i] = 1;
+      else if (round % 13 == 0 || round % 13 == 12)
+        dist[i] = apply_weight(dist[i], 0.25);
       else
-        dist[i] = (int)(dist[i] * 0.65);
+        dist[i] = apply_weight(dist[i], 0.65);
+      if (health <= 2)
+        dist[i] = -100;
     }
+    if (dist[i] != 0)
+        ac_log(AC_LOG_INFO, "%s: %d", location_get_abbrev(i), dist[i]);
     if (cango[i] && dist[i] > maxdist) {
       maxdist = dist[i];
       ret = i;
     }
   }
   if (ret == NOWHERE) {
+    ac_log(AC_LOG_ERROR, "random move");
     // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
     ret = possible[rand() % num];
   }
