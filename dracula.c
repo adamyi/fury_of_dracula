@@ -41,14 +41,16 @@ static inline double weighted_cddist(int spdist, int health, int hDistToCP) {
     weight = 0.3;
   else if (health >= 60)
     weight = 0.1;
-  if (hDistToCP <= -200) weight = 0;
-  // else if (hDistToCP < -100) weight *= 0.01;
-  // else if (hDistToCP < -10) weight *= 0.1;
-  // else if (hDistToCP < 0) weight *= 0.5;
-  else if (hDistToCP < 0) weight *= 0.01;
-  else if (hDistToCP <= 10) weight *= 0.8;
-  else if (hDistToCP > 16) weight *= 1.2;
-  else if (hDistToCP > 32) weight *= 2;
+  if (hDistToCP <= -200)
+    weight = 0;
+  else if (hDistToCP < 0)
+    weight *= 0.01;
+  else if (hDistToCP <= 10)
+    weight *= 0.8;
+  else if (hDistToCP > 16)
+    weight *= 1.2;
+  else if (hDistToCP > 32)
+    weight *= 2;
   if (spdist == 0) return 10 * weight;
   if (spdist == 1) return 8 * weight;
   if (spdist == 2) return 2 * weight;
@@ -112,23 +114,22 @@ void decide_dracula_move(DraculaView dv) {
   }
   for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
     if (!cango[i]) continue;
-    if (ADJLIST_COUNT[i] >= 4)
-        dist[i] += 0.1 * (ADJLIST_COUNT[i] - 4) + 1;
+    if (ADJLIST_COUNT[i] >= 4) dist[i] += 0.1 * (ADJLIST_COUNT[i] - 4) + 1;
     int md = NUM_MAP_LOCATIONS;
     int distToCD = SPDIST[i][CASTLE_DRACULA];
     for (int j = 0; j < PLAYER_DRACULA; j++) {
-        location_t hl = dv_get_location(dv, j);
-        int dist = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
-        if (dist < md) md = dist;
+      location_t hl = dv_get_location(dv, j);
+      int dist = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
+      if (dist < md) md = dist;
     }
     if (md == 0)
-        dist[i] += 0.5 * weighted_cddist(distToCD, health, hDistSp);
+      dist[i] += 0.5 * weighted_cddist(distToCD, health, hDistSp);
     else if (md == 1)
-        dist[i] += 0.7 * weighted_cddist(distToCD, health, hDistSp);
+      dist[i] += 0.7 * weighted_cddist(distToCD, health, hDistSp);
     else if (md == 2)
-        dist[i] += 0.8 * weighted_cddist(distToCD, health, hDistSp);
+      dist[i] += 0.8 * weighted_cddist(distToCD, health, hDistSp);
     else
-        dist[i] += weighted_cddist(distToCD, health, hDistSp);
+      dist[i] += weighted_cddist(distToCD, health, hDistSp);
   }
   double maxdist = -10000;
   for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++) {
@@ -149,11 +150,10 @@ void decide_dracula_move(DraculaView dv) {
         dist[i] = apply_weight(dist[i], 0.25);
       else
         dist[i] = apply_weight(dist[i], 0.65);
-      if (health <= 2)
-        dist[i] = -100;
+      if (health <= 2) dist[i] = -100;
     }
     if (dist[i] != 0)
-        ac_log(AC_LOG_ERROR, "%s: %lf", location_get_abbrev(i), dist[i]);
+      ac_log(AC_LOG_ERROR, "%s: %lf", location_get_abbrev(i), dist[i]);
     if (cango[i] && dist[i] > maxdist) {
       maxdist = dist[i];
       ret = i;
