@@ -95,7 +95,8 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
         if (rl >= MIN_MAP_LOCATION && rl <= MAX_MAP_LOCATION) {
           if ((loc == HIDE && location_get_type(rl) == LAND) ||
               (loc > HIDE &&
-               isConnectedVia(loc, rl, 5))) {  // 101: boat and road
+               (isConnectedVia(i->player->location, rl, 5) ||
+                rl == i->player->location))) {  // 101: boat and road
             ac_log(AC_LOG_DEBUG, "record firstPlay=%s",
                    location_get_abbrev(loc));
             firstPlay = loc;

@@ -333,9 +333,9 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
   bool canhide = candb && location_get_type(from) != SEA;
   if (trail) {
     location_t hist[TRAIL_SIZE];
-    location_t trail[TRAIL_SIZE];
+    location_t tr[TRAIL_SIZE];
     player_get_location_history(pobj, hist);
-    player_get_trail(pobj, trail);
+    player_get_trail(pobj, tr);
     for (int i = TRAIL_SIZE - 2; i >= 0; i--) {
       if (hist[i] >= MIN_MAP_LOCATION && hist[i] <= MAX_MAP_LOCATION) {
         if (candb &&
@@ -345,14 +345,14 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
           dbs++;
         }
       }
-      if (trail[i] >= MIN_MAP_LOCATION && trail[i] <= MAX_MAP_LOCATION) {
-        if (can_go[trail[i]]) {
-          can_go[trail[i]] = false;
+      if (tr[i] >= MIN_MAP_LOCATION && tr[i] <= MAX_MAP_LOCATION) {
+        if (can_go[tr[i]]) {
+          can_go[tr[i]] = false;
           (*n_locations)--;
         }
-      } else if (trail[i] == HIDE) {
+      } else if (tr[i] == HIDE) {
         canhide = false;
-      } else if (trail[i] >= DOUBLE_BACK_1 && trail[i] <= DOUBLE_BACK_5) {
+      } else if (tr[i] >= DOUBLE_BACK_1 && tr[i] <= DOUBLE_BACK_5) {
         candb = false;
       }
     }
