@@ -22,7 +22,7 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
       "GLO.... SMR.... HCF.... MMA.... DTOT... "
       "GPL.... SMS.... HMR.... MGR....";
 
-  player_message messages[] = {};
+  player_message messages[19] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 3, "round is 3");
@@ -60,7 +60,7 @@ TEST(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap) {
       "GPL.... SMS.... HMR.... MGR.... DBAT... "
       "GEC.... SBATD.. HGO.... MMA....";
 
-  player_message messages[] = {};
+  player_message messages[19] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 4, "round is 4");
@@ -89,7 +89,7 @@ TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
       "GEC.... SBATD.. HGO.... MAL.... DMS.... "
       "GLE.... SZA.... HTS.... MMS....";
 
-  player_message messages[] = {};
+  player_message messages[29] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 5, "round is 5");
@@ -118,7 +118,7 @@ TEST(castleDracTest, drac_heals_in_castle) {
       "GLE.... SZA.... HTS.... MMS.... DGAT.M. "  // 8
       "GLE.... SZA.... HTS.... MMS.... DCDT...";  // 10
 
-  player_message messages[] = {};
+  player_message messages[55] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 11, "round is 11");
@@ -138,7 +138,7 @@ TEST(castleDracTest, drac_heals_check_traps_check_locs) {
       "GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
       "GED.... SGE.... HZU.... MCA.... DHIT... "  // 1
       "GED.... SGE.... HZU.... MCA....";          // 2
-  player_message messages[] = {};
+  player_message messages[14] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 2, "round is 2");
@@ -195,7 +195,7 @@ TEST(teleTest, drac_teleports) {
       "GED.... SMR.... HZU.... MCA.... DTPTV.. "  // 6
       "GMN.... SGE.... HMI.... MLS....";          // 7
 
-  player_message messages[] = {};
+  player_message messages[39] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
@@ -235,7 +235,7 @@ TEST(teleTest, drac_double_back_to_hide_in_castle) {
       "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
       "GED.... SMR.... HZU.... MCA....";          // 6
 
-  player_message messages[] = {};
+  player_message messages[34] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
@@ -271,7 +271,7 @@ TEST(teleTest, drac_double_back_to_hide_in_castle_then_TP) {
       "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
       "GED.... SMR.... HZU.... MCA.... DTPTV..";  // 6
 
-  player_message messages[] = {};
+  player_message messages[35] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_location(dv, PLAYER_DRACULA), CASTLE_DRACULA,
@@ -303,7 +303,7 @@ TEST(dracMoveTest, test_drac_cannot_move_to_hosp_or_trail) {
       "GED.... SGE.... HZU.... MCA.... DSJT... "
       "GED.... SGE.... HZU.... MCA....";
 
-  player_message messages[] = {};
+  player_message messages[14] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   bool move_key[NUM_MAP_LOCATIONS];
@@ -339,7 +339,7 @@ TEST(vamp_mat_test, test_vamp_maturity_consequences) {
       "GPA.... SVI.... HIO.... MCG.... DCOT.M. "  // 7
       "GPA.... SVI.... HIO.... MCG....";          // 8
 
-  player_message messages[] = {};
+  player_message messages[44] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 8, "round is 8");
@@ -369,7 +369,7 @@ TEST(vamp_mat_test, test_vamp_maturity_consequences) {
 TEST(conn_test, test_connections_from_start_locs) {
   char *trail = "GED.... SGE.... HZU.... MCA....";  // 0
 
-  player_message messages[] = {};
+  player_message messages[4] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   bool move_ret[NUM_MAP_LOCATIONS];
@@ -408,7 +408,7 @@ TEST(hunterTrail, get_hunters_trail) {
       "GPA.... SVI.... HIO.... MCG.... DCOT.M. "  // 7
       "GPA.... SVI.... HIO.... MCG....";          // 8
 
-  player_message messages[] = {};
+  player_message messages[44] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   location_t trailLG[TRAIL_SIZE];
@@ -431,7 +431,7 @@ TEST(dracMoveTest, test_drac_sea_move_after_D2) {
       "GED.... SGE.... HZU.... MCA.... DD2T... "
       "GED.... SGE.... HZU.... MCA....";
 
-  player_message messages[] = {};
+  player_message messages[19] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   bool move_ret[NUM_MAP_LOCATIONS];

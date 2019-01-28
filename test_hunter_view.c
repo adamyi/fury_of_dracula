@@ -40,12 +40,13 @@ TEST(connsTest, test_score_start_HP_and_sea_cons) {
       "GED.... SGE.... HZU.... MCA.... DC?.V.. "  // 0
       "GNS.... SPA.... HST.... MLS.... DC?T...";  // 1
                                                   // 2
-  player_message messages[] = {};
+  player_message messages[10] = {"Hello"};
   HunterView hv = hv_new(trail, messages);
 
   size_t n_locations = 0;
   location_t *lordGSeaDests =
       hv_get_dests(hv, &n_locations, false, false, true);
+
 
   bool sea_destsLG_key[NUM_MAP_LOCATIONS];
   memset(sea_destsLG_key, false, NUM_MAP_LOCATIONS);
@@ -130,7 +131,7 @@ TEST(dracTrailTest, drac_teleports_from_castle_double_back_to_hide) {
       "GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
       "GED.... SMR.... HZU....";                  // 6
 
-  player_message messages[] = {};
+  player_message messages[33] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   ac_compare_int(hv_get_round(hv), 6, "round == 6");
@@ -162,7 +163,7 @@ TEST(encounterTest, drS_encounters_drac_and_vamp) {
       "GLO.... SMR.... HCF.... MMA.... DC?T... "
       "GPL.... SMS.... HMR.... MGR.... DC?T...";
 
-  player_message messages[] = {};
+  player_message messages[20] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   ac_compare_int(hv_get_player(hv), PLAYER_LORD_GODALMING,
@@ -189,7 +190,7 @@ TEST(dracMoveTest, test_get_dests_player_on_drac) {
       "GLO.... SMR.... HCF.... MMA.... DC?T... "
       "GPL.... SMS.... HMR.... MGR.... DC?T...";
 
-  player_message messages[] = {};
+  player_message messages[20] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   size_t n_locations = 0;
@@ -208,7 +209,7 @@ TEST(hospitalTest, drS_teleports_to_hospital) {
       "GPL.... SMS.... HMR.... MGR.... DBAT... "
       "GEC.... SBATD.. HGO....";
 
-  player_message messages[] = {};
+  player_message messages[23] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   ac_compare_int(hv_get_player(hv), PLAYER_MINA_HARKER,
@@ -239,7 +240,7 @@ TEST(hospitalTest, drS_teleports_to_hospital_drac_sea_dmg) {
       "GEC.... SBATD.. HGO.... MAL.... DS?.... "
       "GLE.... SZA.... HTS.... MMS.... DC?T...";
 
-  player_message messages[] = {};
+  player_message messages[30] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   ac_compare_int(hv_get_player(hv), PLAYER_LORD_GODALMING,
@@ -268,7 +269,7 @@ TEST(minionMatTest, test_minion_invalidates) {
       "GPA.... SVI.... HIO.... MCG.... DTPT.M.";  // 7
                                                   // 8
 
-  player_message messages[] = {};
+  player_message messages[40] = {"hi"};
   HunterView hv = hv_new(trail, messages);
 
   ac_compare_int((int)hv_get_player(hv), PLAYER_LORD_GODALMING,
