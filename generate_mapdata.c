@@ -239,12 +239,6 @@ int main() {
   for (int i = 0; i < NUM_MAP_LOCATIONS; i++) {
     for (int j = 0; j < NUM_MAP_LOCATIONS; j++) {
       if (tdist[i][j][3] == -1) {
-        /*
-static bool is_connected_by_rail(location_t from, location_t to,
-                                 int max_rail_dist, int mcount,
-                                 int mat[][NUM_MAP_LOCATIONS], int *count,
-                                 struct adj_connection adjc[][mcount]) {
-         */
         tdist[i][j][1] =
             is_connected_by_rail(i, j, 1, mcount, count, adjc) ? 1 : -1;
         tdist[i][j][2] =

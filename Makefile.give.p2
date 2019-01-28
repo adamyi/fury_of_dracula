@@ -40,7 +40,6 @@ myplayer.o:	myplayer.c places.h game.h rollingarray.h ac_memory.h
 map.o:          map.c map.h mapdata.h places.h
 mapdata.o:      mapdata.c map.h mapdata.h places.h
 generate_mapdata.o: generate_mapdata.c places.h
-game_view.o:	game_view.c game_view.h internal_game_view.c internal_game_view.h game.h myplayer.h rollingarray.h ac_log.h ac_config.h ac_constant.h ac_memory.h mapdata.h
 internal_game_view.o:	internal_game_view.c internal_game_view.h game.h myplayer.h rollingarray.h ac_log.h ac_config.h ac_constant.h ac_memory.h
 hunter_view.o:	hunter_view.c hunter_view.h game_view.h internal_game_view.h game.h ac_memory.h ac_log.h mapdata.h
 dracula_view.o:	dracula_view.c dracula_view.h game_view.h internal_game_view.h game.h ac_memory.h ac_log.h mapdata.h

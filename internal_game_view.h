@@ -45,10 +45,10 @@ typedef struct _game_view {
  * You are free to ignore messages if you wish.
  */
 
-char *_gv_get_msg(_game_view *gv, enum player player);
-
 _GameView _gv_new(char *past_plays, player_message messages[],
                   bool track_minions);
+
+char *_gv_get_msg(_game_view *gv, enum player player);
 
 /**
  * Frees all resources allocated for `gv`.

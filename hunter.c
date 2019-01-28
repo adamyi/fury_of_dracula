@@ -302,7 +302,7 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          if (hv_get_msg(hv, j)[0] == i + 1) prob *= 0.9;
+          if (hv_get_msg(hv, (enum player)j)[0] == i + 1) prob *= 0.9;
         }
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
