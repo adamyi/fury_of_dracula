@@ -4,8 +4,8 @@
 # Adam Yi <i@adamyi.com>
 
 CC	 = ./3c
-CFLAGS	= -std=c99 -O2 -I/usr/include/python2.7
-LDFLAGS = -lm -ldl -ljansson -lpython2.7
+CFLAGS	= -std=c99 -O2
+LDFLAGS = -lm -ldl -ljansson
 BINS	= test_game_view test_hunter_view test_dracula_view generate_mapdata tap_game_view tap_hunter_view tap_dracula_view dracula hunter
 
 all: ${BINS}

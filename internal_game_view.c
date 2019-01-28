@@ -33,7 +33,7 @@ static inline void hunter_lose_health(_game_view *gv, enum player player,
   }
 }
 
-char *_gv_get_msg(_game_view *gv, enum player player){
+char *_gv_get_msg(_game_view *gv, enum player player) {
   return gv->messages[player];
 }
 
@@ -200,8 +200,7 @@ char *parse_move(char *move, _game_view *gv) {
   return parse_hunter_move(move, gv, pid, old_loc, real_loc);
 }
 
-_game_view *_gv_new(char *past_plays,
-                    player_message messages[],
+_game_view *_gv_new(char *past_plays, player_message messages[],
                     bool track_minions) {
   ac_setLoggingTag("_game_view");
   ac_log(AC_LOG_DEBUG, "Creating new GameView based on past_plays string: %s",
@@ -214,7 +213,7 @@ _game_view *_gv_new(char *past_plays,
   new->rests = 0;
   new->track_minions = track_minions;
   new->trail_last_loc = NOWHERE;
-  for (int i = 0; i < NUM_PLAYERS; i ++) new->messages[i][0] = '\0';
+  for (int i = 0; i < NUM_PLAYERS; i++) new->messages[i][0] = '\0';
   for (int i = MIN_MAP_LOCATION; i <= MAX_MAP_LOCATION; i++)
     new->traps[i] = new_rollingarray(4);
   for (int i = 0; i < NUM_PLAYERS; i++) new->players[i] = new_player(i, true);
@@ -225,17 +224,19 @@ _game_view *_gv_new(char *past_plays,
   return new;
 }
 
-static inline void populate_messages(_game_view *gv, player_message messages[]) {
-
+static inline void populate_messages(_game_view *gv,
+                                     player_message messages[]) {
   if (messages == NULL) return;
   if (gv->current_player == 0) return;
   int message_counter = gv->round * NUM_PLAYERS + gv->current_player - 1;
-  ac_log(AC_LOG_ERROR, "round %d %d message counter %d", gv->round, gv->current_player, message_counter);
-  for (int player_counter = gv->current_player - 1; player_counter > - 1;
-      player_counter--){
-      ac_log(AC_LOG_ERROR, "message counter %d", message_counter);
-    strcpy (gv->messages[player_counter], messages[message_counter]);
-    ac_log(AC_LOG_ERROR, "received message for player %d: %s", player_counter, gv->messages[player_counter]);
+  ac_log(AC_LOG_INFO, "round %d %d message counter %d", gv->round,
+         gv->current_player, message_counter);
+  for (int player_counter = gv->current_player - 1; player_counter > -1;
+       player_counter--) {
+    ac_log(AC_LOG_INFO, "message counter %d", message_counter);
+    strcpy(gv->messages[player_counter], messages[message_counter]);
+    ac_log(AC_LOG_INFO, "received message for player %d: %s", player_counter,
+           gv->messages[player_counter]);
     message_counter--;
   }
   return;

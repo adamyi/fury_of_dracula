@@ -33,8 +33,7 @@ typedef struct hunter_view *HunterView;
  */
 HunterView hv_new(char *past_plays, player_message messages[]);
 
-
-//get message stored by given player in this round
+// get message stored by given player in this round
 char *hv_get_msg(HunterView hv, enum player player);
 
 /**

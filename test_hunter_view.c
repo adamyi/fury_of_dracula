@@ -47,7 +47,6 @@ TEST(connsTest, test_score_start_HP_and_sea_cons) {
   location_t *lordGSeaDests =
       hv_get_dests(hv, &n_locations, false, false, true);
 
-
   bool sea_destsLG_key[NUM_MAP_LOCATIONS];
   memset(sea_destsLG_key, false, NUM_MAP_LOCATIONS);
   sea_destsLG_key[4] = true;

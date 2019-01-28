@@ -8,8 +8,8 @@ CC	 = 2521 3c
 # CFLAGS  = -std=c++11 -x c++
 # LDFLAGS = -lstdc++ -ljansson
 
-CFLAGS	= -std=c99 -O2 -I/usr/include/python2.7
-LDFLAGS = -lm -ldl -lpython2.7
+CFLAGS	= -std=c99 -O2
+LDFLAGS = -lm -ldl
 
 BINS	= dracula hunter generate_mapdata
 OBJS    = internal_game_view.o map.o rollingarray.o ac_log.o ac_memory.o myplayer.o places.o mapdata.o 
