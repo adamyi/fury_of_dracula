@@ -26,6 +26,7 @@ typedef struct _game_view {
   bool track_minions;
   int rests;  // for neural network feature generator
   location_t trail_last_loc;
+  player_message messages[NUM_PLAYERS];
 } _game_view;
 
 /**
@@ -43,6 +44,9 @@ typedef struct _game_view {
  * The "player_message" type is defined in game.h.
  * You are free to ignore messages if you wish.
  */
+
+char *_gv_get_msg(_game_view *gv, enum player player);
+
 _GameView _gv_new(char *past_plays, player_message messages[],
                   bool track_minions);
 

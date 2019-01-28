@@ -30,6 +30,10 @@ hunter_view *hv_new(char *past_plays, player_message messages[]) {
   return new;
 }
 
+char *hv_get_msg(HunterView hv, enum player player){
+  return _gv_get_msg(hv->gv, player);
+}
+
 void hv_drop(hunter_view *hv) {
   _gv_drop(hv->gv);
   free(hv);

@@ -33,6 +33,10 @@ typedef struct hunter_view *HunterView;
  */
 HunterView hv_new(char *past_plays, player_message messages[]);
 
+
+//get message stored by given player in this round
+char *hv_get_msg(HunterView hv, enum player player);
+
 /**
  * Frees all resources allocated for `hv`.
  * After this has been called, `hv` should not be accessed.

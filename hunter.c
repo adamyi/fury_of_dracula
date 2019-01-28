@@ -278,6 +278,8 @@ void decide_hunter_move(HunterView hv) {
   location_t ret;
   enum player cp = hv_get_player(hv);
   player_t *players[NUM_PLAYERS];
+  char msg[5];
+  memset(msg, 0, sizeof(msg));
   if (round == 0) {
     // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
     ret = rand() % MAX_MAP_LOCATION;
@@ -299,6 +301,9 @@ void decide_hunter_move(HunterView hv) {
         // location_get_abbrev(players[cp]->location));
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
+      	for (int j = 0; j < cp; j++) {
+      		if (hv_get_msg(hv, j)[0] == i + 1) prob *= 0.9;
+      	}
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
         if (prob > maxprob) {
@@ -334,5 +339,6 @@ void decide_hunter_move(HunterView hv) {
   }
   char name[3];
   strncpy(name, location_get_abbrev(ret), 3);
-  register_best_play(name, "");
+  msg[0] = ret;
+  register_best_play(name, msg);
 }
