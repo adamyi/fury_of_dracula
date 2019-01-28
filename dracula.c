@@ -45,8 +45,8 @@ static inline double weighted_cddist(int spdist, int health, int hDistToCP) {
     weight = 0;
   else if (hDistToCP < 0)
     weight *= 0.01;
-  else if (hDistToCP <= 10)
-    weight *= 0.8;
+  else if (hDistToCP <= 12)
+    weight *= 0.6;
   else if (hDistToCP > 16)
     weight *= 1.2;
   else if (hDistToCP > 32)
