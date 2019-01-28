@@ -234,12 +234,13 @@ static inline void populate_messages(_game_view *gv,
   for (int player_counter = gv->current_player - 1; player_counter > -1;
        player_counter--) {
     ac_log(AC_LOG_INFO, "message counter %d", message_counter);
-    strcpy(gv->messages[player_counter], messages[message_counter]);
+    strncpy(gv->messages[player_counter], messages[message_counter],
+            MESSAGE_SIZE);
+    gv->messages[player_counter][MESSAGE_SIZE - 1] = '\0';
     ac_log(AC_LOG_INFO, "received message for player %d: %s", player_counter,
            gv->messages[player_counter]);
     message_counter--;
   }
-  return;
 }
 
 void _gv_drop(_game_view *gv) {

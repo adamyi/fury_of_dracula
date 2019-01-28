@@ -60,7 +60,7 @@ TEST(encounterTest, drS_encounters_drac_and_vamp_then_drac_and_trap) {
       "GPL.... SMS.... HMR.... MGR.... DBAT... "
       "GEC.... SBATD.. HGO.... MMA....";
 
-  player_message messages[19] = {"hi"};
+  player_message messages[24] = {"hi"};
   DraculaView dv = dv_new(trail, messages);
 
   ac_compare_int(dv_get_round(dv), 4, "round is 4");

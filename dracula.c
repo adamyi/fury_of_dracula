@@ -109,13 +109,14 @@ void decide_dracula_move(DraculaView dv) {
       for (int j = 0; j < num; j++) {
         if (possible[j] >= MIN_MAP_LOCATION &&
             possible[j] <= MAX_MAP_LOCATION) {
-          if (rev[possible[j]] != possible[j])
+          if (rev[possible[j]] != possible[j]) {
             dist[possible[j]] += apply_weight(
                 weighted_spdist(SPROUND[loc][possible[j]][hunter_max_trail]),
                 0.55);
-          else
+          } else {
             dist[possible[j]] +=
                 weighted_spdist(SPROUND[loc][possible[j]][hunter_max_trail]);
+          }
         }
       }
     }
