@@ -93,21 +93,29 @@ void decide_dracula_move(DraculaView dv) {
   int hDistSp = 0;
   for (int i = 0; i < PLAYER_DRACULA; i++) {
     location_t loc = dv_get_location(dv, i);
-    hDistSp += weighted_spdist(SPDIST[loc][CASTLE_DRACULA]);
+    int sr = NUM_MAP_LOCATIONS;
+    int hunter_max_trail = (round + 1 + i) % 4;
+    for (int j = 0; j < 4; j++) {
+      if (SPROUND[loc][CASTLE_DRACULA][j] < sr)
+        sr = SPROUND[loc][CASTLE_DRACULA][j];
+    }
+    hDistSp += weighted_spdist(sr);
     if (round == 0) {
       for (int j = MIN_MAP_LOCATION; j <= MAX_MAP_LOCATION; j++) {
         if (j == HOSPITAL_LOCATION) continue;
-        dist[j] += weighted_spdist(SPDIST[loc][j]);
+        dist[j] += weighted_spdist(SPROUND[loc][j][hunter_max_trail]);
       }
     } else {
       for (int j = 0; j < num; j++) {
         if (possible[j] >= MIN_MAP_LOCATION &&
             possible[j] <= MAX_MAP_LOCATION) {
           if (rev[possible[j]] != possible[j])
-            dist[possible[j]] +=
-                apply_weight(weighted_spdist(SPDIST[loc][possible[j]]), 0.55);
+            dist[possible[j]] += apply_weight(
+                weighted_spdist(SPROUND[loc][possible[j]][hunter_max_trail]),
+                0.55);
           else
-            dist[possible[j]] += weighted_spdist(SPDIST[loc][possible[j]]);
+            dist[possible[j]] +=
+                weighted_spdist(SPROUND[loc][possible[j]][hunter_max_trail]);
         }
       }
     }
