@@ -37,6 +37,11 @@ static inline bool isValidLoc(location_t loc) {
   return loc >= MIN_MAP_LOCATION && loc <= MAX_MAP_LOCATION;
 }
 
+static inline int randint(int max) {
+  // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
+  return rand() % max;
+}
+
 int probabilities[NUM_MAP_LOCATIONS];
 
 static location_t resolve_loc_backwards(player_t *player,
@@ -297,8 +302,8 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round,
   int l = loc + round + player;
   int idx = 0;
   for (int i = l % 10; i > 0; i--) {
-    location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
+    location_t loc = randint(NUM_MAP_LOCATIONS);
+    while (loc == CASTLE_DRACULA) loc = randint(NUM_MAP_LOCATIONS);
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -308,8 +313,8 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round,
   msg[idx++] = ' ';
   l /= 10;
   for (int i = l % 10; i > 0; i--) {
-    location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
+    location_t loc = randint(NUM_MAP_LOCATIONS);
+    while (loc == CASTLE_DRACULA) loc = randint(NUM_MAP_LOCATIONS);
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -319,8 +324,8 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round,
   msg[idx++] = ' ';
   l /= 10;
   for (int i = l % 10; i > 0; i--) {
-    location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
+    location_t loc = randint(NUM_MAP_LOCATIONS);
+    while (loc == CASTLE_DRACULA) loc = randint(NUM_MAP_LOCATIONS);
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -329,10 +334,10 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round,
 
 void decide_hunter_move(HunterView hv) {
   ac_log(AC_LOG_ERROR,
-    "This function will print out where hunter thinks the dracula is "
-    "in the player messages. This is very dangerous. I'm so scared the "
-    "Dracula will figure out and move to other locations... Hope Dracula "
-    "never finds out..."); // sarcastically just for fuun
+         "This function will print out where hunter thinks the dracula is "
+         "in the player messages. This is very dangerous. I'm so scared the "
+         "Dracula will figure out and move to other locations... Hope Dracula "
+         "never finds out...");  // sarcastically just for fuun
   // srand(time(0));
   struct timeval t1;
   gettimeofday(&t1, NULL);
@@ -345,8 +350,7 @@ void decide_hunter_move(HunterView hv) {
   char msg[100];
   memset(msg, 0, sizeof(msg));
   if (round == 0) {
-    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
-    ret = rand() % MAX_MAP_LOCATION;
+    ret = randint(NUM_MAP_LOCATIONS);
   } else {
     for (int i = 0; i < NUM_PLAYERS; i++) {
       players[i] = hv_get_player_class(hv, i);
@@ -393,8 +397,7 @@ void decide_hunter_move(HunterView hv) {
       if ((!guessDracula) && round < 6) {
         size_t num = 0;
         location_t *possible = hv_get_dests(hv, &num, true, true, true);
-        // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
-        ret = possible[rand() % num];
+        ret = possible[randint(num)];
       } else {
         ret = hv_get_location(hv, cp);
       }

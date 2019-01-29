@@ -1,7 +1,14 @@
 /**
  * COMP2521 Fury of Drucates
  *
- * Generate map.c and map.h based on data from places.c
+ * Generate mapdata.c and mapdata.h based on data from places.c
+ *
+ * This would generate an adjacent list, an adjacent matrix,
+ * shortest distance matrix, and shortest turns to move between
+ * places in different turns (different for rail) by using Floyd
+ * Algorithm.
+ *
+ * By moving these to compile time, we improve runtime performance.
  *
  * @author: Adam Yi <i@adamyi.com>
  */
