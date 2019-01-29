@@ -268,6 +268,65 @@ static inline double weighted_spdist(int spdist) {
   return 1;
 }
 
+location_t decode_location_from_msg(const char *msg, round_t round, enum player player) {
+  int ret = 0;
+  int i = 0;
+  for (; msg[i] != '\0'; i += 3, ret++) {
+    if (msg[i] == 'C' && msg[i + 1] == 'D') {
+      i += 3;
+      break;
+    }
+  }
+  for (; msg[i] != '\0'; i += 3, ret += 10) {
+    if (msg[i] == 'C' && msg[i + 1] == 'D') {
+      i += 3;
+      break;
+    }
+  }
+  for (; msg[i] != '\0'; i += 3, ret += 100);
+  ac_log(AC_LOG_ERROR, "decoded location - %s (%d/%d)", location_get_abbrev(ret - round - player), round, player);
+  return ret - round - player;
+}
+
+void encode_msg_from_location(char *msg, location_t loc, round_t round, enum player player) {
+  ac_log(AC_LOG_ERROR, "encoding location %s (%d/%d)", location_get_abbrev(loc), round, player);
+  int l = loc + round + player;
+  printf("%d\n", l);
+  int idx = 0;
+  for (int i = l % 10; i > 0; i--) {
+    location_t loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA)
+      loc = rand() % NUM_MAP_LOCATIONS;
+    strncpy(msg + idx, location_get_abbrev(loc), 3);
+    msg[idx + 2] = ' ';
+    idx += 3;
+  }
+  msg[idx++] = 'C';
+  msg[idx++] = 'D';
+  msg[idx++] = ' ';
+  l /= 10;
+  for (int i = l % 10; i > 0; i--) {
+    location_t loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA)
+      loc = rand() % NUM_MAP_LOCATIONS;
+    strncpy(msg + idx, location_get_abbrev(loc), 3);
+    msg[idx + 2] = ' ';
+    idx += 3;
+  }
+  msg[idx++] = 'C';
+  msg[idx++] = 'D';
+  msg[idx++] = ' ';
+  l /= 10;
+  for (int i = l % 10; i > 0; i--) {
+    location_t loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA)
+      loc = rand() % NUM_MAP_LOCATIONS;
+    strncpy(msg + idx, location_get_abbrev(loc), 3);
+    msg[idx + 2] = ' ';
+    idx += 3;
+  }
+}
+
 void decide_hunter_move(HunterView hv) {
   // srand(time(0));
   struct timeval t1;
@@ -278,7 +337,7 @@ void decide_hunter_move(HunterView hv) {
   location_t ret;
   enum player cp = hv_get_player(hv);
   player_t *players[NUM_PLAYERS];
-  char msg[5];
+  char msg[100];
   memset(msg, 0, sizeof(msg));
   if (round == 0) {
     // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.rand)
@@ -302,7 +361,8 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          if (hv_get_msg(hv, (enum player)j)[0] == i + 1) prob *= 0.9;
+          printf("%d!\n", j);
+          if (decode_location_from_msg(hv_get_msg(hv, j), round, j)) prob *= 0.9;
         }
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
@@ -339,6 +399,6 @@ void decide_hunter_move(HunterView hv) {
   }
   char name[3];
   strncpy(name, location_get_abbrev(ret), 3);
-  msg[0] = ret + 1;
+  encode_msg_from_location(msg, ret, round, cp);
   register_best_play(name, msg);
 }

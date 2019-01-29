@@ -64,7 +64,6 @@ static inline double apply_weight(double x, double weight) {
 }
 
 void decide_dracula_move(DraculaView dv) {
-  // TODO(unassigned): Replace this with something better!
   struct timeval t1;
   gettimeofday(&t1, NULL);
   unsigned int ts = (t1.tv_usec % 5000) * (t1.tv_sec % 5000);
