@@ -268,7 +268,8 @@ static inline double weighted_spdist(int spdist) {
   return 1;
 }
 
-location_t decode_location_from_msg(const char *msg, round_t round, enum player player) {
+location_t decode_location_from_msg(const char *msg, round_t round,
+                                    enum player player) {
   int ret = 0;
   int i = 0;
   for (; msg[i] != '\0'; i += 3, ret++) {
@@ -283,20 +284,21 @@ location_t decode_location_from_msg(const char *msg, round_t round, enum player 
       break;
     }
   }
-  for (; msg[i] != '\0'; i += 3, ret += 100);
-  ac_log(AC_LOG_ERROR, "decoded location - %s (%d/%d)", location_get_abbrev(ret - round - player), round, player);
+  for (; msg[i] != '\0'; i += 3, ret += 100) continue;
+  ac_log(AC_LOG_INFO, "decoded location - %s (%d/%d)",
+         location_get_abbrev(ret - round - player), round, player);
   return ret - round - player;
 }
 
-void encode_msg_from_location(char *msg, location_t loc, round_t round, enum player player) {
-  ac_log(AC_LOG_ERROR, "encoding location %s (%d/%d)", location_get_abbrev(loc), round, player);
+void encode_msg_from_location(char *msg, location_t loc, round_t round,
+                              enum player player) {
+  ac_log(AC_LOG_INFO, "encoding location %s (%d/%d)", location_get_abbrev(loc),
+         round, player);
   int l = loc + round + player;
-  printf("%d\n", l);
   int idx = 0;
   for (int i = l % 10; i > 0; i--) {
     location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA)
-      loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -307,8 +309,7 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round, enum pla
   l /= 10;
   for (int i = l % 10; i > 0; i--) {
     location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA)
-      loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -319,8 +320,7 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round, enum pla
   l /= 10;
   for (int i = l % 10; i > 0; i--) {
     location_t loc = rand() % NUM_MAP_LOCATIONS;
-    while (loc == CASTLE_DRACULA)
-      loc = rand() % NUM_MAP_LOCATIONS;
+    while (loc == CASTLE_DRACULA) loc = rand() % NUM_MAP_LOCATIONS;
     strncpy(msg + idx, location_get_abbrev(loc), 3);
     msg[idx + 2] = ' ';
     idx += 3;
@@ -328,6 +328,11 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round, enum pla
 }
 
 void decide_hunter_move(HunterView hv) {
+  ac_log(AC_LOG_ERROR,
+    "This function will print out where hunter thinks the dracula is "
+    "in the player messages. This is very dangerous. I'm so scared the "
+    "Dracula will figure out and move to other locations... Hope Dracula "
+    "never finds out..."); // sarcastically just for fuun
   // srand(time(0));
   struct timeval t1;
   gettimeofday(&t1, NULL);
@@ -361,8 +366,8 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          printf("%d!\n", j);
-          if (decode_location_from_msg(hv_get_msg(hv, j), round, j)) prob *= 0.9;
+          if (decode_location_from_msg(hv_get_msg(hv, j), round, j))
+            prob *= 0.9;
         }
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);

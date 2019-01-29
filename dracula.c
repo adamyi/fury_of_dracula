@@ -161,7 +161,7 @@ void decide_dracula_move(DraculaView dv) {
       if (health <= 2) dist[i] = -100;
     }
     if (dist[i] != 0)
-      ac_log(AC_LOG_ERROR, "%s: %lf", location_get_abbrev(i), dist[i]);
+      ac_log(AC_LOG_DEBUG, "%s: %lf", location_get_abbrev(i), dist[i]);
     if (cango[i] && dist[i] > maxdist) {
       maxdist = dist[i];
       ret = i;
