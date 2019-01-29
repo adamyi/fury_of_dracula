@@ -171,9 +171,15 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
           }
           plays++;
           if (scount > MAX_SCENARIOS) {
-            for (scenario_t *td = start; td != NULL; td = td->next)
-              free(td->prev);
+            for (scenario_t *td = start; td != NULL; td = td->next) {
+              if (td->prev != NULL) {
+                destroy_player(td->prev->player);
+                free(td->prev);
+              }
+            }
+            destroy_player(end->player);
             free(end);
+            free(moves);
             ac_log(AC_LOG_ERROR, "reached MAX_SCENARIOS");
             return false;
           }
@@ -262,6 +268,7 @@ static location_t sp_go_to(player_t *p, location_t dest, int round) {
       rounds[count] = rounds[i] + 1;
       count++;
     }
+    free(ds);
   }
   return moves[i];
 }
@@ -398,6 +405,7 @@ void decide_hunter_move(HunterView hv) {
         size_t num = 0;
         location_t *possible = hv_get_dests(hv, &num, true, true, true);
         ret = possible[randint(num)];
+        free(possible);
       } else {
         ret = hv_get_location(hv, cp);
       }
