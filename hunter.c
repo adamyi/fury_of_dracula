@@ -25,7 +25,7 @@
 #include "ac_log.h"
 #include "ac_memory.h"
 
-#define MAX_SCENARIOS 360000
+#define MAX_SCENARIOS 200000
 
 typedef struct scenario {
   player_t *player;
@@ -356,6 +356,9 @@ void decide_hunter_move(HunterView hv) {
   player_t *players[NUM_PLAYERS];
   char msg[100];
   memset(msg, 0, sizeof(msg));
+  location_t previousTargets[NUM_PLAYERS];
+  for (int i = 0; i < cp; i++)
+    previousTargets[i] = decode_location_from_msg(hv_get_msg(hv, i), round, i);
   if (round == 0) {
     ret = randint(NUM_MAP_LOCATIONS);
   } else {
@@ -377,7 +380,7 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          if (decode_location_from_msg(hv_get_msg(hv, j), round, j))
+          if (i == previousTargets[j])
             prob *= 0.9;
         }
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
