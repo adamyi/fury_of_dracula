@@ -24,7 +24,7 @@
 #define DEBUG_AS_ERROR
 
 #define NEXT_Q_GAMMA 0.3
-#define DB_HIDE_WEIGHT 0.8
+#define DB_HIDE_WEIGHT 0.75
 #define NORMAL_SEA_WEIGHT 0.4
 #define CRASH_CHECK_THRESHOLD 5
 
@@ -151,7 +151,10 @@ void decide_dracula_move(DraculaView dv) {
   for (int i = 0; i < PLAYER_DRACULA; i++) {
     location_t hl = dv_get_location(dv, i);
     if (crashed[i]) {
-      if (hl == CASTLE_DRACULA) hDistSp += weighted_spdist(0);
+      if (hl == CASTLE_DRACULA)
+        hDistSp += weighted_spdist(0);
+      else
+        hDistSp += weighted_spdist(10);
       continue;
     }
     int sr = NUM_MAP_LOCATIONS;
@@ -245,7 +248,7 @@ void decide_dracula_move(DraculaView dv) {
         nxtHides++;
       } else if (tmpl[j] >= DOUBLE_BACK_2 && tmpl[j] <= DOUBLE_BACK_5) {
         nxtDbs++;
-      } else if (location_get_type(tmpl[j]) == SEA) {
+      } else if (tmpl[j] != TELEPORT && location_get_type(tmpl[j]) == SEA) {
         nxtSea++;
       } else {
         nxtLand++;
