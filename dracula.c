@@ -37,7 +37,7 @@ static double action_q[NUM_MAP_LOCATIONS], next_q[NUM_MAP_LOCATIONS];
 
 static inline int weighted_spdist(int spdist) {
   if (spdist == 0) return -100;
-  if (spdist == 1) return -10;
+  if (spdist == 1) return -15;
   if (spdist == 2) return -5;
   if (spdist == 3) return -1;
   if (spdist > 6) return 6;
@@ -158,7 +158,7 @@ void decide_dracula_move(DraculaView dv) {
       location_t hl = dv_get_location(dv, j);
       int dst = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
       if (dst < md) md = dst;
-      int hunter_max_trail = (round + 1 + i) % 4;
+      int hunter_max_trail = (round + 1 + j) % 4;
       addQ(i, weighted_spdist(SPROUND[hl][i][hunter_max_trail]),
            weighted_spdist((int)fmax(SPROUND[hl][i][hunter_max_trail] - 1, 0)),
            "distance to hunter");
