@@ -21,7 +21,7 @@
 #include "mapdata.h"
 #include "myplayer.h"
 
-#define DEBUG_AS_ERROR
+// #define DEBUG_AS_ERROR
 
 #define NEXT_Q_GAMMA 0.3
 #define DB_HIDE_WEIGHT 0.8
@@ -248,10 +248,10 @@ void decide_dracula_move(DraculaView dv) {
           w = -1;  // we don't want to be locked in at CD
       }
       w = apply_weight(next_q[l], w);
-      printf("%s %lf\n", location_get_abbrev(l), w);
+      // printf("%s %lf\n", location_get_abbrev(l), w);
       if (w > bstNextMove) bstNextMove = w;
     }
-    printf("%s bstNextMove %lf\n", location_get_abbrev(i), bstNextMove);
+    // printf("%s bstNextMove %lf\n", location_get_abbrev(i), bstNextMove);
     free(tmpl);
     destroy_player(tmpp);
     addQ(i, NEXT_Q_GAMMA * (bstNextMove - action_q[i]), 0, "next step bias");
