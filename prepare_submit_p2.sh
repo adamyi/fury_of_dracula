@@ -3,7 +3,7 @@ mkdir submit_p2
 cp Makefile.give.p2 submit_p2/Makefile
 cp ac_*.c submit_p2/
 cp ac_*.h submit_p2/
-cp game.h submit_p2/
+# cp game.h submit_p2/
 cp rollingarray.c rollingarray.h submit_p2/
 cp generate_mapdata.c submit_p2/
 cp map.c map.h submit_p2/

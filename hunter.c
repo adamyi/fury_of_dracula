@@ -25,7 +25,16 @@
 #include "ac_log.h"
 #include "ac_memory.h"
 
-#define MAX_SCENARIOS 200000
+
+#ifdef HUNTER_SEARCH_FAST_MODE // for testing
+#define MAX_SCENARIOS 10000
+#define CHECK_TIME_INTERVAL 255
+#define SEARCH_ALLOWED_TIME 100000 //usec - 0.1s
+#else // prod settings
+#define MAX_SCENARIOS 500000
+#define CHECK_TIME_INTERVAL 32767
+#define SEARCH_ALLOWED_TIME 1000000 //usec - 1s
+#endif
 
 typedef struct scenario {
   player_t *player;
@@ -42,7 +51,9 @@ static inline int randint(int max) {
   return rand() % max;
 }
 
-int probabilities[NUM_MAP_LOCATIONS];
+static int probabilities[NUM_MAP_LOCATIONS];
+
+static struct timeval start_time;
 
 static location_t resolve_loc_backwards(player_t *player,
                                         const location_t *hist, round_t round,
@@ -77,6 +88,7 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
   start->prev = start->next = NULL;
   scenario_t *end = start;
   int scount = 1;
+  int iterations = 1;
   for (last_known_round += 2; last_known_round < round; last_known_round++) {
     location_t loc =
         players[PLAYER_DRACULA]->all_location_history[last_known_round];
@@ -89,7 +101,27 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
     ac_log(AC_LOG_DEBUG, "lkround : %d loc: %s", last_known_round,
            location_get_abbrev(loc));
     ac_log(AC_LOG_DEBUG, "oend %p", end);
-    for (scenario_t *oend = end, *i = start; cont && i != oend->next;) {
+    for (scenario_t *oend = end, *i = start; cont && i != oend->next; iterations++) {
+      // NOTES: CHECK_TIME_INTERVAL must be power of 2 - 1
+      if (!(iterations & CHECK_TIME_INTERVAL)) {
+        static struct timeval ct;
+        gettimeofday(&ct, NULL);
+        // NOTES: won't overflow since sec difference is at most 1 or 2.
+        int time_elapsed = (ct.tv_sec - start_time.tv_sec) * 1000000 + ct.tv_usec - start_time.tv_usec;
+        // ac_log(AC_LOG_ERROR, "time: %d", time_elapsed);
+        if (time_elapsed >= SEARCH_ALLOWED_TIME) {
+          for (scenario_t *td = start; td != NULL; td = td->next) {
+            if (td->prev != NULL) {
+              destroy_player(td->prev->player);
+              free(td->prev);
+            }
+          }
+          destroy_player(end->player);
+          free(end);
+          ac_log(AC_LOG_ERROR, "reached SEARCH_ALLOWED_TIME");
+          return false;
+        }
+      }
       int plays = 0;
       location_t firstPlay;
       if (loc == HIDE || (loc >= DOUBLE_BACK_1 && loc <= DOUBLE_BACK_5)) {
@@ -168,6 +200,14 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
             scount++;
             ac_log(AC_LOG_DEBUG, "clone scenario %p to %s", s,
                    location_get_abbrev(moves[j]));
+            // NOTES (adamyi):
+            // here we keep track of all possible scenarios without
+            // merging them since trail is a great way to cut down
+            // possibilities, and even though dracula is at the same
+            // location, it doesn't mean he has the same trail.
+            // One way to optimize this is to merge scenarios when two
+            // share the exact same trail. Such an optimization could
+            // be done with a hash table.
           }
           plays++;
           if (scount > MAX_SCENARIOS) {
@@ -340,16 +380,15 @@ void encode_msg_from_location(char *msg, location_t loc, round_t round,
 }
 
 void decide_hunter_move(HunterView hv) {
+  gettimeofday(&start_time, NULL);
+  unsigned int ts = (start_time.tv_usec % 5000) * (start_time.tv_sec % 5000);
+  srand(ts);
   ac_log(AC_LOG_ERROR,
          "This function will print out where hunter thinks the dracula is "
          "in the player messages. This is very dangerous. I'm so scared the "
          "Dracula will figure out and move to other locations... Hope Dracula "
          "never finds out...");  // sarcastically just for fuun
   // srand(time(0));
-  struct timeval t1;
-  gettimeofday(&t1, NULL);
-  unsigned int ts = (t1.tv_usec % 5000) * (t1.tv_sec % 5000);
-  srand(ts);
   round_t round = hv_get_round(hv);
   location_t ret;
   enum player cp = hv_get_player(hv);
