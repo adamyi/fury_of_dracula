@@ -177,9 +177,6 @@ void decide_dracula_move(DraculaView dv) {
       int dst = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
       if (dst < md) md = dst;
       int hunter_max_trail = (round + 1 + j) % 4;
-      ac_log(DRAC_LOG, "%s to %s maxtrail %d: %d", location_get_abbrev(hl),
-             location_get_abbrev(i), hunter_max_trail,
-             SPROUND[hl][i][hunter_max_trail]);
       addQ(i, weighted_spdist(SPROUND[hl][i][hunter_max_trail]),
            weighted_spdist((int)fmax(SPROUND[hl][i][hunter_max_trail] - 1, 0)),
            "distance to hunter");

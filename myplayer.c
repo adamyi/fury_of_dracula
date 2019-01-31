@@ -86,7 +86,7 @@ void player_move_to(player_t *player, location_t location, location_t move) {
   if (location == player->location)
     player->staycount++;
   else
-    player->staycount == 0;
+    player->staycount = 0;
   player->location = location;
   rollingarray_add_item(player->trail, move);
   rollingarray_add_item(player->location_history, location);
