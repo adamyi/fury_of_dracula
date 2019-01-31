@@ -25,15 +25,14 @@
 #include "ac_log.h"
 #include "ac_memory.h"
 
-
-#ifdef HUNTER_SEARCH_FAST_MODE // for testing
+#ifdef HUNTER_SEARCH_FAST_MODE  // for testing
 #define MAX_SCENARIOS 10000
 #define CHECK_TIME_INTERVAL 255
-#define SEARCH_ALLOWED_TIME 100000 //usec - 0.1s
-#else // prod settings
+#define SEARCH_ALLOWED_TIME 100000  // usec - 0.1s
+#else                               // prod settings
 #define MAX_SCENARIOS 500000
 #define CHECK_TIME_INTERVAL 32767
-#define SEARCH_ALLOWED_TIME 1000000 //usec - 1s
+#define SEARCH_ALLOWED_TIME 1000000  // usec - 1s
 #endif
 
 typedef struct scenario {
@@ -101,13 +100,15 @@ bool getPossibleDraculaLocations(player_t *players[], round_t round) {
     ac_log(AC_LOG_DEBUG, "lkround : %d loc: %s", last_known_round,
            location_get_abbrev(loc));
     ac_log(AC_LOG_DEBUG, "oend %p", end);
-    for (scenario_t *oend = end, *i = start; cont && i != oend->next; iterations++) {
+    for (scenario_t *oend = end, *i = start; cont && i != oend->next;
+         iterations++) {
       // NOTES: CHECK_TIME_INTERVAL must be power of 2 - 1
       if (!(iterations & CHECK_TIME_INTERVAL)) {
         static struct timeval ct;
         gettimeofday(&ct, NULL);
         // NOTES: won't overflow since sec difference is at most 1 or 2.
-        int time_elapsed = (ct.tv_sec - start_time.tv_sec) * 1000000 + ct.tv_usec - start_time.tv_usec;
+        int time_elapsed = (ct.tv_sec - start_time.tv_sec) * 1000000 +
+                           ct.tv_usec - start_time.tv_usec;
         // ac_log(AC_LOG_ERROR, "time: %d", time_elapsed);
         if (time_elapsed >= SEARCH_ALLOWED_TIME) {
           for (scenario_t *td = start; td != NULL; td = td->next) {
@@ -419,8 +420,7 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          if (i == previousTargets[j])
-            prob *= 0.9;
+          if (i == previousTargets[j]) prob *= 0.9;
         }
         ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
