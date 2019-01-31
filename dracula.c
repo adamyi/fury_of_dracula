@@ -21,11 +21,12 @@
 #include "mapdata.h"
 #include "myplayer.h"
 
-// #define DEBUG_AS_ERROR
+#define DEBUG_AS_ERROR
 
 #define NEXT_Q_GAMMA 0.3
 #define DB_HIDE_WEIGHT 0.8
 #define NORMAL_SEA_WEIGHT 0.4
+#define CRASH_CHECK_THRESHOLD 5
 
 #ifdef DEBUG_AS_ERROR
 #define DRAC_LOG AC_LOG_ERROR
@@ -37,7 +38,7 @@ static double action_q[NUM_MAP_LOCATIONS], next_q[NUM_MAP_LOCATIONS];
 
 static inline int weighted_spdist(int spdist) {
   if (spdist == 0) return -100;
-  if (spdist == 1) return -10;
+  if (spdist == 1) return -15;
   if (spdist == 2) return -5;
   if (spdist == 3) return -1;
   if (spdist > 6) return 6;
@@ -120,13 +121,20 @@ void decide_dracula_move(DraculaView dv) {
   location_t *possible;
   possible = dv_get_possible_moves(dv, &num);
   bool cango[NUM_MAP_LOCATIONS];
+  bool crashed[PLAYER_DRACULA];
   memset(action_q, 0, sizeof(action_q));
   memset(next_q, 0, sizeof(next_q));
   memset(cango, 0, sizeof(cango));
+  memset(crashed, 0, sizeof(crashed));
   location_t rev[110];
   memset(rev, -1, sizeof(rev));
   player_t *dracp = dv_get_player_class(dv, PLAYER_DRACULA);
   int health = dv_get_health(dv, PLAYER_DRACULA);
+  for (int i = 0; i < PLAYER_DRACULA; i++) {
+    ac_log(DRAC_LOG, "Player %d seems to have crashed", i);
+    crashed[i] =
+        (dv_get_player_class(dv, i)->staycount >= CRASH_CHECK_THRESHOLD);
+  }
   for (size_t i = 0; i < num; i++) {
     if (possible[i] >= HIDE) {
       location_t res = player_resolve_move_location(dracp, possible[i]);
@@ -140,9 +148,13 @@ void decide_dracula_move(DraculaView dv) {
     cango[possible[i]] = true;
   }
   int hDistSp = 0;
-  int sr = NUM_MAP_LOCATIONS;
   for (int i = 0; i < PLAYER_DRACULA; i++) {
     location_t hl = dv_get_location(dv, i);
+    if (crashed[i]) {
+      if (hl == CASTLE_DRACULA) hDistSp += weighted_spdist(0);
+      continue;
+    }
+    int sr = NUM_MAP_LOCATIONS;
     for (int j = 0; j < 4; j++) {
       if (SPROUND[hl][CASTLE_DRACULA][j] < sr)
         sr = SPROUND[hl][CASTLE_DRACULA][j];
@@ -156,9 +168,18 @@ void decide_dracula_move(DraculaView dv) {
     int distToCD = SPDIST[i][CASTLE_DRACULA];
     for (int j = 0; j < PLAYER_DRACULA; j++) {
       location_t hl = dv_get_location(dv, j);
+      if (crashed[j]) {
+        if (hl == i)
+          addQ(i, weighted_spdist(0), weighted_spdist(0),
+               "meet crashed hunter");
+        continue;
+      }
       int dst = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
       if (dst < md) md = dst;
-      int hunter_max_trail = (round + 1 + i) % 4;
+      int hunter_max_trail = (round + 1 + j) % 4;
+      ac_log(DRAC_LOG, "%s to %s maxtrail %d: %d", location_get_abbrev(hl),
+             location_get_abbrev(i), hunter_max_trail,
+             SPROUND[hl][i][hunter_max_trail]);
       addQ(i, weighted_spdist(SPROUND[hl][i][hunter_max_trail]),
            weighted_spdist((int)fmax(SPROUND[hl][i][hunter_max_trail] - 1, 0)),
            "distance to hunter");

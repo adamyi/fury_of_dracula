@@ -17,6 +17,7 @@ typedef struct player_t {
   rollingarray_t *location_history;
   round_t all_history_size;
   location_t *all_location_history;
+  size_t staycount;
 } player_t;
 
 player_t *new_player(enum player id, bool track_all_history);
