@@ -21,7 +21,7 @@
 #include "mapdata.h"
 #include "myplayer.h"
 
-// #define DEBUG_AS_ERROR
+#define DEBUG_AS_ERROR
 
 #define NEXT_Q_GAMMA 0.3
 #define DB_HIDE_WEIGHT 0.8
@@ -171,7 +171,11 @@ void decide_dracula_move(DraculaView dv) {
       if (crashed[j]) {
         if (hl == i)
           addQ(i, weighted_spdist(0), weighted_spdist(0),
-               "meet crashed hunter");
+               "encounter crashed hunter");
+        else if (SPDIST[hl][i] == 1)
+          addQ(i, weighted_spdist(3), weighted_spdist(3),
+               "don't want to go near crashed hunter (might have to encounter "
+               "next turn)");
         continue;
       }
       int dst = SPDIST[i][hl] + SPDIST[CASTLE_DRACULA][hl] - distToCD;
@@ -231,38 +235,65 @@ void decide_dracula_move(DraculaView dv) {
         _gv_do_get_connections(tmpp, &tmps, i, PLAYER_DRACULA, round + 1, true,
                                false, true, true, false, true);
     double bstNextMove = -10000;
-    size_t nxtMoves = tmps;
+    double bstNextHideDbMove = -10000;
+    size_t nxtLand = 0;
+    size_t nxtSea = 0;
+    size_t nxtHides = 0;
+    size_t nxtDbs = 0;
+    for (int j = 0; j < tmps; j++) {
+      if (tmpl[j] == HIDE || tmpl[j] == DOUBLE_BACK_1) {
+        nxtHides++;
+      } else if (tmpl[j] >= DOUBLE_BACK_2 && tmpl[j] <= DOUBLE_BACK_5) {
+        nxtDbs++;
+      } else if (location_get_type(tmpl[j]) == SEA) {
+        nxtSea++;
+      } else {
+        nxtLand++;
+      }
+    }
     for (int j = 0; j < tmps; j++) {
       location_t l = tmpl[j];
       double w = 1;
       if (l >= HIDE && l <= DOUBLE_BACK_5) {
-        nxtMoves--;
         l = player_resolve_move_location(tmpp, l);
         w = DB_HIDE_WEIGHT;
-        if (next_q[CASTLE_DRACULA] < 0)
-          w = -1;  // we don't want to teleport (e.g. forced to hide then db
-                   // then tp)
+        if (l == HIDE || l == DOUBLE_BACK_1) {
+          if (next_q[CASTLE_DRACULA] < 0) {
+            w = -1;  // we don't want to teleport (e.g. forced to hide then db
+                     // then tp)
+          }
+        }
       } else if (l == TELEPORT) {
         l = CASTLE_DRACULA;
         if (dracp->location == CASTLE_DRACULA)
           w = -1;  // we don't want to be locked in at CD
       }
       w = apply_weight(next_q[l], w);
-      // printf("%s %lf\n", location_get_abbrev(l), w);
-      if (w > bstNextMove) bstNextMove = w;
+      printf("%s %lf\n", location_get_abbrev(l), w);
+      if (tmpl[j] >= HIDE && tmpl[j] <= DOUBLE_BACK_5) {
+        if (w > bstNextHideDbMove) bstNextHideDbMove = w;
+      } else {
+        if (w > bstNextMove) bstNextMove = w;
+      }
     }
-    // printf("%s bstNextMove %lf\n", location_get_abbrev(i), bstNextMove);
+    if (bstNextHideDbMove > bstNextMove) {
+      if (nxtLand == 0 && nxtSea == 0) bstNextMove = bstNextHideDbMove;
+    }
+    printf("%s bstNextMove %lf\n", location_get_abbrev(i), bstNextMove);
     free(tmpl);
     destroy_player(tmpp);
     addQ(i, NEXT_Q_GAMMA * (bstNextMove - action_q[i]), 0, "next step bias");
     // if (nxtMoves >= 4) addQ(i, 0.1 * (nxtMoves - 4) + 1, 0, "next step action
     // space reward");
-    if (action_q[i] < 0)
-      addQ(i, 0.5 * nxtMoves, 0,
-           "next step action space reward (hunter closeby)");
-    else if (nxtMoves >= 4)
-      addQ(i, 0.1 * (nxtMoves - 4) + 1, 0,
-           "next step action space reward (hunter far away)");
+    if (action_q[i] < 0) {
+      addQ(i, 0.5 * nxtLand, 0,
+           "next step (land) action space reward (hunter closeby)");
+      addQ(i, 0.4 * nxtSea, 0,
+           "next step (sea) action space reward (hunter closeby)");
+    } else if (nxtLand >= 4) {
+      addQ(i, 0.1 * (nxtLand - 4) + 1, 0,
+           "next step (land) action space reward (hunter far away)");
+    }
   }
 
   double maxdist = -10000;
