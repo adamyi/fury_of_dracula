@@ -21,10 +21,10 @@
 #include "mapdata.h"
 #include "myplayer.h"
 
-#define DEBUG_AS_ERROR
+// #define DEBUG_AS_ERROR
 
 #define NEXT_Q_GAMMA 0.3
-#define DB_HIDE_WEIGHT 0.75
+#define DB_HIDE_WEIGHT 0.6
 #define NORMAL_SEA_WEIGHT 0.4
 #define CRASH_CHECK_THRESHOLD 5
 
@@ -76,7 +76,7 @@ static inline double weighted_cddist(int spdist, int health, int hDistToCP) {
 
 static inline double apply_weight(double x, double weight) {
   if (x > 0) return (x * weight);
-  if (weight < 0) return (-x / weight);
+  if (weight < 0) return (-x * weight);
   return (x / weight);
 }
 
@@ -133,6 +133,7 @@ void decide_dracula_move(DraculaView dv) {
   for (int i = 0; i < PLAYER_DRACULA; i++) {
     ac_log(DRAC_LOG, "Player %d seems to have crashed", i);
     crashed[i] =
+        (!dv_get_player_class(dv, i)->neverdie) &&
         (dv_get_player_class(dv, i)->staycount >= CRASH_CHECK_THRESHOLD);
   }
   for (size_t i = 0; i < num; i++) {
@@ -207,8 +208,8 @@ void decide_dracula_move(DraculaView dv) {
     }
     if (location_get_type(i) == SEA) {
       if (action_q[i] < 0) {
-        if (health <= 8)
-          applyWeightQ(i, 1.0 / 0.8, 1.0 / 0.8,
+        if (health <= 10)
+          applyWeightQ(i, 1.0 / 0.9, 1.0 / 0.9,
                        "will die soon on SEA (hunter close by)");
         else if (health > 20)
           applyWeightQ(i, 1.0 / 0.1, 1.0 / 0.1,
@@ -219,6 +220,9 @@ void decide_dracula_move(DraculaView dv) {
         // action_q[i] -= 3;
       } else if (round % 13 == 0 || round % 13 == 12)
         applyWeightQ(i, 0.25, 0.25, "unable to place vampire on SEA");
+      else if (health <= 10)
+        applyWeightQ(i, -NORMAL_SEA_WEIGHT, -NORMAL_SEA_WEIGHT,
+                     "will die soon on SEA (no hunter nearby)");
       else
         applyWeightQ(i, NORMAL_SEA_WEIGHT, NORMAL_SEA_WEIGHT,
                      "we don't favor SEA (no hunter nearby)");
@@ -260,19 +264,16 @@ void decide_dracula_move(DraculaView dv) {
       if (l >= HIDE && l <= DOUBLE_BACK_5) {
         l = player_resolve_move_location(tmpp, l);
         w = DB_HIDE_WEIGHT;
-        if (l == HIDE || l == DOUBLE_BACK_1) {
-          if (next_q[CASTLE_DRACULA] < 0) {
-            w = -1;  // we don't want to teleport (e.g. forced to hide then db
-                     // then tp)
-          }
+        if (next_q[CASTLE_DRACULA] < 0) {
+          w = -1;  // we don't want to teleport (e.g. forced to hide then db
+                   // then tp)
         }
       } else if (l == TELEPORT) {
         l = CASTLE_DRACULA;
-        if (dracp->location == CASTLE_DRACULA)
-          w = -1;  // we don't want to be locked in at CD
+        if (i == CASTLE_DRACULA) w = -3;  // we don't want to be locked in at CD
       }
       w = apply_weight(next_q[l], w);
-      printf("%s %lf\n", location_get_abbrev(l), w);
+      ac_log(DRAC_LOG, "%s %lf\n", location_get_abbrev(l), w);
       if (tmpl[j] >= HIDE && tmpl[j] <= DOUBLE_BACK_5) {
         if (w > bstNextHideDbMove) bstNextHideDbMove = w;
       } else {
@@ -280,16 +281,22 @@ void decide_dracula_move(DraculaView dv) {
       }
     }
     if (bstNextHideDbMove > bstNextMove) {
-      if (nxtLand == 0 && nxtSea == 0) bstNextMove = bstNextHideDbMove;
+      if (nxtLand == 0 && nxtSea == 0) {
+        if (nxtDbs == 0 && next_q[CASTLE_DRACULA] < 0)
+          bstNextMove = apply_weight(bstNextHideDbMove, -2.5);
+        else
+          bstNextMove = bstNextHideDbMove;
+      }
     }
-    printf("%s bstNextMove %lf\n", location_get_abbrev(i), bstNextMove);
+    ac_log(DRAC_LOG, "%s bstNextMove %lf\n", location_get_abbrev(i),
+           bstNextMove);
     free(tmpl);
     destroy_player(tmpp);
     addQ(i, NEXT_Q_GAMMA * (bstNextMove - action_q[i]), 0, "next step bias");
     // if (nxtMoves >= 4) addQ(i, 0.1 * (nxtMoves - 4) + 1, 0, "next step action
     // space reward");
     if (action_q[i] < 0) {
-      addQ(i, 0.5 * nxtLand, 0,
+      addQ(i, 0.75 * nxtLand, 0,
            "next step (land) action space reward (hunter closeby)");
       addQ(i, 0.4 * nxtSea, 0,
            "next step (sea) action space reward (hunter closeby)");
