@@ -38,7 +38,7 @@ static double action_q[NUM_MAP_LOCATIONS], next_q[NUM_MAP_LOCATIONS];
 
 static inline int weighted_spdist(int spdist) {
   if (spdist == 0) return -100;
-  if (spdist == 1) return -15;
+  if (spdist == 1) return -16;
   if (spdist == 2) return -5;
   if (spdist == 3) return -1;
   if (spdist > 6) return 6;

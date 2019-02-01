@@ -30,6 +30,7 @@ player_t *new_player(enum player id, bool track_all_history) {
   } else {
     player->all_history_size = -1;
   }
+  player->neverdie = false;
   return player;
 }
 
@@ -38,6 +39,7 @@ player_t *clone_player(player_t *p) {
   new->id = p->id;
   new->health = p->health;
   new->staycount = p->staycount;
+  new->neverdie = p->neverdie;
   new->location = p->location;
   new->trail = clone_rollingarray(p->trail);
   new->location_history = clone_rollingarray(p->location_history);
@@ -85,8 +87,11 @@ void player_move_to(player_t *player, location_t location, location_t move) {
   // player->location = location;
   if (location == player->location)
     player->staycount++;
-  else
+  else {
+    if (player->staycount >= 5)
+      player->neverdie = true;
     player->staycount = 0;
+  }
   player->location = location;
   rollingarray_add_item(player->trail, move);
   rollingarray_add_item(player->location_history, location);
