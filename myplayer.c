@@ -88,8 +88,7 @@ void player_move_to(player_t *player, location_t location, location_t move) {
   if (location == player->location)
     player->staycount++;
   else {
-    if (player->staycount >= 5)
-      player->neverdie = true;
+    if (player->staycount >= 5) player->neverdie = true;
     player->staycount = 0;
   }
   player->location = location;
