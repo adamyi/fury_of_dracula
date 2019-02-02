@@ -428,7 +428,7 @@ void decide_hunter_move(HunterView hv) {
         double prob = weighted_spdist(SPDIST[i][players[cp]->location]) *
                       probabilities[i];
         for (int j = 0; j < cp; j++) {
-          if (i == previousTargets[j]) prob *= 0.9;
+          if (i == previousTargets[j]) prob *= 0.90;
         }
         ac_log(HUNT_LOG, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
@@ -466,7 +466,6 @@ void decide_hunter_move(HunterView hv) {
   }
   char name[3];
   strncpy(name, location_get_abbrev(ret), 3);
-  if (msg[0] == '\0')
-    encode_msg_from_location(msg, ret, round, cp);
+  if (msg[0] == '\0') encode_msg_from_location(msg, ret, round, cp);
   register_best_play(name, msg);
 }
