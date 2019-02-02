@@ -34,7 +34,8 @@
 #define DRAC_LOG AC_LOG_INFO
 #endif
 
-#define CRASHED_MSG "===== Generating default move...player disqualified... ====="
+#define CRASHED_MSG \
+  "===== Generating default move...player disqualified... ====="
 
 static double action_q[NUM_MAP_LOCATIONS], next_q[NUM_MAP_LOCATIONS];
 
@@ -137,8 +138,7 @@ void decide_dracula_move(DraculaView dv) {
         (!dv_get_player_class(dv, i)->neverdie) &&
         (dv_get_player_class(dv, i)->staycount >= CRASH_CHECK_THRESHOLD) &&
         (strcmp(dv_get_msg(dv, i), CRASHED_MSG) == 0);
-    if (crashed[i])
-      ac_log(DRAC_LOG, "Player %d seems to have crashed", i);
+    if (crashed[i]) ac_log(DRAC_LOG, "Player %d seems to have crashed", i);
   }
   for (size_t i = 0; i < num; i++) {
     if (possible[i] >= HIDE) {
@@ -308,8 +308,9 @@ void decide_dracula_move(DraculaView dv) {
       addQ(i, 0.1 * (nxtLand - 4) + 1, 0,
            "next step (land) action space reward (hunter far away)");
     } else if (nxtLand == 0) {
-      applyWeightQ(i, 0.5, 0.5,
-           "dislike going to sea since no land connections (hunter far away)");
+      applyWeightQ(
+          i, 0.5, 0.5,
+          "dislike going to sea since no land connections (hunter far away)");
     }
   }
 
