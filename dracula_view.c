@@ -107,3 +107,7 @@ location_t *dv_get_dests_player(dracula_view *dv, size_t *n_locations,
 player_t *dv_get_player_class(DraculaView dv, enum player player) {
   return _gv_get_player_class(dv->gv, player);
 }
+
+char *dv_get_msg(DraculaView dv, enum player player) {
+  return _gv_get_msg(dv->gv, player);
+}

@@ -32,7 +32,7 @@
 #else                               // prod settings
 #define MAX_SCENARIOS 500000
 #define CHECK_TIME_INTERVAL 32767
-#define SEARCH_ALLOWED_TIME 1000000  // usec - 1s
+#define SEARCH_ALLOWED_TIME 900000  // usec - 0.9s
 #endif
 
 typedef struct scenario {
