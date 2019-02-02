@@ -25,6 +25,8 @@
 #include "ac_log.h"
 #include "ac_memory.h"
 
+// #define DEBUG_AS_ERROR
+
 #ifdef HUNTER_SEARCH_FAST_MODE  // for testing
 #define MAX_SCENARIOS 10000
 #define CHECK_TIME_INTERVAL 255
@@ -33,6 +35,12 @@
 #define MAX_SCENARIOS 500000
 #define CHECK_TIME_INTERVAL 32767
 #define SEARCH_ALLOWED_TIME 900000  // usec - 0.9s
+#endif
+
+#ifdef DEBUG_AS_ERROR
+#define HUNT_LOG AC_LOG_ERROR
+#else
+#define HUNT_LOG AC_LOG_INFO
 #endif
 
 typedef struct scenario {
@@ -276,7 +284,7 @@ location_t *_gv_do_get_connections(player_t *pobj, size_t *n_locations,
 }
 
 static location_t sp_go_to(player_t *p, location_t dest, int round) {
-  ac_log(AC_LOG_INFO, "sp_go_to %s", location_get_abbrev(dest));
+  ac_log(HUNT_LOG, "sp_go_to %s", location_get_abbrev(dest));
   if (p->location == dest) return dest;
   size_t n_locations = 0;
   size_t count = 1;
@@ -338,7 +346,7 @@ location_t decode_location_from_msg(const char *msg, round_t round,
     }
   }
   for (; msg[i] != '\0'; i += 3, ret += 100) continue;
-  ac_log(AC_LOG_INFO, "decoded location - %s (%d/%d)",
+  ac_log(HUNT_LOG, "decoded location - %s (%d/%d)",
          location_get_abbrev(ret - round - player), round, player);
   return ret - round - player;
 }
@@ -408,7 +416,7 @@ void decide_hunter_move(HunterView hv) {
     // size_t num = 0;
     // location_t *possible = hv_get_dests(hv, &num, true, true, true);
     bool guessDracula = getPossibleDraculaLocations(players, round);
-    ac_log(AC_LOG_INFO, "getprob: %d", guessDracula);
+    ac_log(HUNT_LOG, "getprob: %d", guessDracula);
     double maxprob = 0;
     int actionSpaceSize = 0;
     location_t maxprobl = NOWHERE;
@@ -422,7 +430,7 @@ void decide_hunter_move(HunterView hv) {
         for (int j = 0; j < cp; j++) {
           if (i == previousTargets[j]) prob *= 0.9;
         }
-        ac_log(AC_LOG_INFO, "%s: %d -> %lf", location_get_abbrev(i),
+        ac_log(HUNT_LOG, "%s: %d -> %lf", location_get_abbrev(i),
                probabilities[i], prob);
         if (prob > maxprob) {
           maxprob = prob;
@@ -453,10 +461,12 @@ void decide_hunter_move(HunterView hv) {
       }
     } else {
       ret = sp_go_to(players[cp], maxprobl, round);
+      encode_msg_from_location(msg, maxprobl, round, cp);
     }
   }
   char name[3];
   strncpy(name, location_get_abbrev(ret), 3);
-  encode_msg_from_location(msg, ret, round, cp);
+  if (msg[0] == '\0')
+    encode_msg_from_location(msg, ret, round, cp);
   register_best_play(name, msg);
 }
